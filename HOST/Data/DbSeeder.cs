@@ -1,22 +1,29 @@
 ﻿using System.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using HOST.Constants;
 
 
 namespace HOST.Data
 {
-    
-    
-    
     public class DbSeeder
     {
-    public static async Task SeedRolesAndAdmin(IServiceProvider service)
+        public static async Task SeedRolesAndAdmin(IServiceProvider service)
         {
-            //Seed Roles
-            var userManager = service.GetService<UserManager<IdentityUser>>();
-            var roleManager = service.GetService<UserManager<IdentityUser>>();
-            await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
-            await roleManager.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            // Resolve managers (will throw if services are not registered)
+            var userManager = service.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = service.GetRequiredService<RoleManager<IdentityRole>>();
+
+            // Seed Roles if they don't exist
+            if (!await roleManager.RoleExistsAsync(Roles.Admin.ToString()))
+            {
+                await roleManager.CreateAsync(new IdentityRole(Roles.Admin.ToString()));
+            }
+
+            if (!await roleManager.RoleExistsAsync(Roles.User.ToString()))
+            {
+                await roleManager.CreateAsync(new IdentityRole(Roles.User.ToString()));
+            }
 
             // Creating Admin
             var user = new IdentityUser
@@ -26,15 +33,20 @@ namespace HOST.Data
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true
             };
+
             var userInDb = await userManager.FindByEmailAsync(user.Email);
-            if(userInDb == null)
+            if (userInDb == null)
             {
-                await userManager.CreateAsync(user, "Admin@123");
-                await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+                var createResult = await userManager.CreateAsync(user, "Admin@123");
+                if (createResult.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, Roles.Admin.ToString());
+                }
+                else
+                {
+                    // Optionally log or handle createResult.Errors
+                }
             }
-        
-        
         }
     }
-
 }
