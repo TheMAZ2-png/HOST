@@ -3,8 +3,10 @@
     
     public enum Roles
     {
-        Admin,
-        User
+        Host, 
+        Server, 
+        Manager, 
+        Guest
     }
 
     public class MyConstants

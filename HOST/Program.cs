@@ -39,6 +39,8 @@ using (var scope = app.Services.CreateScope())
 {
     try
     {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
         await DbSeeder.SeedRolesAndAdmin(scope.ServiceProvider);
     }
     catch (Exception ex)
@@ -49,4 +51,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+
 
