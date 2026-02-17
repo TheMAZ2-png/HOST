@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.UI;
 using HOST.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,23 +15,32 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+});
+
+// Add global authorization policy - require authentication on all pages by default
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
@@ -51,6 +61,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
 
 
