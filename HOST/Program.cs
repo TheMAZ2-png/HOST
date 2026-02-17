@@ -15,12 +15,13 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
+// Configure to use your custom login page
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
+    options.LoginPath = "/Login";
 });
 
-// Add global authorization policy - require authentication on all pages by default
+// Add global authorization policy
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -38,10 +39,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapStaticAssets();
+
+app.MapStaticAssets().AllowAnonymous();
 app.MapRazorPages()
    .WithStaticAssets();
 
