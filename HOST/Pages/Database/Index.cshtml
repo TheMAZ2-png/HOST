@@ -1,0 +1,90 @@
+@page
+@model HOST.Pages.Database.IndexModel
+
+@{
+    ViewData["Title"] = "Database Content";
+}
+
+<h1>Database Content Overview</h1>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5>Staff Management</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Employees
+                        <span class="badge bg-primary rounded-pill">@Model.EmployeeCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Roles
+                        <span class="badge bg-primary rounded-pill">@Model.RoleCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Employee Roles
+                        <span class="badge bg-primary rounded-pill">@Model.EmployeeRoleCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Employee Shifts
+                        <span class="badge bg-primary rounded-pill">@Model.EmployeeShiftCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        System Settings
+                        <span class="badge bg-primary rounded-pill">@Model.SystemSettingCount</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5>Restaurant Operations</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Parties
+                        <span class="badge bg-success rounded-pill">@Model.PartyCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Queue Entries
+                        <span class="badge bg-success rounded-pill">@Model.QueueEntryCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Restaurant Tables
+                        <span class="badge bg-success rounded-pill">@Model.RestaurantTableCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Seating Assignments
+                        <span class="badge bg-success rounded-pill">@Model.SeatingCount</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Assigned Servers
+                        <span class="badge bg-success rounded-pill">@Model.AssignTableToServerCount</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h4>Quick Links</h4>
+        <div class="btn-group-vertical w-100" role="group">
+            <a href="/Employees" class="btn btn-outline-primary text-start">View Employees</a>
+            <a href="/Roles" class="btn btn-outline-primary text-start">View Roles</a>
+            <a href="/EmployeeShifts" class="btn btn-outline-primary text-start">View Employee Shifts</a>
+            <a href="/Parties" class="btn btn-outline-success text-start">View Parties</a>
+            <a href="/QueueEntries" class="btn btn-outline-success text-start">View Queue Entries</a>
+            <a href="/RestaurantTables" class="btn btn-outline-success text-start">View Restaurant Tables</a>
+            <a href="/Seatings" class="btn btn-outline-success text-start">View Seating Assignments</a>
+        </div>
+    </div>
+</div>
+
