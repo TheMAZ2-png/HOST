@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HOST.Pages
+namespace HOST.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
-    public class IndexModel : PageModel
+    public class LoginModel : PageModel
     {
-        public void OnGet()
-        {
-        }
+        // ... existing code
     }
 }
