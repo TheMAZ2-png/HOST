@@ -13,17 +13,14 @@ namespace HOST.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        [AllowNull]
         [StringLength(80)]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
 
-        [AllowNull]
         [StringLength(120)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
-        [AllowNull]
         [StringLength(30)]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         [Required]
         [Column(TypeName = "datetime2")]

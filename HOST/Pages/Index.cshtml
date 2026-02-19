@@ -1,10 +1,60 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to Restaurant Host System</h1>
-    <p>You are logged in. Use the navigation menu above to access features.</p>
+<div class="container mt-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Party Registration</h2>
+
+                    <form method="post" class="form">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="PartyRegistration.PartyName" class="form-label">Party name</label>
+                            <input asp-for="PartyRegistration.PartyName" class="form-control" type="text" placeholder="Party name" required>
+                            <span asp-validation-for="PartyRegistration.PartyName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PartyRegistration.PhoneNumber" class="form-label">Phone number</label>
+                            <input asp-for="PartyRegistration.PhoneNumber" class="form-control" type="tel" placeholder="Phone number">
+                            <span asp-validation-for="PartyRegistration.PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PartyRegistration.PartySize" class="form-label">Size of party</label>
+                            <input asp-for="PartyRegistration.PartySize" class="form-control" type="number" min="1" max="12" placeholder="Size of party" required>
+                            <span asp-validation-for="PartyRegistration.PartySize" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PartyRegistration.Notes" class="form-label">Notes</label>
+                            <textarea asp-for="PartyRegistration.Notes" class="form-control" rows="8" maxlength="250" placeholder="Any additional information you want us to know to make your day special" style="resize: none;"></textarea>
+                            <span asp-validation-for="PartyRegistration.Notes" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Create Party</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5 text-center">
+                    <h2 class="mb-4">Staff Login</h2>
+                    <p class="mb-4">Staff members can sign in to manage the queue and parties.</p>
+                    <a class="btn btn-primary w-100" asp-page="/Login">Go to Staff Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

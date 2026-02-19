@@ -1,0 +1,44 @@
+@page "{id:int}"
+@model HOST.Pages.Employees.EditModel
+
+@{
+    ViewData["Title"] = "Edit Employee";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Employee.EmployeeId" />
+
+    <div class="mb-3">
+        <label asp-for="Employee.Name" class="form-label"></label>
+        <input asp-for="Employee.Name" class="form-control" />
+        <span asp-validation-for="Employee.Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Employee.DisplayName" class="form-label"></label>
+        <input asp-for="Employee.DisplayName" class="form-control" />
+        <span asp-validation-for="Employee.DisplayName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Employee.Email" class="form-label"></label>
+        <input asp-for="Employee.Email" class="form-control" type="email" />
+        <span asp-validation-for="Employee.Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Employee.Phone" class="form-label"></label>
+        <input asp-for="Employee.Phone" class="form-control" />
+        <span asp-validation-for="Employee.Phone" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -12,16 +12,14 @@ namespace HOST.Models
         [StringLength(80)]
         public string PartyName { get; set; }
 
-        [AllowNull]
         [StringLength(20)]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         [Required]
         public int PartySize { get; set; }
 
-        [AllowNull]
         [StringLength(250)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
         // Navigation properties
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();

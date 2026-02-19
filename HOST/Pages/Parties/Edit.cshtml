@@ -1,0 +1,44 @@
+@page "{id:int}"
+@model HOST.Pages.Parties.EditModel
+
+@{
+    ViewData["Title"] = "Edit Party";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Party.PartyId" />
+
+    <div class="mb-3">
+        <label asp-for="Party.PartyName" class="form-label"></label>
+        <input asp-for="Party.PartyName" class="form-control" />
+        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Party.PhoneNumber" class="form-label"></label>
+        <input asp-for="Party.PhoneNumber" class="form-control" />
+        <span asp-validation-for="Party.PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Party.PartySize" class="form-label"></label>
+        <input asp-for="Party.PartySize" class="form-control" type="number" min="1" max="12" />
+        <span asp-validation-for="Party.PartySize" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Party.Notes" class="form-label"></label>
+        <textarea asp-for="Party.Notes" class="form-control" rows="8" maxlength="250" style="resize: none;"></textarea>
+        <span asp-validation-for="Party.Notes" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

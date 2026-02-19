@@ -13,13 +13,11 @@ namespace HOST.Models
         [ForeignKey(nameof(Party))]
         public int PartyId { get; set; }
 
-        [AllowNull]
         [StringLength(250)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
 
-        [AllowNull]
         [StringLength(100)]
-        public string PublicAccessCode { get; set; }
+        public string? PublicAccessCode { get; set; }
 
         [Required]
         [StringLength(20)]

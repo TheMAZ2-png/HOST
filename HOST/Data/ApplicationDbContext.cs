@@ -12,8 +12,8 @@ namespace HOST.Data
         {
         }
 
-        public DbSet<AssignTableToServer> AssignTableToServers { get; set; }
         public DbSet<Seating> Seatings { get; set; }
+        public DbSet<AssignTableToServer> AssignTableToServers { get; set; }
         public DbSet<QueueEntry> QueueEntries { get; set; }
         public DbSet<Party> Parties { get; set; }
         public DbSet<RestaurantTable> RestaurantTables { get; set; }
@@ -30,13 +30,13 @@ namespace HOST.Data
             // Configure Seating relationships with Employee
             modelBuilder.Entity<Seating>()
                 .HasOne(s => s.AssignedServer)
-                .WithMany()
+                .WithMany(e => e.AssignedServerEntries)
                 .HasForeignKey(s => s.AssignedServerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Seating>()
                 .HasOne(s => s.SeatedByEmployee)
-                .WithMany()
+                .WithMany(e => e.SeatedByEntries)
                 .HasForeignKey(s => s.SeatedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
         }

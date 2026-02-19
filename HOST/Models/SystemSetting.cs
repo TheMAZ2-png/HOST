@@ -10,9 +10,8 @@ namespace HOST.Models
         [StringLength(50)]
         public string SettingKey { get; set; }
 
-        [AllowNull]
         [StringLength(200)]
-        public string SettingValue { get; set; }
+        public string? SettingValue { get; set; }
 
         [Required]
         [Column(TypeName = "datetime2")]

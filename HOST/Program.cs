@@ -20,7 +20,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
 // Configure to use your custom login page
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Login";
+    options.LoginPath = "/";
+    options.AccessDeniedPath = "/";
 });
 
 // Add global authorization policy

@@ -1,0 +1,30 @@
+@page "{id:int}"
+@model HOST.Pages.Parties.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Party";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Are you sure you want to delete this party?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Party Name</dt>
+    <dd class="col-sm-9">@Model.Party.PartyName</dd>
+
+    <dt class="col-sm-3">Phone Number</dt>
+    <dd class="col-sm-9">@Model.Party.PhoneNumber</dd>
+
+    <dt class="col-sm-3">Party Size</dt>
+    <dd class="col-sm-9">@Model.Party.PartySize</dd>
+
+    <dt class="col-sm-3">Notes</dt>
+    <dd class="col-sm-9">@Model.Party.Notes</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Party.PartyId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
