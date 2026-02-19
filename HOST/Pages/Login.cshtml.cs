@@ -29,7 +29,7 @@ namespace HOST.Pages
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     return LocalRedirect(returnUrl ?? "/");
@@ -46,8 +46,6 @@ namespace HOST.Pages
 
             [System.ComponentModel.DataAnnotations.Required]
             public string Password { get; set; }
-
-            public bool RememberMe { get; set; }
         }
     }
 }

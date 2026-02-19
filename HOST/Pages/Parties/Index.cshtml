@@ -1,0 +1,40 @@
+@page
+@model HOST.Pages.Parties.IndexModel
+
+@{
+    ViewData["Title"] = "Parties";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Party</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Party Name</th>
+            <th>Phone Number</th>
+            <th>Party Size</th>
+            <th>Notes</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Parties)
+        {
+            <tr>
+                <td>@item.PartyName</td>
+                <td>@item.PhoneNumber</td>
+                <td>@item.PartySize</td>
+                <td>@item.Notes</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace HOST.Pages.Employees
+namespace HOST.Pages.Parties
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -16,11 +16,11 @@ namespace HOST.Pages.Employees
             _context = context;
         }
 
-        public IList<Employee> Employees { get; set; } = new List<Employee>();
+        public IList<Party> Parties { get; set; } = new List<Party>();
 
         public async Task OnGetAsync()
         {
-            Employees = await _context.Employees.AsNoTracking().ToListAsync();
+            Parties = await _context.Parties.AsNoTracking().ToListAsync();
         }
     }
 }

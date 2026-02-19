@@ -1,0 +1,37 @@
+@page "{id:int}"
+@model HOST.Pages.Parties.RegisteredModel
+
+@{
+    ViewData["Title"] = "Party Created";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Party Created</h2>
+                    <p class="text-center">Your party has been added. Please review the details below.</p>
+
+                    <dl class="row mt-4">
+                        <dt class="col-sm-4">Party Name</dt>
+                        <dd class="col-sm-8">@Model.Party.PartyName</dd>
+
+                        <dt class="col-sm-4">Phone Number</dt>
+                        <dd class="col-sm-8">@Model.Party.PhoneNumber</dd>
+
+                        <dt class="col-sm-4">Party Size</dt>
+                        <dd class="col-sm-8">@Model.Party.PartySize</dd>
+
+                        <dt class="col-sm-4">Notes</dt>
+                        <dd class="col-sm-8">@Model.Party.Notes</dd>
+                    </dl>
+
+                    <div class="text-center mt-4">
+                        <a class="btn btn-primary" asp-page="/Index">Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

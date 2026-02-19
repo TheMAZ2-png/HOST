@@ -23,6 +23,9 @@
                     </li>
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-page="/Parties/Index">Parties</a>
+                        </li>
                         @if (User.IsInRole("Manager"))
                         {
                             <li class="nav-item">

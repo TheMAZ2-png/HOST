@@ -1,0 +1,31 @@
+@page "{id:int}"
+@model HOST.Pages.Employees.DetailsModel
+
+@{
+    ViewData["Title"] = "Employee Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Employee.Name</dd>
+
+    <dt class="col-sm-3">Display Name</dt>
+    <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Employee.Email</dd>
+
+    <dt class="col-sm-3">Phone</dt>
+    <dd class="col-sm-9">@Model.Employee.Phone</dd>
+
+    <dt class="col-sm-3">Created At</dt>
+    <dd class="col-sm-9">@Model.Employee.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+    <dt class="col-sm-3">Updated At</dt>
+    <dd class="col-sm-9">@(Model.Employee.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.Employee.EmployeeId">Edit</a>
+<a class="btn btn-secondary" asp-page="Index">Back to List</a>

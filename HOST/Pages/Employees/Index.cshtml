@@ -7,6 +7,10 @@
 
 <h1>@ViewData["Title"]</h1>
 
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Employee</a>
+</p>
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -16,6 +20,7 @@
             <th>Email</th>
             <th>Phone</th>
             <th>Created At</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -28,6 +33,11 @@
                 <td>@item.Email</td>
                 <td>@item.Phone</td>
                 <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.EmployeeId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.EmployeeId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.EmployeeId">Delete</a>
+                </td>
             </tr>
         }
     </tbody>
