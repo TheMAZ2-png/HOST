@@ -9,36 +9,36 @@
         <div class="col-lg-7">
             <div class="card shadow">
                 <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Party Registration</h2>
+                    <h2 class="text-center mb-4">Waitlist Registration</h2>
 
                     <form method="post" class="form">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="mb-3">
                             <label asp-for="PartyRegistration.PartyName" class="form-label">Party name</label>
-                            <input asp-for="PartyRegistration.PartyName" class="form-control" type="text" placeholder="Party name" required>
+                            <input asp-for="PartyRegistration.PartyName" class="form-control" type="text" placeholder="Please enter a party name..." required>
                             <span asp-validation-for="PartyRegistration.PartyName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="PartyRegistration.PhoneNumber" class="form-label">Phone number</label>
-                            <input asp-for="PartyRegistration.PhoneNumber" class="form-control" type="tel" placeholder="Phone number">
+                            <input asp-for="PartyRegistration.PhoneNumber" class="form-control" type="tel" placeholder="Please enter a phone number...">
                             <span asp-validation-for="PartyRegistration.PhoneNumber" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="PartyRegistration.PartySize" class="form-label">Size of party</label>
-                            <input asp-for="PartyRegistration.PartySize" class="form-control" type="number" min="1" max="12" placeholder="Size of party" required>
+                            <label asp-for="PartyRegistration.PartySize" class="form-label">Party size</label>
+                            <input asp-for="PartyRegistration.PartySize" class="form-control" type="number" min="1" max="12" placeholder="Please enter size of party..." required>
                             <span asp-validation-for="PartyRegistration.PartySize" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="PartyRegistration.Notes" class="form-label">Notes</label>
-                            <textarea asp-for="PartyRegistration.Notes" class="form-control" rows="8" maxlength="250" placeholder="Any additional information you want us to know to make your day special" style="resize: none;"></textarea>
+                            <textarea asp-for="PartyRegistration.Notes" class="form-control" rows="8" maxlength="250" placeholder="Any additional notes..." style="resize: none;"></textarea>
                             <span asp-validation-for="PartyRegistration.Notes" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">Create Party</button>
+                        <button type="submit" class="btn btn-success w-100">Join queue</button>
                     </form>
                 </div>
             </div>
@@ -46,9 +46,9 @@
         <div class="col-lg-5">
             <div class="card shadow">
                 <div class="card-body p-5 text-center">
-                    <h2 class="mb-4">Staff Login</h2>
-                    <p class="mb-4">Staff members can sign in to manage the queue and parties.</p>
-                    <a class="btn btn-primary w-100" asp-page="/Login">Go to Staff Login</a>
+                    <h2 class="mb-4">Staff Members:</h2>
+                    <p class="mb-4">Please use the link below to signin.</p>
+                    <a class="btn btn-primary w-100" asp-page="/Login">Staff Login</a>
                 </div>
             </div>
         </div>
