@@ -41,7 +41,7 @@ namespace HOST.Pages
             _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            return RedirectToPage("/Parties/Registered", new { id = party.PartyId });
+            return RedirectToPage("/Shared/homePage", new { id = party.PartyId });
         }
 
         public class PartyRegistrationInput
