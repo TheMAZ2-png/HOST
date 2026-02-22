@@ -40,7 +40,16 @@
                                 <a asp-page="/Employees/Index">Employees</a>
                             </li>
                         }
+
+                        @if (User.IsInRole("Manager"))
+                        {
+                            <li>
+                                <a asp-page="/errorLog">Error Logging</a>
+                            </li>
+                        }
                     }
+
+
 
                     <!-- Username -->
                     @if (User.Identity?.IsAuthenticated ?? false)

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace HOST.Pages.Parties
 {
     [Authorize(Roles = "Manager")]
-
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -27,6 +26,7 @@ namespace HOST.Pages.Parties
 
         public async Task<IActionResult> OnPostAsync()
         {
+            
             if (!ModelState.IsValid)
             {
                 return Page();
