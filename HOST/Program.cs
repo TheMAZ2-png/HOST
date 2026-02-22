@@ -34,7 +34,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddDefaultUI()
 .AddDefaultTokenProviders();
 
-// Configure cookie settings
+// Configure cookie settings (correct location)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Index";
@@ -42,6 +42,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 
     options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
     options.SlidingExpiration = true;
+
+    // Custom logout redirect
+    options.Events.OnRedirectToLogout = context =>
+    {
+        context.Response.Redirect("/Index");
+        return Task.CompletedTask;
+    };
 });
 
 // Global authorization policy
@@ -68,7 +75,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapStaticAssets().AllowAnonymous();
 

@@ -7,9 +7,24 @@
 
 <h1>@ViewData["Title"]</h1>
 
+
 <p>
     <a class="btn btn-primary" asp-page="Create">New Party</a>
 </p>
+<p>
+    
+
+    @if (User.IsInRole("Manager"))
+    {
+        <form method="post" asp-page-handler="DeleteAll" style="display:inline;">
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Are you sure you want to delete ALL parties?');">
+                Delete All Parties
+            </button>
+        </form>
+    }
+</p>
+
 
 <table class="table table-striped">
     <thead>
@@ -31,9 +46,15 @@
                 <td>@item.Notes</td>
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
-                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
-                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
+
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
+                    }
+
                 </td>
+
             </tr>
         }
     </tbody>
