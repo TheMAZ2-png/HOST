@@ -12,12 +12,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
-// Optional file logging if you add a provider package:
-// builder.Logging.AddFile("Logs/app.log");
 
-// Add services to the container.
+// ----------------------------------------------------
+// RAZOR PAGES + ANONYMOUS ACCESS FOR /Parties/Index
+// ----------------------------------------------------
 builder.Services.AddRazorPages();
 
+builder.Services.AddRazorPages(options =>
+{
+    // Allow anonymous access to the Parties Index page
+    options.Conventions.AllowAnonymousToPage("/Parties/Index");
+});
+
+// ----------------------------------------------------
+// DATABASE + IDENTITY CONFIGURATION
+// ----------------------------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HOST")));
 
@@ -43,7 +52,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddDefaultUI()
 .AddDefaultTokenProviders();
 
-// Configure cookie settings
+// ----------------------------------------------------
+// COOKIE SETTINGS
+// ----------------------------------------------------
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Index";
@@ -59,7 +70,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-// Global authorization policy
+// ----------------------------------------------------
+// GLOBAL AUTHORIZATION POLICY
+// ----------------------------------------------------
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -74,7 +87,7 @@ var app = builder.Build();
 // ----------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");  // Error page will log exceptions
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
@@ -88,19 +101,33 @@ app.UseAuthorization();
 
 app.MapStaticAssets().AllowAnonymous();
 
-app.MapRazorPages().RequireAuthorization()
+// IMPORTANT: Razor Pages are mapped normally.
+// FallbackPolicy still applies, but our AllowAnonymous override works.
+app.MapRazorPages()
    .WithStaticAssets();
 
 // ----------------------------------------------------
-// LOGGING FOR STARTUP ERRORS (ALREADY CORRECT)
+// ROLE SEEDING (Manager + Guest)
 // ----------------------------------------------------
 using (var scope = app.Services.CreateScope())
 {
     try
     {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var services = scope.ServiceProvider;
+
+        var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
-        await DbSeeder.SeedRolesAndAdmin(scope.ServiceProvider);
+
+        // Existing seeding
+        await DbSeeder.SeedRolesAndAdmin(services);
+
+        // Add Guest role if missing
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        if (!await roleManager.RoleExistsAsync("Guest"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("Guest"));
+        }
     }
     catch (Exception ex)
     {
