@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HOST.Pages.Parties
 {
-    [Authorize]
+    [Authorize(Roles = "Manager")]
+
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;

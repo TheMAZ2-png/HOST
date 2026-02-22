@@ -22,9 +22,7 @@
 
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-page="/homePage">Home</a>
-                        </li>
+                       
 
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
@@ -45,7 +43,9 @@
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
-                                <span class="nav-link">@User.Identity?.Name</span>
+                                <span class="nav-link">
+                                    @User.FindFirst("PartyName")?.Value
+                                </span>
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="d-inline">
