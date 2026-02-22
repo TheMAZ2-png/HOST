@@ -12,17 +12,38 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HOST")));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultUI()
-                .AddDefaultTokenProviders();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+
+    // Password policy
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.AllowedForNewUsers = true;
+
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultUI()
+.AddDefaultTokenProviders();
 
 // Configure to use your custom login page
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/";
-    options.AccessDeniedPath = "/";
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.SlidingExpiration = false; // fixed expiration
 });
+
 
 // Add global authorization policy
 builder.Services.AddAuthorization(options =>

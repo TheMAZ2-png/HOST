@@ -32,7 +32,7 @@ namespace HOST.Pages
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToPage("/Shared/homePage");
+                    return RedirectToPage("/homePage");
 
                 }
                 ErrorMessage = "Invalid login attempt.";
