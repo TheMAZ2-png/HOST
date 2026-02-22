@@ -10,47 +10,54 @@
     <link rel="stylesheet" href="~/HOST.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold" asp-area="" asp-page="/homePage">HOST</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" asp-page="/homePage">Home</a>
 
-                    </li>
-                    @if (User.Identity?.IsAuthenticated ?? false)
-                    {
+    @if (ViewData["HideNavbar"] == null)
+    {
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-bold" asp-area="" asp-page="/homePage">HOST</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Parties/Index">Parties</a>
+                            <a class="nav-link" asp-page="/homePage">Home</a>
                         </li>
-                        @if (User.IsInRole("Manager"))
+
+                        @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Employees/Index">Employees</a>
+                                <a class="nav-link" asp-area="" asp-page="/Parties/Index">Parties</a>
+                            </li>
+
+                            @if (User.IsInRole("Manager"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-page="/Employees/Index">Employees</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <span class="nav-link">@User.Identity?.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="d-inline">
+                                    <button type="submit" class="nav-link btn btn-link">Logout</button>
+                                </form>
                             </li>
                         }
-                    }
-                </ul>
-                <ul class="navbar-nav ms-auto">
-                    @if (User.Identity?.IsAuthenticated ?? false)
-                    {
-                        <li class="nav-item">
-                            <span class="nav-link">@User.Identity?.Name</span>
-                        </li>
-                        <li class="nav-item">
-                            <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="d-inline">
-                                <button type="submit" class="nav-link btn btn-link">Logout</button>
-                            </form>
-                        </li>
-                    }
-                </ul>
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    }
 
     <div class="container-fluid">
         <main role="main" class="py-4">

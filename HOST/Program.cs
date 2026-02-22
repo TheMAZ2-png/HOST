@@ -34,18 +34,17 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddDefaultUI()
 .AddDefaultTokenProviders();
 
-// Configure to use your custom login page
+// Configure cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Index";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 
     options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-    options.SlidingExpiration = true; // fixed expiration
+    options.SlidingExpiration = true;
 });
 
-
-// Add global authorization policy
+// Global authorization policy
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -64,12 +63,17 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+
 app.MapStaticAssets().AllowAnonymous();
-app.MapRazorPages()
+
+// Razor Pages require login
+app.MapRazorPages().RequireAuthorization()
    .WithStaticAssets();
 
 using (var scope = app.Services.CreateScope())
