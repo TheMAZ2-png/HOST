@@ -5,38 +5,64 @@
     ViewData["Title"] = "Create Party";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3">
-        <label asp-for="Party.PartyName" class="form-label"></label>
-        <input asp-for="Party.PartyName" class="form-control" />
-        <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
+
+            <form method="post" class="fade-in-4">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- PARTY NAME -->
+                <div class="mb-3">
+                    <label asp-for="Party.PartyName" class="form-label text-pink-dark"></label>
+                    <input asp-for="Party.PartyName" class="form-control input-pink" />
+                    <span asp-validation-for="Party.PartyName" class="text-danger"></span>
+                </div>
+
+                <!-- PHONE NUMBER -->
+                <div class="mb-3">
+                    <label asp-for="Party.PhoneNumber" class="form-label text-pink-dark"></label>
+                    <input asp-for="Party.PhoneNumber" class="form-control input-pink" />
+                    <span asp-validation-for="Party.PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <!-- PARTY SIZE -->
+                <div class="mb-3">
+                    <label asp-for="Party.PartySize" class="form-label text-pink-dark"></label>
+                    <input asp-for="Party.PartySize"
+                           class="form-control input-pink"
+                           type="number"
+                           min="1"
+                           max="12" />
+                    <span asp-validation-for="Party.PartySize" class="text-danger"></span>
+                </div>
+
+                <!-- NOTES -->
+                <div class="mb-3">
+                    <label asp-for="Party.Notes" class="form-label text-pink-dark"></label>
+                    <textarea asp-for="Party.Notes"
+                              class="form-control textarea-pink"
+                              rows="8"
+                              maxlength="250"></textarea>
+                    <span asp-validation-for="Party.Notes" class="text-danger"></span>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn-primary btn-hero">Save</button>
+                    <a class="btn-secondary" asp-page="Index">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Party.PhoneNumber" class="form-label"></label>
-        <input asp-for="Party.PhoneNumber" class="form-control" />
-        <span asp-validation-for="Party.PhoneNumber" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Party.PartySize" class="form-label"></label>
-        <input asp-for="Party.PartySize" class="form-control" type="number" min="1" max="12" />
-        <span asp-validation-for="Party.PartySize" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Party.Notes" class="form-label"></label>
-        <textarea asp-for="Party.Notes" class="form-control" rows="8" maxlength="250" style="resize: none;"></textarea>
-        <span asp-validation-for="Party.Notes" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

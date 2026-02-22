@@ -1,31 +1,62 @@
-@page "{id:int}"
-@model HOST.Pages.Employees.DetailsModel
+@page
+@model HOST.Pages.Employees.CreateModel
 
 @{
-    ViewData["Title"] = "Employee Details";
+    ViewData["Title"] = "Create Employee";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<dl class="row">
-    <dt class="col-sm-3">Name</dt>
-    <dd class="col-sm-9">@Model.Employee.Name</dd>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <dt class="col-sm-3">Display Name</dt>
-    <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
 
-    <dt class="col-sm-3">Email</dt>
-    <dd class="col-sm-9">@Model.Employee.Email</dd>
+            <form method="post" class="fade-in-4">
 
-    <dt class="col-sm-3">Phone</dt>
-    <dd class="col-sm-9">@Model.Employee.Phone</dd>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <dt class="col-sm-3">Created At</dt>
-    <dd class="col-sm-9">@Model.Employee.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                <!-- NAME -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Name" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.Name" class="text-danger"></span>
+                </div>
 
-    <dt class="col-sm-3">Updated At</dt>
-    <dd class="col-sm-9">@(Model.Employee.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
-</dl>
+                <!-- DISPLAY NAME -->
+                <div class="mb-3">
+                    <label asp-for="Employee.DisplayName" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.DisplayName" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.DisplayName" class="text-danger"></span>
+                </div>
 
-<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.Employee.EmployeeId">Edit</a>
-<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Email" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Email" class="form-control input-pink" type="email" />
+                    <span asp-validation-for="Employee.Email" class="text-danger"></span>
+                </div>
+
+                <!-- PHONE -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Phone" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Phone" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.Phone" class="text-danger"></span>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn-primary btn-hero">Save</button>
+                    <a class="btn-secondary" asp-page="Index">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
