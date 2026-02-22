@@ -39,7 +39,34 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // 1. Create the Party
+            // Check if phone number already exists as a username
+            var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("PartyRegistration.PhoneNumber", "This phone number is already registered.");
+                return Page();
+            }
+
+            // 1. Create the Identity user FIRST
+            var user = new IdentityUser
+            {
+                UserName = PartyRegistration.PhoneNumber,
+                Email = $"{Guid.NewGuid()}@guest.local"
+            };
+
+            var password = Guid.NewGuid().ToString("N") + "!aA1";
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Unable to create user.");
+                return Page();
+            }
+
+            await _userManager.AddToRoleAsync(user, "Guest");
+            await _userManager.AddClaimAsync(user, new Claim("PartyName", PartyRegistration.PartyName));
+
+            // 2. Only now create the Party
             var party = new Party
             {
                 PartyName = PartyRegistration.PartyName,
@@ -51,31 +78,13 @@ namespace HOST.Pages
             _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            // 2. Create an Identity user for this guest
-            var user = new IdentityUser
-            {
-                UserName = PartyRegistration.PhoneNumber
-                           ?? PartyRegistration.PartyName.Replace(" ", "") + party.PartyId,
-                Email = $"{Guid.NewGuid()}@guest.local"
-            };
-
-            var password = Guid.NewGuid().ToString("N") + "!aA1";
-
-            var result = await _userManager.CreateAsync(user, password);
-
-            if (!result.Succeeded)
-            {
-                return Page();
-            }
-
-            await _userManager.AddClaimAsync(user, new Claim("PartyName", party.PartyName));
-
-            // 3. Sign the user in automatically
+            // 3. Sign in
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            // 4. Redirect to queue page
-            return RedirectToPage("/Parties/Index", new { id = party.PartyId });
+            // 4. Redirect
+            return RedirectToPage("/Parties/Index");
         }
+
 
         public class PartyRegistrationInput
         {
@@ -83,7 +92,6 @@ namespace HOST.Pages
             [System.ComponentModel.DataAnnotations.StringLength(80)]
             public string PartyName { get; set; }
 
-            // ⭐ UPDATED: digits‑only, exactly 10 digits ⭐
             [System.ComponentModel.DataAnnotations.Required]
             [System.ComponentModel.DataAnnotations.RegularExpression(
                 @"^\d{10}$",
