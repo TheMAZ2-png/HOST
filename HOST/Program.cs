@@ -37,11 +37,11 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 // Configure to use your custom login page
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
+    options.LoginPath = "/Index";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
-    options.SlidingExpiration = false; // fixed expiration
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    options.SlidingExpiration = true; // fixed expiration
 });
 
 
