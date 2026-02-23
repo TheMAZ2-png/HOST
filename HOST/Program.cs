@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.UI;
 using HOST.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ----------------------------------------------------
-// LOGGING CONFIGURATION (REQUIRED FOR ASSIGNMENT)
+// LOGGING CONFIGURATION
 // ----------------------------------------------------
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -20,7 +19,6 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddRazorPages(options =>
 {
-    // Allow anonymous access to the Parties Index page
     options.Conventions.AllowAnonymousToPage("/Parties/Index");
 });
 
@@ -30,6 +28,7 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HOST")));
 
+// *** IMPORTANT: Only AddIdentity (with roles) — DO NOT use AddDefaultIdentity ***
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -83,7 +82,7 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 // ----------------------------------------------------
-// GLOBAL EXCEPTION HANDLING (REQUIRED FOR ASSIGNMENT)
+// GLOBAL EXCEPTION HANDLING
 // ----------------------------------------------------
 if (!app.Environment.IsDevelopment())
 {
@@ -101,8 +100,6 @@ app.UseAuthorization();
 
 app.MapStaticAssets().AllowAnonymous();
 
-// IMPORTANT: Razor Pages are mapped normally.
-// FallbackPolicy still applies, but our AllowAnonymous override works.
 app.MapRazorPages()
    .WithStaticAssets();
 
@@ -118,10 +115,8 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
 
-        // Existing seeding
         await DbSeeder.SeedRolesAndAdmin(services);
 
-        // Add Guest role if missing
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
         if (!await roleManager.RoleExistsAsync("Guest"))
