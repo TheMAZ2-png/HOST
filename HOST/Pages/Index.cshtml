@@ -14,7 +14,7 @@
                 <div class="card-body p-5">
 
                     <h2 class="text-center mb-4 text-pink-dark fade-in-3">Waitlist Registration</h2>
-                    <p class="text-pink-dark fade-in-3">After joining the waitlist, you will be able to see the queue.</p>
+              
 
                     <form method="post" class="form fade-in-4">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -74,8 +74,10 @@
             </div>
         </div>
 
-        <!-- RIGHT SIDE — STAFF LOGIN -->
-        <div class="col-lg-5 fade-in-2">
+        <!-- RIGHT SIDE — STAFF LOGIN + HOST INFORMATION -->
+        <div class="col-lg-5 fade-in-2 d-flex flex-column" style="gap: 1.25rem; height: 100%;">
+
+            <!-- STAFF LOGIN CARD -->
             <div class="card shadow card-pink">
                 <div class="card-body p-5 text-center">
 
@@ -88,7 +90,31 @@
 
                 </div>
             </div>
+
+            <!-- HOST INFORMATION CARD -->
+            <div class="card shadow card-pink flex-grow-1 fade-in-3">
+                <div class="card-body p-5 text-center d-flex flex-column justify-content-between">
+
+                    <div>
+                        <h2 class="text-pink-dark mb-4">Host Systems</h2>
+
+                        <p class="text-pink-dark lead mb-4">
+                            Providing the best queueing solutions for restaurants and staff.
+                        </p>
+                       
+                    </div>
+
+                    <img src="~/Imgs/HOSTLogo.png"
+                         alt="HOST Logo"
+                         class="company-logo fade-in-4"
+                         style="width:50%; max-width:10rem;" />
+
+                </div>
+            </div>
+
+
         </div>
+
 
     </div>
 </div>
