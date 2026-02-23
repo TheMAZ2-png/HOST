@@ -19,15 +19,15 @@
                 <!-- PARTY NAME -->
                 <div class="mb-3">
                     <label asp-for="Party.PartyName" class="form-label text-pink-dark"></label>
-                    <input asp-for="Party.PartyName" class="form-control input-pink" />
+                    <input asp-for="Party.PartyName" class="form-control input-pink" placeholder="Party name..." />
                     <span asp-validation-for="Party.PartyName" class="text-danger"></span>
                 </div>
 
                 <!-- PHONE NUMBER -->
                 <div class="mb-3">
                     <label asp-for="Party.PhoneNumber" class="form-label text-pink-dark"></label>
-                    <input asp-for="Party.PhoneNumber" class="form-control input-pink" />
-                    <span asp-validation-for="Party.PhoneNumber" class="text-danger"></span>
+                    <input asp-for="Party.PhoneNumber" class="form-control input-pink" placeholder="Party phone number..." />
+                    <span asp-validation-for="Party.PhoneNumber" class="text-danger" ></span>
                 </div>
 
                 <!-- PARTY SIZE -->
@@ -37,8 +37,8 @@
                            class="form-control input-pink"
                            type="number"
                            min="1"
-                           max="12" />
-                    <span asp-validation-for="Party.PartySize" class="text-danger"></span>
+                           max="12" placeholder="Party size..." />
+                    <span asp-validation-for="Party.PartySize" class="text-danger" ></span>
                 </div>
 
                 <!-- NOTES -->
@@ -47,8 +47,8 @@
                     <textarea asp-for="Party.Notes"
                               class="form-control textarea-pink"
                               rows="8"
-                              maxlength="250"></textarea>
-                    <span asp-validation-for="Party.Notes" class="text-danger"></span>
+                              maxlength="250" placeholder="Party notes..."></textarea>
+                    <span asp-validation-for="Party.Notes" class="text-danger" ></span>
                 </div>
 
                 <!-- BUTTONS -->
