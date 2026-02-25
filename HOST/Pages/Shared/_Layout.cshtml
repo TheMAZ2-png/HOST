@@ -20,11 +20,17 @@
             <nav class="navBar">
                 <ul>
 
-                    <li>
-                        <a asp-page="/homePage" class="icon-button">
-                            <img src="~/Imgs/Icons/home.svg" alt="Home" />
-                        </a>
-                    </li>
+                   @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                    {
+                        <li>
+                            <a asp-page="/homePage" class="icon-button">
+                                <img src="~/Imgs/Icons/home.svg" alt="Home" />
+                            </a>
+                        </li>
+                    }
+
+
+                    
 
 
                     <!-- Parties -->

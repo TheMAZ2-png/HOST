@@ -1,34 +1,47 @@
 @page "{id:int}"
-@model HOST.Pages.Parties.DetailsModel
+@model HOST.Pages.Parties.EditModel
 
 @{
-    ViewData["Title"] = "Party Details";
+    ViewData["Title"] = "Edit Party";
 }
 
 <div class="container mt-5 fade-in-1">
 
-    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
+    <h1 class="text-pink-dark mb-4 fade-in-2">Edit Party</h1>
 
     <div class="card card-pink shadow fade-in-3">
         <div class="card-body p-4">
 
-            <dl class="row text-pink-dark">
-                <dt class="col-sm-3">Party Name</dt>
-                <dd class="col-sm-9">@Model.Party.PartyName</dd>
+            <form method="post">
 
-                <dt class="col-sm-3">Phone Number</dt>
-                <dd class="col-sm-9">@Model.Party.PhoneNumber</dd>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <dt class="col-sm-3">Party Size</dt>
-                <dd class="col-sm-9">@Model.Party.PartySize</dd>
+                <div class="mb-3">
+                    <label class="form-label text-pink-dark">Party Name</label>
+                    <input asp-for="Party.PartyName" class="form-control input-pink" />
+                </div>
 
-                <dt class="col-sm-3">Notes</dt>
-                <dd class="col-sm-9">@Model.Party.Notes</dd>
-            </dl>
+                <div class="mb-3">
+                    <label class="form-label text-pink-dark">Phone Number</label>
+                    <input asp-for="Party.PhoneNumber" class="form-control input-pink" />
+                </div>
 
-            <div class="mt-4 d-flex gap-3 fade-in-4">
-                <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
-                <a class="btn-secondary" asp-page="Index">Back to List</a>
+                <div class="mb-3">
+                    <label class="form-label text-pink-dark">Party Size</label>
+                    <input asp-for="Party.PartySize" class="form-control input-pink" type="number" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-pink-dark">Notes</label>
+                    <textarea asp-for="Party.Notes" class="form-control input-pink"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-large w-100">Save Changes</button>
+
+            </form>
+
+            <div class="mt-3">
+                <a asp-page="Index" class="text-pink-dark"><strong>Back to List</strong></a>
             </div>
 
         </div>
