@@ -31,7 +31,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // *** IMPORTANT: Only AddIdentity (with roles) — DO NOT use AddDefaultIdentity ***
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
 
     // Password policy
     options.Password.RequireDigit = true;
