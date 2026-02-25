@@ -1,0 +1,1 @@
+This program, using ASP.NET features, to allow small restaurants to manage queues easily and effectively. The goal of the HOST program is to allow guests to easily enter the queue, and allow staff to easily manage and access the queue.
