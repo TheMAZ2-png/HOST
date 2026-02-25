@@ -1,0 +1,38 @@
+@page
+@model HOST.Pages.FailedLogins.IndexModel
+
+@{
+    ViewData["Title"] = "Failed Logins";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Failed Login</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Timestamp</th>
+            <th>IP Address</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.FailedLogins)
+        {
+            <tr>
+                <td>@item.Username</td>
+                <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@item.IpAddress</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.Id">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

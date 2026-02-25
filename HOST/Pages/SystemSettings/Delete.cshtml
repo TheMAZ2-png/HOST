@@ -1,0 +1,24 @@
+@page "{id}"
+@model HOST.Pages.SystemSettings.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Setting";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Are you sure you want to delete this setting?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Key</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.SettingKey</dd>
+
+    <dt class="col-sm-3">Value</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.SettingValue</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="SystemSetting.SettingKey" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>

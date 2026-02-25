@@ -1,0 +1,31 @@
+@page
+@model HOST.Pages.ManagerAccounts.CreateModel
+
+@{
+    ViewData["Title"] = "Create Manager Account";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="ManagerAccount.Email" class="form-label"></label>
+        <input asp-for="ManagerAccount.Email" class="form-control" type="email" />
+        <span asp-validation-for="ManagerAccount.Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ManagerAccount.PasswordHash" class="form-label"></label>
+        <input asp-for="ManagerAccount.PasswordHash" class="form-control" />
+        <span asp-validation-for="ManagerAccount.PasswordHash" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

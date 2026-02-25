@@ -22,8 +22,7 @@ namespace HOST.Data
         public DbSet<EmployeeRole> EmployeeRoles { get; set; }
         public DbSet<EmployeeShift> EmployeeShifts { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
-
-        // ⭐ NEW: store failed login attempts
+        public DbSet<ManagerAccount> ManagerAccounts { get; set; }
         public DbSet<FailedLogin> FailedLogins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

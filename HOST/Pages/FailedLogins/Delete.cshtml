@@ -1,0 +1,24 @@
+@page "{id:int}"
+@model HOST.Pages.FailedLogins.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Failed Login";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Are you sure you want to delete this failed login?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Username</dt>
+    <dd class="col-sm-9">@Model.FailedLogin.Username</dd>
+
+    <dt class="col-sm-3">Timestamp</dt>
+    <dd class="col-sm-9">@Model.FailedLogin.Timestamp.ToString("yyyy-MM-dd HH:mm")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="FailedLogin.Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
