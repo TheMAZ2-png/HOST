@@ -1,0 +1,42 @@
+@page
+@model HOST.Pages.RestaurantTables.IndexModel
+
+@{
+    ViewData["Title"] = "Restaurant Tables";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Table</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Table Number</th>
+            <th>Seat Capacity</th>
+            <th>Section</th>
+            <th>Status</th>
+            <th>Active</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.RestaurantTables)
+        {
+            <tr>
+                <td>@item.TableNumber</td>
+                <td>@item.SeatCapacity</td>
+                <td>@item.Section</td>
+                <td>@item.Status</td>
+                <td>@(item.IsActive ? "Yes" : "No")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.TableId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.TableId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.TableId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

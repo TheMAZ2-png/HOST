@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace HOST.Pages
 {
@@ -11,15 +12,18 @@ namespace HOST.Pages
     public class LoginModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly ApplicationDbContext _context;
 
         public LoginModel(
             SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
             ILogger<LoginModel> logger,
             ApplicationDbContext context)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
             _context = context;
         }
@@ -41,18 +45,53 @@ namespace HOST.Pages
                 return Page();
             }
 
-            var result = await _signInManager.PasswordSignInAsync(
-                Input.Email,
-                Input.Password,
-                isPersistent: false,
-                lockoutOnFailure: true);
+            var managerAccount = await _context.ManagerAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(account => account.Email == Input.Email);
 
-            if (result.Succeeded)
+            if (managerAccount == null)
             {
+                return await HandleFailedLoginAsync();
+            }
+
+            var passwordHasher = new PasswordHasher<ManagerAccount>();
+            var passwordResult = passwordHasher.VerifyHashedPassword(managerAccount, managerAccount.PasswordHash, Input.Password);
+
+            if (passwordResult == PasswordVerificationResult.Success)
+            {
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    user = new IdentityUser
+                    {
+                        UserName = Input.Email,
+                        Email = Input.Email,
+                        EmailConfirmed = true
+                    };
+
+                    var randomPassword = $"{Guid.NewGuid():N}!aA1";
+                    var createResult = await _userManager.CreateAsync(user, randomPassword);
+                    if (!createResult.Succeeded)
+                    {
+                        _logger.LogWarning("Failed to create identity user for manager account {Email}.", Input.Email);
+                        return await HandleFailedLoginAsync();
+                    }
+                }
+
+                if (!await _userManager.IsInRoleAsync(user, global::HOST.Constants.Roles.Manager.ToString()))
+                {
+                    await _userManager.AddToRoleAsync(user, global::HOST.Constants.Roles.Manager.ToString());
+                }
+
+                await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToPage("/homePage");
             }
 
-            
+            return await HandleFailedLoginAsync();
+        }
+
+        private async Task<IActionResult> HandleFailedLoginAsync()
+        {
             _logger.LogWarning("Failed login attempt for user {Email}", Input.Email);
 
             _context.FailedLogins.Add(new FailedLogin

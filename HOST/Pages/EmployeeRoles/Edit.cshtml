@@ -1,0 +1,32 @@
+@page "{id:int}"
+@model HOST.Pages.EmployeeRoles.EditModel
+
+@{
+    ViewData["Title"] = "Edit Employee Role";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="EmployeeRole.EmployeeRoleId" />
+
+    <div class="mb-3">
+        <label asp-for="EmployeeRole.EmployeeId" class="form-label"></label>
+        <input asp-for="EmployeeRole.EmployeeId" class="form-control" type="number" />
+        <span asp-validation-for="EmployeeRole.EmployeeId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EmployeeRole.RoleId" class="form-label"></label>
+        <input asp-for="EmployeeRole.RoleId" class="form-control" type="number" />
+        <span asp-validation-for="EmployeeRole.RoleId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
