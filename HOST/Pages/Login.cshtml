@@ -13,14 +13,7 @@
 
                     <h2 class="text-center mb-4 text-pink-dark fade-in-3">Staff Login</h2>
 
-                    <p class="text-pink-dark fade-in-3">
-                        Looking to join the queue?
-                        <a asp-page="/Index" class="text-pink-dark"><strong>Click here</strong></a>
-                    </p>
-
-                    <p class="text-pink-dark fade-in-3">
-                        <a asp-page="/staffCreationPage" class="text-pink-dark"><strong>Create a staff account</strong></a>
-                    </p>
+                   
 
                     <form method="post"
                           asp-route-returnUrl="@ViewData["ReturnUrl"]"
@@ -54,6 +47,17 @@
                         <button type="submit" class="btn-primary w-100 btn-large fade-in-4">
                             Sign In
                         </button>
+
+                        <a asp-page="/Index"
+                           class="btn-secondary w-100 btn-large d-block text-center fade-in-3 mt-3">
+                            Back to Queue
+                        </a>
+
+                        <a asp-page="/staffCreationPage"
+                           class="btn-secondary w-100 btn-large d-block text-center fade-in-3 mt-3">
+                            Create an Account
+                        </a>
+
                     </form>
 
                     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
