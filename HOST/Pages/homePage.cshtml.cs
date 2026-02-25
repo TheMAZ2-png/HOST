@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HOST.Pages
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "Manager,Host,Server")]
+
     public class homePageModel : PageModel
     {
         public void OnGet()
