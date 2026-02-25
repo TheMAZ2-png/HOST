@@ -27,7 +27,10 @@ namespace HOST.Pages.Employees
                 return NotFound();
             }
 
-            var employee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.EmployeeId == id);
+            var employee = await _context.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
             if (employee == null)
             {
                 return NotFound();
@@ -44,7 +47,9 @@ namespace HOST.Pages.Employees
                 return Page();
             }
 
-            var existing = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
+            var existing = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
+
             if (existing == null)
             {
                 return NotFound();
@@ -54,6 +59,10 @@ namespace HOST.Pages.Employees
             existing.DisplayName = Employee.DisplayName;
             existing.Email = Employee.Email;
             existing.Phone = Employee.Phone;
+
+            // Save role (Manager-only dropdown)
+            existing.Role = Employee.Role;
+
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

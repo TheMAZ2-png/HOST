@@ -45,6 +45,19 @@
                     <span asp-validation-for="Employee.Phone" class="text-danger"></span>
                 </div>
 
+                <!-- ROLE (Manager Only) -->
+                @if (User.IsInRole("Manager"))
+                {
+                    <div class="mb-3">
+                        <label asp-for="Employee.Role" class="form-label text-pink-dark">Role</label>
+                        <select asp-for="Employee.Role" class="form-select input-pink">
+                            <option value="Host">Host</option>
+                            <option value="Server">Server</option>
+                        </select>
+                        <span asp-validation-for="Employee.Role" class="text-danger"></span>
+                    </div>
+                }
+
                 <!-- BUTTONS -->
                 <div class="mt-4 d-flex gap-3">
                     <button type="submit" class="btn-primary btn-hero">Save</button>
