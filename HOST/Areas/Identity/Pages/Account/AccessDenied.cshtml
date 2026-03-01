@@ -1,0 +1,35 @@
+﻿@page
+@model AccessDeniedModel
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="login-container fade-in-1">
+    <div class="grid-item card-pink">
+
+        <h1>@ViewData["Title"]</h1>
+
+        <p>You do not have access to this resource.</p>
+
+        <p>Please return to the home page.</p>
+
+        @if (User.IsInRole("Guest"))
+        {
+            <div class="action-buttons">
+                <a asp-page="/Parties/Index" class="btn-primary btn-hero">
+                    Go Back Home
+                </a>
+            </div>
+        }
+
+        @if (User.IsInRole("Server") || User.IsInRole("Host"))
+        {
+            <div class="action-buttons">
+                <a asp-page="/homePage" class="btn-primary btn-hero">
+                    Go Back Home
+                </a>
+            </div>
+        }
+
+    </div>
+</div>
