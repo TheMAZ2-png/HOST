@@ -508,3 +508,23 @@ input::placeholder {
             transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(255,123,191,0.35);
         }
+
+
+
+
+/* Center Access Denied card */
+.access-denied-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 4rem auto;
+    padding: 2rem;
+    background-color: var(--secondary-bg-color);
+    border: 1px solid var(--border-bg);
+    border-radius: .5rem;
+    max-width: 50rem;
+}
+
+    .access-denied-wrapper .grid-item {
+        max-width: 32rem;
+        width: 100%;
+    }

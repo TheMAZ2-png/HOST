@@ -4,12 +4,12 @@
     ViewData["Title"] = "Access Denied";
 }
 
-<div class="login-container fade-in-1">
+<div class="access-denied-wrapper fade-in-1">
     <div class="grid-item card-pink">
 
         <h1>@ViewData["Title"]</h1>
 
-        <p>You do not have access to this resource.</p>
+        <p>You do not have access to this page or resource.</p>
 
         <p>Please return to the home page.</p>
 
@@ -17,7 +17,7 @@
         {
             <div class="action-buttons">
                 <a asp-page="/Parties/Index" class="btn-primary btn-hero">
-                    Go Back Home
+                    Home
                 </a>
             </div>
         }
@@ -25,8 +25,8 @@
         @if (User.IsInRole("Server") || User.IsInRole("Host"))
         {
             <div class="action-buttons">
-                <a asp-page="/homePage" class="btn-primary btn-hero">
-                    Go Back Home
+                <a asp-page="/Index" class="btn-primary btn-hero">
+                    Home
                 </a>
             </div>
         }
