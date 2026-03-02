@@ -17,7 +17,16 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <!-- NAME -->
-                <!-- TEST -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Role" class="form-label text-pink-dark"></label>
+                    <select asp-for="Employee.Role" class="form-control input-pink">
+                        <option value="">Select a role...</option>
+                        <option>Server</option>
+                        <option>Host</option>
+                    </select>
+                    <span asp-validation-for="Employee.Role" class="text-danger"></span>
+                </div>
+
                 <div class="mb-3">
                     <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
                     <input asp-for="Employee.Name" class="form-control input-pink" placeholder="Employee name..." />
@@ -41,9 +50,15 @@
                 <!-- PHONE -->
                 <div class="mb-3">
                     <label asp-for="Employee.Phone" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Phone" class="form-control input-pink" placeholder="Employee phone number..." />
+                    <input asp-for="Employee.Phone"
+                           class="form-control input-pink"
+                           placeholder="Employee phone number..."
+                           pattern="\d{10}"
+                           maxlength="10"
+                           inputmode="numeric" />
                     <span asp-validation-for="Employee.Phone" class="text-danger"></span>
                 </div>
+
 
                 <!-- BUTTONS -->
                 <div class="mt-4 d-flex gap-3">
