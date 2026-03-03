@@ -1,0 +1,40 @@
+@page
+@model HOST.Pages.SystemSettings.IndexModel
+
+@{
+    ViewData["Title"] = "System Settings";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Setting</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Updated At</th>
+            <th>Updated By</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.SystemSettings)
+        {
+            <tr>
+                <td>@item.SettingKey</td>
+                <td>@item.SettingValue</td>
+                <td>@item.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@item.UpdatedByEmployeeId</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.SettingKey">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.SettingKey">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.SettingKey">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

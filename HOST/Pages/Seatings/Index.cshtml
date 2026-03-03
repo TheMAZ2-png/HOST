@@ -1,0 +1,44 @@
+@page
+@model HOST.Pages.Seatings.IndexModel
+
+@{
+    ViewData["Title"] = "Seatings";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Seating</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Assigned Server</th>
+            <th>Seated By</th>
+            <th>Table</th>
+            <th>Party</th>
+            <th>Seated At</th>
+            <th>Cleared At</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Seatings)
+        {
+            <tr>
+                <td>@item.AssignedServerId</td>
+                <td>@item.SeatedByEmployeeId</td>
+                <td>@item.RestaurantTableId</td>
+                <td>@item.PartyId</td>
+                <td>@item.SeatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(item.ClearedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.SeatingId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.SeatingId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.SeatingId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

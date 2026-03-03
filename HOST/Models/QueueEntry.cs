@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace HOST.Models
 {
@@ -39,6 +41,9 @@ namespace HOST.Models
         public DateTime? SeatedAt { get; set; }
 
         // Navigation properties
+        [BindNever]
+        [ValidateNever]
         public virtual Party Party { get; set; }
+
     }
 }

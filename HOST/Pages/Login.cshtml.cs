@@ -1,3 +1,5 @@
+using HOST.Data;
+using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +11,20 @@ namespace HOST.Pages
     public class LoginModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<LoginModel> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager)
+        public LoginModel(
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            ILogger<LoginModel> logger,
+            ApplicationDbContext context)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _logger = logger;
+            _context = context;
         }
 
         [BindProperty]
@@ -27,15 +39,33 @@ namespace HOST.Pages
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return Page();
+
+            // Use Identity for ALL staff authentication
+            var result = await _signInManager.PasswordSignInAsync(
+                Input.Email,
+                Input.Password,
+                isPersistent: false,
+                lockoutOnFailure: false
+            );
+
+            if (result.Succeeded)
             {
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, isPersistent: false, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    return LocalRedirect(returnUrl ?? "/");
-                }
-                ErrorMessage = "Invalid login attempt.";
+                return RedirectToPage("/homePage");
             }
+
+            // Log failed login attempt
+            _context.FailedLogins.Add(new FailedLogin
+            {
+                Username = Input.Email,
+                Timestamp = DateTime.UtcNow,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString()
+            });
+
+            await _context.SaveChangesAsync();
+
+            ErrorMessage = "Invalid login attempt.";
             return Page();
         }
 

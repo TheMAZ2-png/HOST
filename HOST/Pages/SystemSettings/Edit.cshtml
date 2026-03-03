@@ -1,0 +1,37 @@
+@page "{id}"
+@model HOST.Pages.SystemSettings.EditModel
+
+@{
+    ViewData["Title"] = "Edit Setting";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="SystemSetting.SettingKey" />
+
+    <div class="mb-3">
+        <label class="form-label">Key</label>
+        <input class="form-control" value="@Model.SystemSetting.SettingKey" readonly />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SystemSetting.SettingValue" class="form-label"></label>
+        <input asp-for="SystemSetting.SettingValue" class="form-control" />
+        <span asp-validation-for="SystemSetting.SettingValue" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SystemSetting.UpdatedByEmployeeId" class="form-label"></label>
+        <input asp-for="SystemSetting.UpdatedByEmployeeId" class="form-control" type="number" />
+        <span asp-validation-for="SystemSetting.UpdatedByEmployeeId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,42 @@
+@page
+@model HOST.Pages.EmployeeShifts.IndexModel
+
+@{
+    ViewData["Title"] = "Employee Shifts";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Shift</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Clock In</th>
+            <th>Clock Out</th>
+            <th>Clocked In By</th>
+            <th>Clocked Out By</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.EmployeeShifts)
+        {
+            <tr>
+                <td>@item.EmployeeId</td>
+                <td>@item.ClockInAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>@(item.ClockOutAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                <td>@(item.ClockInByEmployeeId?.ToString() ?? "-")</td>
+                <td>@(item.ClockOutByEmployeeId?.ToString() ?? "-")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.ShiftId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.ShiftId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.ShiftId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -5,27 +5,42 @@
     ViewData["Title"] = "Employee Details";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<dl class="row">
-    <dt class="col-sm-3">Name</dt>
-    <dd class="col-sm-9">@Model.Employee.Name</dd>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <dt class="col-sm-3">Display Name</dt>
-    <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
 
-    <dt class="col-sm-3">Email</dt>
-    <dd class="col-sm-9">@Model.Employee.Email</dd>
+            <dl class="row fade-in-4">
 
-    <dt class="col-sm-3">Phone</dt>
-    <dd class="col-sm-9">@Model.Employee.Phone</dd>
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Employee.Name</dd>
 
-    <dt class="col-sm-3">Created At</dt>
-    <dd class="col-sm-9">@Model.Employee.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                <dt class="col-sm-3">Display Name</dt>
+                <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
 
-    <dt class="col-sm-3">Updated At</dt>
-    <dd class="col-sm-9">@(Model.Employee.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
-</dl>
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Employee.Email</dd>
 
-<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.Employee.EmployeeId">Edit</a>
-<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.Employee.Phone</dd>
+
+                <dt class="col-sm-3">Role</dt>
+                <dd class="col-sm-9">@Model.Employee.Role</dd>
+
+                <dt class="col-sm-3">Created At</dt>
+                <dd class="col-sm-9">@Model.Employee.CreatedAt</dd>
+
+            </dl>
+
+
+            <div class="mt-4 d-flex gap-3">
+                <a class="btn-secondary" asp-page="Index">Back</a>
+                <a class="btn-primary" asp-page="Edit" asp-route-id="@Model.Employee.EmployeeId">Edit</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

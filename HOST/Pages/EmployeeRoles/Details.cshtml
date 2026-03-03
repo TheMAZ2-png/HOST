@@ -1,0 +1,19 @@
+@page "{id:int}"
+@model HOST.Pages.EmployeeRoles.DetailsModel
+
+@{
+    ViewData["Title"] = "Employee Role Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Employee ID</dt>
+    <dd class="col-sm-9">@Model.EmployeeRole.EmployeeId</dd>
+
+    <dt class="col-sm-3">Role ID</dt>
+    <dd class="col-sm-9">@Model.EmployeeRole.RoleId</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.EmployeeRole.EmployeeRoleId">Edit</a>
+<a class="btn btn-secondary" asp-page="Index">Back to List</a>
