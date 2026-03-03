@@ -1,0 +1,25 @@
+@page "{id}"
+@model HOST.Pages.SystemSettings.DetailsModel
+
+@{
+    ViewData["Title"] = "Setting Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Key</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.SettingKey</dd>
+
+    <dt class="col-sm-3">Value</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.SettingValue</dd>
+
+    <dt class="col-sm-3">Updated At</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+    <dt class="col-sm-3">Updated By</dt>
+    <dd class="col-sm-9">@Model.SystemSetting.UpdatedByEmployeeId</dd>
+</dl>
+
+<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.SystemSetting.SettingKey">Edit</a>
+<a class="btn btn-secondary" asp-page="Index">Back to List</a>

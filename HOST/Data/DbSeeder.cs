@@ -28,34 +28,7 @@ namespace HOST.Data
                 }
             }
 
-            // Create Manager User if it doesn't exist
-            var email = "manager@gmail.com";
-            var userInDb = await userManager.FindByEmailAsync(email);
-            
-            if (userInDb == null)
-            {
-                var user = new IdentityUser
-                {
-                    UserName = email,
-                    Email = email,
-                    EmailConfirmed = true,
-                    PhoneNumberConfirmed = true
-                };
-
-                var createResult = await userManager.CreateAsync(user, "Manager@123");
-                if (createResult.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, Roles.Manager.ToString());
-                }
-                else
-                {
-                    var logger = service.GetRequiredService<ILogger<Program>>();
-                    foreach (var error in createResult.Errors)
-                    {
-                        logger.LogError($"Error creating user: {error.Description}");
-                    }
-                }
-            }
+            // Manager accounts are managed in the database and used during login.
         }
     }
 }

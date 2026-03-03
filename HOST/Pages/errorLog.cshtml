@@ -1,0 +1,49 @@
+﻿@page
+@model HOST.Pages.ErrorModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="container mt-5 fade-in-1">
+    <div class="card card-pink shadow p-4 fade-in-2">
+
+        <h1 class="text-pink-dark mb-3">Something went wrong</h1>
+
+        <p class="text-pink-dark">
+            An unexpected error occurred. Our team has been notified.
+        </p>
+
+        @if (Model.ShowRequestId)
+        {
+            <p class="text-muted">
+                Request ID: <code>@Model.RequestId</code>
+            </p>
+        }
+
+        <h3 class="mt-4 text-pink-dark">Recent Failed Login Attempts</h3>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered shadow-sm" style="background-color: #fff; border-radius: 8px; overflow: hidden;">
+                <thead class="text-pink-dark" style="background-color: #ffe6f2;">
+                    <tr>
+                        <th class="py-2 px-3">Username</th>
+                        <th class="py-2 px-3">Timestamp (UTC)</th>
+                        <th class="py-2 px-3">IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.FailedLoginAttempts)
+                    {
+                        <tr style="background-color: #fff;">
+                            <td class="py-2 px-3">@log.Username</td>
+                            <td class="py-2 px-3">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td class="py-2 px-3">@log.IpAddress</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <a asp-page="/homePage" class="btn-primary btn-hero mt-3">Return Home</a>
+    </div>
+</div>

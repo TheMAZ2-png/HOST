@@ -1,0 +1,49 @@
+@page
+@model HOST.Pages.AssignTableToServers.CreateModel
+
+@{
+    ViewData["Title"] = "Create Assignment";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Assignment.EmployeeID" class="form-label"></label>
+        <input asp-for="Assignment.EmployeeID" class="form-control" type="number" />
+        <span asp-validation-for="Assignment.EmployeeID" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Assignment.Name" class="form-label"></label>
+        <input asp-for="Assignment.Name" class="form-control" />
+        <span asp-validation-for="Assignment.Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Assignment.DisplayName" class="form-label"></label>
+        <input asp-for="Assignment.DisplayName" class="form-control" />
+        <span asp-validation-for="Assignment.DisplayName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Assignment.Email" class="form-label"></label>
+        <input asp-for="Assignment.Email" class="form-control" type="email" />
+        <span asp-validation-for="Assignment.Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Assignment.Phone" class="form-label"></label>
+        <input asp-for="Assignment.Phone" class="form-control" />
+        <span asp-validation-for="Assignment.Phone" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

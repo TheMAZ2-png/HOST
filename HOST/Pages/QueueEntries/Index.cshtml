@@ -1,0 +1,52 @@
+@page
+@model HOST.Pages.QueueEntries.IndexModel
+
+@{
+    ViewData["Title"] = "Queue Entries";
+}
+
+<div class="container mt-5 fade-in-1">
+
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
+
+    <div class="mb-3 fade-in-3">
+        <a class="btn-primary btn-hero" asp-page="Create">New Queue Entry</a>
+    </div>
+
+    <div class="card card-pink shadow fade-in-4">
+        <div class="card-body p-4">
+
+            <table class="table table-pink">
+                <thead>
+                    <tr>
+                        <th>Party ID</th>
+                        <th>Status</th>
+                        <th>Estimated Wait</th>
+                        <th>Created At</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.QueueEntries)
+                    {
+                        <tr>
+                            <td>@item.PartyId</td>
+                            <td>@item.Status</td>
+                            <td>@(item.EstimatedWaitMinutes?.ToString() ?? "-")</td>
+                            <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td class="text-end">
+                                <div class="action-buttons">
+                                    <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.QueueEntryId">Details</a>
+                                    <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.QueueEntryId">Edit</a>
+                                    <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.QueueEntryId">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>

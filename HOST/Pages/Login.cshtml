@@ -1,38 +1,70 @@
 @page
 @model HOST.Pages.LoginModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Login - HOST";
+    ViewData["HideNavbar"] = true;
 }
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
+<div class="container mt-5 fade-in-1">
+    <div class="row justify-content-center fade-in-2">
         <div class="col-md-6">
-            <div class="card shadow">
+            <div class="card shadow card-pink">
                 <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Staff Login</h2>
 
-                    <form method="post" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="form">
+                    <h2 class="text-center mb-4 text-pink-dark fade-in-3">Staff Login</h2>
+
+                   
+
+                    <form method="post"
+                          asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                          class="form fade-in-4">
+
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                        <!-- EMAIL -->
                         <div class="mb-3">
-                            <label asp-for="Input.Email" class="form-label">Email address</label>
-                            <input asp-for="Input.Email" class="form-control" type="email" placeholder="Email address" required>
+                            <label asp-for="Input.Email" class="form-label text-pink-dark">Email address</label>
+                            <input asp-for="Input.Email"
+                                   class="form-control input-pink"
+                                   type="email"
+                                   placeholder="Email address..."
+                                   required />
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
 
+                        <!-- PASSWORD -->
                         <div class="mb-3">
-                            <label asp-for="Input.Password" class="form-label">Password</label>
-                            <input asp-for="Input.Password" class="form-control" type="password" placeholder="Password" required>
+                            <label asp-for="Input.Password" class="form-label text-pink-dark">Password</label>
+                            <input asp-for="Input.Password"
+                                   class="form-control input-pink"
+                                   type="password"
+                                   placeholder="Password..."
+                                   required />
                             <span asp-validation-for="Input.Password" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                        <!-- SUBMIT -->
+                        <button type="submit" class="btn-primary w-100 btn-large fade-in-4">
+                            Sign In
+                        </button>
+
+                        <a asp-page="/Index"
+                           class="btn-secondary w-100 btn-large d-block text-center fade-in-3 mt-3">
+                            Back to Queue
+                        </a>
+
+                        <a asp-page="/staffCreationPage"
+                           class="btn-secondary w-100 btn-large d-block text-center fade-in-3 mt-3">
+                            Create an Account
+                        </a>
+
                     </form>
 
                     @if (!string.IsNullOrEmpty(Model.ErrorMessage))
                     {
-                        <div class="alert alert-danger mt-3">@Model.ErrorMessage</div>
+                        <div class="alert alert-danger mt-3 fade-in-4">@Model.ErrorMessage</div>
                     }
+
                 </div>
             </div>
         </div>

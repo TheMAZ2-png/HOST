@@ -1,0 +1,56 @@
+@page "{id:int}"
+@model HOST.Pages.Seatings.EditModel
+
+@{
+    ViewData["Title"] = "Edit Seating";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Seating.SeatingId" />
+
+    <div class="mb-3">
+        <label asp-for="Seating.AssignedServerId" class="form-label"></label>
+        <input asp-for="Seating.AssignedServerId" class="form-control" type="number" />
+        <span asp-validation-for="Seating.AssignedServerId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Seating.SeatedByEmployeeId" class="form-label"></label>
+        <input asp-for="Seating.SeatedByEmployeeId" class="form-control" type="number" />
+        <span asp-validation-for="Seating.SeatedByEmployeeId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Seating.RestaurantTableId" class="form-label"></label>
+        <input asp-for="Seating.RestaurantTableId" class="form-control" type="number" />
+        <span asp-validation-for="Seating.RestaurantTableId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Seating.PartyId" class="form-label"></label>
+        <input asp-for="Seating.PartyId" class="form-control" type="number" />
+        <span asp-validation-for="Seating.PartyId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Seating.SeatedAt" class="form-label"></label>
+        <input asp-for="Seating.SeatedAt" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Seating.SeatedAt" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Seating.ClearedAt" class="form-label"></label>
+        <input asp-for="Seating.ClearedAt" class="form-control" type="datetime-local" />
+        <span asp-validation-for="Seating.ClearedAt" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

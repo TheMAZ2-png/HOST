@@ -22,10 +22,15 @@ namespace HOST.Data
         public DbSet<EmployeeRole> EmployeeRoles { get; set; }
         public DbSet<EmployeeShift> EmployeeShifts { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
+        public DbSet<ManagerAccount> ManagerAccounts { get; set; }
+        public DbSet<FailedLogin> FailedLogins { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Optional: map table name explicitly
+            modelBuilder.Entity<FailedLogin>().ToTable("FailedLogins");
 
             // Configure Seating relationships with Employee
             modelBuilder.Entity<Seating>()

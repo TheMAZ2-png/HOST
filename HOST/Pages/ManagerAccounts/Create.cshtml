@@ -1,0 +1,54 @@
+@page
+@model HOST.Pages.ManagerAccounts.CreateModel
+
+@{
+    ViewData["Title"] = "Create Manager Account";
+}
+
+<div class="container mt-5 fade-in-1">
+
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
+
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
+
+            <form method="post" class="fade-in-4">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="ManagerAccount.Email" class="form-label text-pink-dark"></label>
+                    <input asp-for="ManagerAccount.Email"
+                           class="form-control input-pink"
+                           type="email"
+                           placeholder="Manager email..." />
+                    <span asp-validation-for="ManagerAccount.Email" class="text-danger"></span>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-3">
+                    <label asp-for="ManagerAccount.PasswordHash" class="form-label text-pink-dark"></label>
+                    <input asp-for="ManagerAccount.PasswordHash"
+                           class="form-control input-pink"
+                           type="password"
+                           placeholder="Temporary password..." />
+                    <span asp-validation-for="ManagerAccount.PasswordHash" class="text-danger"></span>
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn-primary btn-hero">Save</button>
+                    <a class="btn-secondary" asp-page="Index">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
