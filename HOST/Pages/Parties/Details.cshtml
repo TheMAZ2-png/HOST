@@ -5,21 +5,33 @@
     ViewData["Title"] = "Party Details";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<dl class="row">
-    <dt class="col-sm-3">Party Name</dt>
-    <dd class="col-sm-9">@Model.Party.PartyName</dd>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <dt class="col-sm-3">Phone Number</dt>
-    <dd class="col-sm-9">@Model.Party.PhoneNumber</dd>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
 
-    <dt class="col-sm-3">Party Size</dt>
-    <dd class="col-sm-9">@Model.Party.PartySize</dd>
+            <dl class="row text-pink-dark">
+                <dt class="col-sm-3">Party Name</dt>
+                <dd class="col-sm-9">@Model.Party.PartyName</dd>
 
-    <dt class="col-sm-3">Notes</dt>
-    <dd class="col-sm-9">@Model.Party.Notes</dd>
-</dl>
+                <dt class="col-sm-3">Phone Number</dt>
+                <dd class="col-sm-9">@Model.Party.PhoneNumber</dd>
 
-<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
-<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+                <dt class="col-sm-3">Party Size</dt>
+                <dd class="col-sm-9">@Model.Party.PartySize</dd>
+
+                <dt class="col-sm-3">Notes</dt>
+                <dd class="col-sm-9">@Model.Party.Notes</dd>
+            </dl>
+
+            <div class="mt-4 d-flex gap-3 fade-in-4">
+                <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
+                <a class="btn-secondary" asp-page="Index">Back to List</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,49 @@
+@page "{id:int}"
+@model HOST.Pages.RestaurantTables.EditModel
+
+@{
+    ViewData["Title"] = "Edit Table";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="RestaurantTable.TableId" />
+
+    <div class="mb-3">
+        <label asp-for="RestaurantTable.TableNumber" class="form-label"></label>
+        <input asp-for="RestaurantTable.TableNumber" class="form-control" type="number" />
+        <span asp-validation-for="RestaurantTable.TableNumber" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RestaurantTable.SeatCapacity" class="form-label"></label>
+        <input asp-for="RestaurantTable.SeatCapacity" class="form-control" type="number" />
+        <span asp-validation-for="RestaurantTable.SeatCapacity" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RestaurantTable.Section" class="form-label"></label>
+        <input asp-for="RestaurantTable.Section" class="form-control" />
+        <span asp-validation-for="RestaurantTable.Section" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="RestaurantTable.Status" class="form-label"></label>
+        <input asp-for="RestaurantTable.Status" class="form-control" />
+        <span asp-validation-for="RestaurantTable.Status" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="RestaurantTable.IsActive" class="form-check-input" type="checkbox" />
+        <label asp-for="RestaurantTable.IsActive" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

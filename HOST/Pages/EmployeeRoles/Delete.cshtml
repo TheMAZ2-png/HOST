@@ -1,0 +1,24 @@
+@page "{id:int}"
+@model HOST.Pages.EmployeeRoles.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Employee Role";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Are you sure you want to delete this employee role?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Employee ID</dt>
+    <dd class="col-sm-9">@Model.EmployeeRole.EmployeeId</dd>
+
+    <dt class="col-sm-3">Role ID</dt>
+    <dd class="col-sm-9">@Model.EmployeeRole.RoleId</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="EmployeeRole.EmployeeRoleId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>

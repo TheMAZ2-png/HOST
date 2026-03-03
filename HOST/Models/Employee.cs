@@ -22,6 +22,9 @@ namespace HOST.Models
         [StringLength(30)]
         public string? Phone { get; set; }
 
+        [StringLength(20)]
+        public string Role { get; set; }   // <-- NEW FIELD
+
         [Required]
         [Column(TypeName = "datetime2")]
         public DateTime CreatedAt { get; set; }
@@ -30,7 +33,6 @@ namespace HOST.Models
         [Column(TypeName = "datetime2")]
         public DateTime? UpdatedAt { get; set; }
 
-        // Navigation properties
         public virtual ICollection<Seating> SeatedByEntries { get; set; } = new List<Seating>();
         public virtual ICollection<Seating> AssignedServerEntries { get; set; } = new List<Seating>();
     }
