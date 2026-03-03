@@ -5,26 +5,42 @@
     ViewData["Title"] = "Delete Employee";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<h4>Are you sure you want to delete this employee?</h4>
+    <h1 class="text-pink-dark mb-3 fade-in-2">@ViewData["Title"]</h1>
+    <h4 class="text-pink-dark fade-in-2">Are you sure you want to delete this employee?</h4>
 
-<dl class="row">
-    <dt class="col-sm-3">Name</dt>
-    <dd class="col-sm-9">@Model.Employee.Name</dd>
+    <div class="card card-pink shadow mt-4 fade-in-3">
+        <div class="card-body p-4">
 
-    <dt class="col-sm-3">Display Name</dt>
-    <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
+            <dl class="row text-pink-dark">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Employee.Name</dd>
 
-    <dt class="col-sm-3">Email</dt>
-    <dd class="col-sm-9">@Model.Employee.Email</dd>
+                <dt class="col-sm-3">Display Name</dt>
+                <dd class="col-sm-9">@Model.Employee.DisplayName</dd>
 
-    <dt class="col-sm-3">Phone</dt>
-    <dd class="col-sm-9">@Model.Employee.Phone</dd>
-</dl>
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Employee.Email</dd>
 
-<form method="post">
-    <input type="hidden" asp-for="Employee.EmployeeId" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
-</form>
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.Employee.Phone</dd>
+            </dl>
+
+            <form method="post" class="fade-in-4 mt-4">
+                <input type="hidden" asp-for="Employee.EmployeeId" />
+
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn-danger-pink btn-hero">Delete</button>
+                    <a class="btn-secondary" asp-page="Index">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

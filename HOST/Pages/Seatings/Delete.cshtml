@@ -1,0 +1,24 @@
+@page "{id:int}"
+@model HOST.Pages.Seatings.DeleteModel
+
+@{
+    ViewData["Title"] = "Delete Seating";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Are you sure you want to delete this seating?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Assigned Server</dt>
+    <dd class="col-sm-9">@Model.Seating.AssignedServerId</dd>
+
+    <dt class="col-sm-3">Seated At</dt>
+    <dd class="col-sm-9">@Model.Seating.SeatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+</dl>
+
+<form method="post">
+    <input type="hidden" asp-for="Seating.SeatingId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>

@@ -5,38 +5,73 @@
     ViewData["Title"] = "Create Employee";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3">
-        <label asp-for="Employee.Name" class="form-label"></label>
-        <input asp-for="Employee.Name" class="form-control" />
-        <span asp-validation-for="Employee.Name" class="text-danger"></span>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
+
+            <form method="post" class="fade-in-4">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- NAME -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Role" class="form-label text-pink-dark"></label>
+                    <select asp-for="Employee.Role" class="form-control input-pink">
+                        <option value="">Select a role...</option>
+                        <option>Server</option>
+                        <option>Host</option>
+                    </select>
+                    <span asp-validation-for="Employee.Role" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Name" class="form-control input-pink" placeholder="Employee name..." />
+                    <span asp-validation-for="Employee.Name" class="text-danger" ></span>
+                </div>
+
+                <!-- DISPLAY NAME -->
+                <div class="mb-3">
+                    <label asp-for="Employee.DisplayName" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.DisplayName" class="form-control input-pink" placeholder="Employee display name..." />
+                    <span asp-validation-for="Employee.DisplayName" class="text-danger" ></span>
+                </div>
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Email" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Email" class="form-control input-pink" type="email" placeholder="Employee email..." />
+                    <span asp-validation-for="Employee.Email" class="text-danger" ></span>
+                </div>
+
+                <!-- PHONE -->
+                <div class="mb-3">
+                    <label asp-for="Employee.Phone" class="form-label text-pink-dark"></label>
+                    <input asp-for="Employee.Phone"
+                           class="form-control input-pink"
+                           placeholder="Employee phone number..."
+                           pattern="\d{10}"
+                           maxlength="10"
+                           inputmode="numeric" />
+                    <span asp-validation-for="Employee.Phone" class="text-danger"></span>
+                </div>
+
+
+                <!-- BUTTONS -->
+                <div class="mt-4 d-flex gap-3">
+                    <button type="submit" class="btn-primary btn-hero">Save</button>
+                    <a class="btn-secondary" asp-page="Index">Cancel</a>
+                </div>
+
+            </form>
+
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Employee.DisplayName" class="form-label"></label>
-        <input asp-for="Employee.DisplayName" class="form-control" />
-        <span asp-validation-for="Employee.DisplayName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Employee.Email" class="form-label"></label>
-        <input asp-for="Employee.Email" class="form-control" type="email" />
-        <span asp-validation-for="Employee.Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Employee.Phone" class="form-label"></label>
-        <input asp-for="Employee.Phone" class="form-control" />
-        <span asp-validation-for="Employee.Phone" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

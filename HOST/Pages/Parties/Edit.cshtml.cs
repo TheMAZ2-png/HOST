@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HOST.Pages.Parties
 {
-    [Authorize]
+    [Authorize(Roles = "Manager")]
+
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;

@@ -1,0 +1,31 @@
+@page
+@model HOST.Pages.FailedLogins.CreateModel
+
+@{
+    ViewData["Title"] = "Create Failed Login";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="FailedLogin.Username" class="form-label"></label>
+        <input asp-for="FailedLogin.Username" class="form-control" />
+        <span asp-validation-for="FailedLogin.Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FailedLogin.IpAddress" class="form-label"></label>
+        <input asp-for="FailedLogin.IpAddress" class="form-control" />
+        <span asp-validation-for="FailedLogin.IpAddress" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

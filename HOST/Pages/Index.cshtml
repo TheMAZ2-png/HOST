@@ -1,57 +1,120 @@
-﻿@page
+﻿@page "{id?}"
 @model IndexModel
 @{
-    ViewData["Title"] = "Welcome";
+    ViewData["Title"] = "Landing Page - HOST";
+    ViewData["HideNavbar"] = true;
 }
 
-<div class="container mt-5">
+<div class="container mt-5 fade-in-1">
     <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <h2 class="text-center mb-4">Party Registration</h2>
 
-                    <form method="post" class="form">
+        <!-- LEFT SIDE — WAITLIST REGISTRATION -->
+        <div class="col-lg-7 fade-in-2">
+            <div class="card shadow card-pink">
+                <div class="card-body p-5">
+
+                    <h2 class="text-center mb-4 text-pink-dark fade-in-3">Waitlist Registration</h2>
+              
+
+                    <form method="post" class="form fade-in-4">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                        <!-- PARTY NAME -->
                         <div class="mb-3">
-                            <label asp-for="PartyRegistration.PartyName" class="form-label">Party name</label>
-                            <input asp-for="PartyRegistration.PartyName" class="form-control" type="text" placeholder="Party name" required>
+                            <label asp-for="PartyRegistration.PartyName" class="form-label text-pink-dark">Party name</label>
+                            <input asp-for="PartyRegistration.PartyName"
+                                   class="form-control input-pink"
+                                   type="text"
+                                   placeholder="Please enter a party name..."
+                                   required />
                             <span asp-validation-for="PartyRegistration.PartyName" class="text-danger"></span>
                         </div>
 
+                        <!-- PHONE NUMBER -->
                         <div class="mb-3">
-                            <label asp-for="PartyRegistration.PhoneNumber" class="form-label">Phone number</label>
-                            <input asp-for="PartyRegistration.PhoneNumber" class="form-control" type="tel" placeholder="Phone number">
+                            <label asp-for="PartyRegistration.PhoneNumber" class="form-label text-pink-dark">Phone number</label>
+                            <input asp-for="PartyRegistration.PhoneNumber"
+                                   class="form-control input-pink"
+                                   type="tel"
+                                   placeholder="Please enter a phone number..." />
                             <span asp-validation-for="PartyRegistration.PhoneNumber" class="text-danger"></span>
                         </div>
 
+                        <!-- PARTY SIZE -->
                         <div class="mb-3">
-                            <label asp-for="PartyRegistration.PartySize" class="form-label">Size of party</label>
-                            <input asp-for="PartyRegistration.PartySize" class="form-control" type="number" min="1" max="12" placeholder="Size of party" required>
+                            <label asp-for="PartyRegistration.PartySize" class="form-label text-pink-dark">Party size</label>
+                            <input asp-for="PartyRegistration.PartySize"
+                                   class="form-control input-pink"
+                                   type="number"
+                                   min="1"
+                                   max="12"
+                                   placeholder="Please enter size of party..."
+                                   required />
                             <span asp-validation-for="PartyRegistration.PartySize" class="text-danger"></span>
                         </div>
 
+                        <!-- NOTES -->
                         <div class="mb-3">
-                            <label asp-for="PartyRegistration.Notes" class="form-label">Notes</label>
-                            <textarea asp-for="PartyRegistration.Notes" class="form-control" rows="8" maxlength="250" placeholder="Any additional information you want us to know to make your day special" style="resize: none;"></textarea>
+                            <label asp-for="PartyRegistration.Notes" class="form-label text-pink-dark">Notes</label>
+                            <textarea asp-for="PartyRegistration.Notes"
+                                      class="form-control textarea-pink"
+                                      rows="8"
+                                      maxlength="250"
+                                      placeholder="Any additional notes..."></textarea>
                             <span asp-validation-for="PartyRegistration.Notes" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-success w-100">Create Party</button>
+                        <!-- SUBMIT BUTTON -->
+                        <button type="submit" class="btn-primary w-100 btn-large fade-in-4">
+                            Join queue
+                        </button>
                     </form>
+
                 </div>
             </div>
         </div>
-        <div class="col-lg-5">
-            <div class="card shadow">
+
+        <!-- RIGHT SIDE — STAFF LOGIN + HOST INFORMATION -->
+        <div class="col-lg-5 fade-in-2 d-flex flex-column" style="height: 100%;">
+
+            <!-- STAFF LOGIN CARD -->
+            <div class="card shadow card-pink mb-4">
                 <div class="card-body p-5 text-center">
-                    <h2 class="mb-4">Staff Login</h2>
-                    <p class="mb-4">Staff members can sign in to manage the queue and parties.</p>
-                    <a class="btn btn-primary w-100" asp-page="/Login">Go to Staff Login</a>
+
+                    <h2 class="mb-4 text-pink-dark fade-in-3">Staff Members:</h2>
+                    <p class="mb-4 text-pink-dark fade-in-3">Please use the link below.</p>
+
+                    <a class="btn-primary w-100 text-center btn-large fade-in-4" asp-page="/Login">
+                        Staff Members
+                    </a>
+
                 </div>
             </div>
+
+            <!-- HOST INFORMATION CARD -->
+            <div class="card shadow card-pink flex-grow-1 fade-in-3 d-flex">
+                <div class="card-body p-5 text-center d-flex flex-column justify-content-between">
+
+                    <div>
+                        <h2 class="text-pink-dark mb-4">Host Systems</h2>
+
+                        <p class="text-pink-dark lead mb-4">
+                            Providing the best queueing solutions for restaurants and staff.
+                        </p>
+                    </div>
+
+                    <img src="~/Imgs/HOSTLogo.png"
+                         alt="HOST Logo"
+                         class="company-logo fade-in-4"
+                         style="width:42%; max-width:13rem;" />
+
+                </div>
+            </div>
+
         </div>
+
+
+
     </div>
 </div>
 

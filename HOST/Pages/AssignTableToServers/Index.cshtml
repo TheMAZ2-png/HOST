@@ -1,0 +1,44 @@
+@page
+@model HOST.Pages.AssignTableToServers.IndexModel
+
+@{
+    ViewData["Title"] = "Assigned Servers";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Assignment</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Display Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Created At</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Assignments)
+        {
+            <tr>
+                <td>@item.EmployeeID</td>
+                <td>@item.Name</td>
+                <td>@item.DisplayName</td>
+                <td>@item.Email</td>
+                <td>@item.Phone</td>
+                <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.EmployeeID">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.EmployeeID">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.EmployeeID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

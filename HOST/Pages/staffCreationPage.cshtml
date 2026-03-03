@@ -1,0 +1,89 @@
+﻿@page
+@model HOST.Pages.staffCreationPageModel
+
+@{
+    ViewData["Title"] = "Create Staff Account";
+    ViewData["HideNavbar"] = true;
+}
+
+<div class="container mt-5 fade-in-1">
+    <div class="row justify-content-center fade-in-2">
+        <div class="col-md-6">
+            <div class="card shadow card-pink">
+                <div class="card-body p-5">
+
+                    <h2 class="text-center mb-4 text-pink-dark fade-in-3">Create Staff Account</h2>
+
+                    <form method="post" class="fade-in-4">
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- ROLE -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">Role</label>
+                            <select asp-for="SelectedRole" class="form-select input-pink" required>
+                                <option value="">Select a role...</option>
+                                <option value="Manager">Manager</option>
+                                <option value="Host">Host</option>
+                                <option value="Server">Server</option>
+                            </select>
+                        </div>
+
+                        <!-- FIRST NAME -->
+                        <div class="mb-3">
+                            <label asp-for="FirstName" class="form-label text-pink-dark">First Name</label>
+                            <input asp-for="FirstName"
+                                   class="form-control input-pink"
+                                   placeholder="First name..."
+                                   required />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <!-- LAST NAME -->
+                        <div class="mb-3">
+                            <label asp-for="LastName" class="form-label text-pink-dark">Last Name</label>
+                            <input asp-for="LastName"
+                                   class="form-control input-pink"
+                                   placeholder="Last name..."
+                                   required />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label text-pink-dark">Email</label>
+                            <input asp-for="Email"
+                                   class="form-control input-pink"
+                                   type="email"
+                                   placeholder="Email address..."
+                                   required />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label text-pink-dark">Password</label>
+                            <input asp-for="Password"
+                                   class="form-control input-pink"
+                                   type="password"
+                                   placeholder="Password..."
+                                   required />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <!-- SUBMIT -->
+                        <button type="submit" class="btn-primary w-100 btn-large fade-in-4">
+                            Create Account
+                        </button>
+
+                    </form>
+
+                    <div class="mt-3 text-center fade-in-4">
+                        <a asp-page="/Login" class="text-pink-dark"><strong>Back to Login</strong></a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+@page
+@model HOST.Pages.EmployeeRoles.IndexModel
+
+@{
+    ViewData["Title"] = "Employee Roles";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">New Employee Role</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Employee ID</th>
+            <th>Role ID</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.EmployeeRoles)
+        {
+            <tr>
+                <td>@item.EmployeeId</td>
+                <td>@item.RoleId</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.EmployeeRoleId">Details</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.EmployeeRoleId">Edit</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.EmployeeRoleId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
