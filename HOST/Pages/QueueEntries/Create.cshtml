@@ -12,9 +12,12 @@
 
     <div class="mb-3">
         <label asp-for="QueueEntry.PartyId" class="form-label"></label>
-        <input asp-for="QueueEntry.PartyId" class="form-control" type="number" />
+        <select asp-for="QueueEntry.PartyId" class="form-control" asp-items="Model.PartyOptions">
+            <option value="">-- Select a Party --</option>
+        </select>
         <span asp-validation-for="QueueEntry.PartyId" class="text-danger"></span>
     </div>
+
 
     <div class="mb-3">
         <label asp-for="QueueEntry.Notes" class="form-label"></label>
@@ -40,11 +43,6 @@
         <span asp-validation-for="QueueEntry.EstimatedWaitMinutes" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="QueueEntry.SeatedAt" class="form-label"></label>
-        <input asp-for="QueueEntry.SeatedAt" class="form-control" type="datetime-local" />
-        <span asp-validation-for="QueueEntry.SeatedAt" class="text-danger"></span>
-    </div>
 
     <button type="submit" class="btn btn-primary">Save</button>
     <a class="btn btn-secondary" asp-page="Index">Cancel</a>
