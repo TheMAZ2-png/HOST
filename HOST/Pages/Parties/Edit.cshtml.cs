@@ -1,72 +1,98 @@
-using HOST.Data;
-using HOST.Models;
-using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using HOST.Data;
+using HOST.Models;
 
 namespace HOST.Pages.Parties
 {
-    [Authorize(Roles = "Manager")]
-
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly SignInManager<IdentityUser> _signInManager;
 
-        public EditModel(ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context, SignInManager<IdentityUser> signInManager)
         {
             _context = context;
+            _signInManager = signInManager;
         }
 
         [BindProperty]
-        public Party Party { get; set; } = new();
+        public Party Party { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            Party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
 
-            var party = await _context.Parties.AsNoTracking().FirstOrDefaultAsync(p => p.PartyId == id);
-            if (party == null)
-            {
+            if (Party == null)
                 return NotFound();
-            }
 
-            Party = party;
-            return Page();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Allow Managers OR the owner
+            if (User.IsInRole("Manager") || Party.OwnerId == userId)
+                return Page();
+
+            return Forbid();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            _context.Attach(Party).State = EntityState.Modified;
+            var partyInDb = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == Party.PartyId);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PartyExists(Party.PartyId))
-                {
-                    return NotFound();
-                }
+            if (partyInDb == null)
+                return NotFound();
 
-                throw;
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return RedirectToPage("./Index");
+            // Only Managers or the owner can update
+            if (!User.IsInRole("Manager") && partyInDb.OwnerId != userId)
+                return Forbid();
+
+            partyInDb.PartyName = Party.PartyName;
+            partyInDb.PhoneNumber = Party.PhoneNumber;
+            partyInDb.PartySize = Party.PartySize;
+            partyInDb.Notes = Party.Notes;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("Index");
         }
 
-        private bool PartyExists(int id)
+        // ⭐ NEW: Delete handler with Guest sign-out
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            return _context.Parties.Any(p => p.PartyId == id);
+            var party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
+
+            if (party == null)
+                return NotFound();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            bool isOwner = party.OwnerId == userId;
+            bool isStaff = User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host");
+
+            // Only Managers or the owner can delete
+            if (!isOwner && !isStaff)
+                return Forbid();
+
+            _context.Parties.Remove(party);
+            await _context.SaveChangesAsync();
+
+            // ⭐ If a Guest deletes their own party → sign them out + redirect home
+            if (isOwner && !isStaff)
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToPage("/Index");
+            }
+
+            // ⭐ Staff deleting → go back to Parties list
+            return RedirectToPage("Index");
         }
     }
 }

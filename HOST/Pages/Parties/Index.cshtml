@@ -99,10 +99,25 @@
                                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
                                     }
 
-                                    @* Only Managers get Delete *@
-                                    @if (User.IsInRole("Manager"))
+                                    @* STAFF: Delete any party using Delete page *@
+                                    @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                                     {
                                         <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
+                                    }
+                                    else
+                                    {
+                                        @* GUEST: Delete only their own party using Edit page delete handler *@
+                                        if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                                        {
+                                            <form method="post"
+                                                  asp-page="Edit"
+                                                  asp-page-handler="Delete"
+                                                  asp-route-id="@item.PartyId"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete your party?');">
+                                                <button type="submit" class="btn-danger-pink btn-sm">Delete</button>
+                                            </form>
+                                        }
                                     }
 
                                 </div>
