@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace HOST.Pages
 {
@@ -39,7 +39,7 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // Check if phone number already exists as a username
+            // 1. Prevent duplicate phone numbers
             var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
             if (existingUser != null)
             {
@@ -47,7 +47,7 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // 1. Create the Identity user FIRST
+            // 2. Create the Identity user
             var user = new IdentityUser
             {
                 UserName = PartyRegistration.PhoneNumber,
@@ -66,28 +66,36 @@ namespace HOST.Pages
             await _userManager.AddToRoleAsync(user, "Guest");
             await _userManager.AddClaimAsync(user, new Claim("PartyName", PartyRegistration.PartyName));
 
-            // 2. Only now create the Party
+            // 3. Create the Party
             var party = new Party
             {
                 PartyName = PartyRegistration.PartyName,
                 PhoneNumber = PartyRegistration.PhoneNumber,
                 PartySize = PartyRegistration.PartySize,
                 Notes = PartyRegistration.Notes,
-
-                // ⭐ ADD THIS LINE — tie the Party to the Guest user
                 OwnerId = user.Id
             };
 
             _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            // 3. Sign in
+            // 4. Automatically create a QueueEntry
+            var queueEntry = new QueueEntry
+            {
+                PartyId = party.PartyId,
+                Status = "Waiting",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.QueueEntries.Add(queueEntry);
+            await _context.SaveChangesAsync();
+
+            // 5. Sign in the guest
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            // 4. Redirect
+            // 6. Redirect to guest party dashboard
             return RedirectToPage("/Parties/Index");
         }
-
 
         public class PartyRegistrationInput
         {

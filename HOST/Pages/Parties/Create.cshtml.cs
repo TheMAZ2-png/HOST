@@ -26,13 +26,24 @@ namespace HOST.Pages.Parties
 
         public async Task<IActionResult> OnPostAsync()
         {
-            
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
+            // 1. Create the Party
             _context.Parties.Add(Party);
+            await _context.SaveChangesAsync();
+
+            // 2. Automatically create a QueueEntry
+            var queueEntry = new QueueEntry
+            {
+                PartyId = Party.PartyId,
+                Status = "Waiting",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.QueueEntries.Add(queueEntry);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
