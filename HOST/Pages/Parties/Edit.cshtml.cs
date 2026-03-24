@@ -63,6 +63,18 @@ namespace HOST.Pages.Parties
             partyInDb.PartySize = Party.PartySize;
             partyInDb.Notes = Party.Notes;
 
+            // ⭐ Sync QueueEntry (only if still waiting)
+            var queueEntry = await _context.QueueEntries
+                .FirstOrDefaultAsync(q => q.PartyId == partyInDb.PartyId && q.Status == "Waiting");
+
+            if (queueEntry != null)
+            {
+                queueEntry.UpdatedAt = DateTime.UtcNow;
+
+                // Optional: recalc wait time
+                // queueEntry.EstimatedWaitMinutes = CalculateWaitTime(partyInDb.PartySize);
+            }
+
             await _context.SaveChangesAsync();
 
             return RedirectToPage("Index");

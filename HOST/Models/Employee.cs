@@ -35,5 +35,8 @@ namespace HOST.Models
 
         public virtual ICollection<Seating> SeatedByEntries { get; set; } = new List<Seating>();
         public virtual ICollection<Seating> AssignedServerEntries { get; set; } = new List<Seating>();
+        public virtual ICollection<Seating> AssignedSeatings { get; set; } = new List<Seating>();
+        public virtual ICollection<Seating> SeatedParties { get; set; } = new List<Seating>();
+
     }
 }

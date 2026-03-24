@@ -1,0 +1,51 @@
+﻿@page "{id:int}"
+@model HOST.Pages.QueueEntries.SeatModel
+@{
+    ViewData["Title"] = "Seat Party";
+}
+
+<h2>Seat Party</h2>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <h4>@Model.Party.PartyName</h4>
+        <p>
+            <strong>Party Size:</strong> @Model.Party.PartySize<br />
+            <strong>Phone:</strong> @Model.Party.PhoneNumber<br />
+            <strong>Notes:</strong> @Model.Party.Notes
+        </p>
+    </div>
+</div>
+
+<form method="post" class="mt-4">
+
+    <div class="form-group">
+        <label>Select Table</label>
+        <select asp-for="SelectedTableId" class="form-control">
+            <option value="">-- Choose a Table --</option>
+            @foreach (var table in Model.AvailableTables)
+            {
+                <option value="@table.TableId">
+                    Table @table.TableNumber (Seats @table.SeatCapacity)
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Select Server</label>
+        <select asp-for="SelectedServerId" class="form-control">
+            <option value="">-- Choose a Server --</option>
+            @foreach (var server in Model.Servers)
+            {
+                <option value="@server.EmployeeId">
+                    @server.FirstName @server.LastName
+                </option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-4">Seat Party</button>
+    <a asp-page="./Index" class="btn btn-secondary mt-4">Cancel</a>
+
+</form>

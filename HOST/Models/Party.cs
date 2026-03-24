@@ -24,6 +24,8 @@ namespace HOST.Models
         public string OwnerId { get; set; }
 
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
+        public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
+
     }
 
 }

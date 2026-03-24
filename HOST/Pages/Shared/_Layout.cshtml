@@ -29,10 +29,17 @@
                         </li>
                     }
 
-
+                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                    {
                     
+                        <li>
+                            <a asp-page="/RestaurantTables/Index">Tables</a>
+                        </li>
 
-
+                        <li>
+                            <a asp-page="/Seatings/Index">Seating</a>
+                        </li>
+                    }
                     <!-- Parties -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
