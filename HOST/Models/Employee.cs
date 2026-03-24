@@ -1,42 +1,42 @@
+using HOST.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-namespace HOST.Models
+public class Employee
 {
-    public class Employee
-    {
-        [Key]
-        public int EmployeeId { get; set; }
+    [Key]
+    public int EmployeeId { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string Name { get; set; }
+    [Required]
+    [StringLength(50)]
+    public string Name { get; set; }
 
-        [StringLength(80)]
-        public string? DisplayName { get; set; }
+    [StringLength(80)]
+    public string? DisplayName { get; set; }
 
-        [StringLength(120)]
-        public string? Email { get; set; }
+    [StringLength(120)]
+    public string? Email { get; set; }
 
-        [StringLength(30)]
-        public string? Phone { get; set; }
+    [StringLength(30)]
+    public string? Phone { get; set; }
 
-        [StringLength(20)]
-        public string Role { get; set; }   // <-- NEW FIELD
+    [StringLength(20)]
+    public string Role { get; set; }
 
-        [Required]
-        [Column(TypeName = "datetime2")]
-        public DateTime CreatedAt { get; set; }
+    [StringLength(450)]
+    public string IdentityUserId { get; set; }   // ⭐ NEW FIELD
 
-        [AllowNull]
-        [Column(TypeName = "datetime2")]
-        public DateTime? UpdatedAt { get; set; }
+    [Required]
+    [Column(TypeName = "datetime2")]
+    public DateTime CreatedAt { get; set; }
 
-        public virtual ICollection<Seating> SeatedByEntries { get; set; } = new List<Seating>();
-        public virtual ICollection<Seating> AssignedServerEntries { get; set; } = new List<Seating>();
-        public virtual ICollection<Seating> AssignedSeatings { get; set; } = new List<Seating>();
-        public virtual ICollection<Seating> SeatedParties { get; set; } = new List<Seating>();
+    [AllowNull]
+    [Column(TypeName = "datetime2")]
+    public DateTime? UpdatedAt { get; set; }
 
-    }
+    public virtual ICollection<Seating> SeatedByEntries { get; set; } = new List<Seating>();
+    public virtual ICollection<Seating> AssignedServerEntries { get; set; } = new List<Seating>();
+    public virtual ICollection<Seating> AssignedSeatings { get; set; } = new List<Seating>();
+    public virtual ICollection<Seating> SeatedParties { get; set; } = new List<Seating>();
 }

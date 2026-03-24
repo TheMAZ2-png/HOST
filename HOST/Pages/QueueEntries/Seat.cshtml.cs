@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using HOST.Data;
 using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -35,20 +36,21 @@ namespace HOST.Pages.QueueEntries
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (QueueEntry == null)
-                return NotFound();
+                return NotFound($"QueueEntry not found for id={id}");
+
+            if (QueueEntry.Party == null)
+                return NotFound($"Party not found for QueueEntry id={id}");
 
             Party = QueueEntry.Party;
 
-            // Load available tables
             AvailableTables = await _context.RestaurantTables
                 .Where(t => t.Status == "Available" && t.IsActive)
                 .OrderBy(t => t.TableNumber)
                 .ToListAsync();
 
-            // Load servers
             Servers = await _context.Employees
                 .Where(e => e.Role == "Server")
-                .OrderBy(e => e.LastName)
+                .OrderBy(e => e.DisplayName ?? e.Name)
                 .ToListAsync();
 
             return Page();
@@ -61,21 +63,36 @@ namespace HOST.Pages.QueueEntries
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (queueEntry == null)
-                return NotFound();
+                return NotFound($"QueueEntry not found for id={id}");
+
+            if (queueEntry.Party == null)
+                return NotFound($"Party not found for QueueEntry id={id}");
 
             var table = await _context.RestaurantTables
                 .FirstOrDefaultAsync(t => t.TableId == SelectedTableId);
 
             if (table == null)
-                return NotFound();
+                return NotFound($"Table not found for id={SelectedTableId}");
 
-            // Create Seating record
+            // Logged-in IdentityUser
+            var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.IdentityUserId == identityUserId);
+
+            if (employee == null)
+            {
+                ModelState.AddModelError("", "Unable to determine the logged-in employee.");
+                return Page();
+            }
+
+            // Create seating record
             var seating = new Seating
             {
                 PartyId = queueEntry.PartyId,
                 RestaurantTableId = table.TableId,
                 AssignedServerId = SelectedServerId,
-                SeatedByEmployeeId = 0, // TODO: Replace with logged-in employee ID
+                SeatedByEmployeeId = employee.EmployeeId,
                 SeatedAt = DateTime.UtcNow
             };
 
