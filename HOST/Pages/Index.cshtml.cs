@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Security.Claims;   // <-- REQUIRED for adding claims
+using System.Security.Claims; 
 
 namespace HOST.Pages
 {
@@ -72,7 +72,10 @@ namespace HOST.Pages
                 PartyName = PartyRegistration.PartyName,
                 PhoneNumber = PartyRegistration.PhoneNumber,
                 PartySize = PartyRegistration.PartySize,
-                Notes = PartyRegistration.Notes
+                Notes = PartyRegistration.Notes,
+
+                // ⭐ ADD THIS LINE — tie the Party to the Guest user
+                OwnerId = user.Id
             };
 
             _context.Parties.Add(party);

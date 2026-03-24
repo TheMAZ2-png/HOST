@@ -1,54 +1,67 @@
-@page "{id:int}"
-@model HOST.Pages.Parties.EditModel
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using HOST.Data;
+using HOST.Models;
 
-@{
-    ViewData["Title"] = "Edit Party";
+namespace HOST.Pages.Parties
+{
+public class EditModel : PageModel
+{
+private readonly ApplicationDbContext _context;
+
+public EditModel(ApplicationDbContext context)
+{
+_context = context;
 }
 
-<div class="container mt-5 fade-in-1">
+[BindProperty]
+public Party Party { get; set; }
 
-    <h1 class="text-pink-dark mb-4 fade-in-2">Edit Party</h1>
+public async Task<IActionResult>
+OnGetAsync(int id)
+{
+Party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
 
-    <div class="card card-pink shadow fade-in-3">
-        <div class="card-body p-4">
+if (Party == null)
+return NotFound();
 
-            <form method="post">
+var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+// ⭐ Allow Managers OR the owner of the party
+if (User.IsInRole("Manager") || Party.OwnerId == userId)
+return Page();
 
-                <!-- REQUIRED HIDDEN ID FIELD -->
-                <input type="hidden" asp-for="Party.PartyId" />
+return Forbid(); // Prevents unauthorized access
+}
 
-                <div class="mb-3">
-                    <label class="form-label text-pink-dark">Party Name</label>
-                    <input asp-for="Party.PartyName" class="form-control input-pink" />
-                </div>
+public async Task<IActionResult>
+OnPostAsync()
+{
+if (!ModelState.IsValid)
+return Page();
 
-                <div class="mb-3">
-                    <label class="form-label text-pink-dark">Phone Number</label>
-                    <input asp-for="Party.PhoneNumber" class="form-control input-pink" />
-                </div>
+var partyInDb = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == Party.PartyId);
 
-                <div class="mb-3">
-                    <label class="form-label text-pink-dark">Party Size</label>
-                    <input asp-for="Party.PartySize" class="form-control input-pink" type="number" />
-                </div>
+if (partyInDb == null)
+return NotFound();
 
-                <div class="mb-3">
-                    <label class="form-label text-pink-dark">Notes</label>
-                    <textarea asp-for="Party.Notes" class="form-control input-pink"></textarea>
-                </div>
+var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-                <div class="mt-4 d-flex gap-3">
-                    <button type="submit" class="btn-primary btn-hero">Save</button>
-                    <a class="btn-secondary" asp-page="Index">Cancel</a>
-                </div>
+// ⭐ Same security check on POST
+if (!User.IsInRole("Manager") && partyInDb.OwnerId != userId)
+return Forbid();
 
-            </form>
+// Update allowed fields
+partyInDb.PartyName = Party.PartyName;
+partyInDb.PhoneNumber = Party.PhoneNumber;
+partyInDb.PartySize = Party.PartySize;
+partyInDb.Notes = Party.Notes;
 
-           
+await _context.SaveChangesAsync();
 
-        </div>
-    </div>
-
-</div>
+return RedirectToPage("Index");
+}
+}
+}
