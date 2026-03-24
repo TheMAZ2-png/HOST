@@ -76,48 +76,56 @@
                             <td class="text-end">
                                 <div class="action-buttons">
 
-                                    @* STAFF: always see Details *@
+                                    @* ============================
+                                       DETAILS BUTTON
+                                       ============================ *@
                                     @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                                     {
                                         <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
                                     }
                                     else
                                     {
-                                        @* GUEST: only see Details for their own party *@
                                         if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                         {
                                             <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
                                         }
                                     }
 
-                                    @* STAFF or OWNER can Edit *@
-                                    @if (User.IsInRole("Manager") ||
-                                                                             User.IsInRole("Server") ||
-                                                                             User.IsInRole("Host") ||
-                                                                             item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+
+                                    @* ============================
+                                       EDIT BUTTON
+                                       Only Manager + Guest Owner
+                                       ============================ *@
+                                    @if (User.IsInRole("Manager"))
+                                    {
+                                        <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
+                                    }
+                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
                                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
                                     }
 
-                                    @* STAFF: Delete any party using Delete page *@
-                                    @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+
+                                    @* ============================
+                                       DELETE BUTTON
+                                       Manager: full delete page
+                                       Guest owner: delete via Edit handler
+                                       Host/Server: NO delete
+                                       ============================ *@
+                                    @if (User.IsInRole("Manager"))
                                     {
                                         <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
                                     }
-                                    else
+                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
-                                        @* GUEST: Delete only their own party using Edit page delete handler *@
-                                        if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                                        {
-                                            <form method="post"
-                                                  asp-page="Edit"
-                                                  asp-page-handler="Delete"
-                                                  asp-route-id="@item.PartyId"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete your party?');">
-                                                <button type="submit" class="btn-danger-pink btn-sm">Delete</button>
-                                            </form>
-                                        }
+                                        <form method="post"
+                                              asp-page="Edit"
+                                              asp-page-handler="Delete"
+                                              asp-route-id="@item.PartyId"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to delete your party?');">
+                                            <button type="submit" class="btn-danger-pink btn-sm">Delete</button>
+                                        </form>
                                     }
 
                                 </div>

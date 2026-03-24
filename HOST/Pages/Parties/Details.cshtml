@@ -1,4 +1,5 @@
 @page "{id:int}"
+@using System.Security.Claims
 @model HOST.Pages.Parties.DetailsModel
 
 @{
@@ -27,7 +28,23 @@
             </dl>
 
             <div class="mt-4 d-flex gap-3 fade-in-4">
-                <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
+
+        
+
+                @* Manager: can edit any party *@
+                @if (User.IsInRole("Manager"))
+                {
+                    <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
+                }
+                else
+                {
+                    @* Guest: can edit only their own party *@
+                    if (Model.Party.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    {
+                        <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
+                    }
+                }
+
                 <a class="btn-secondary" asp-page="Index">Back to List</a>
             </div>
 
