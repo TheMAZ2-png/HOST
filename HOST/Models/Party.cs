@@ -26,6 +26,7 @@ namespace HOST.Models
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
         public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
 
+        public string Status { get; set; } = "Waiting";
     }
 
 }

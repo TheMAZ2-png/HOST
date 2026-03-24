@@ -32,5 +32,8 @@ namespace HOST.Models
 
         // Navigation properties
         public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
+
+        public int? CurrentPartyId { get; set; }
+
     }
 }

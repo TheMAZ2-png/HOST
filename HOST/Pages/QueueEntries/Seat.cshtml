@@ -4,6 +4,15 @@
     ViewData["Title"] = "Seat Party";
 }
 
+@if (Model.Party == null)
+{
+    <div class="alert alert-danger mt-3">
+        <strong>Error:</strong> No party found for this queue entry.
+    </div>
+    <a asp-page="./Index" class="btn btn-secondary mt-3">Back to Queue</a>
+    return;
+}
+
 <h2>Seat Party</h2>
 
 <div class="card mt-3">
@@ -39,7 +48,7 @@
             @foreach (var server in Model.Servers)
             {
                 <option value="@server.EmployeeId">
-                    @server.FirstName @server.LastName
+                    @(server.DisplayName ?? server.Name)
                 </option>
             }
         </select>
