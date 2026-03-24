@@ -54,6 +54,10 @@ namespace HOST.Pages.Parties
             if (!User.IsInRole("Manager") && partyInDb.OwnerId != userId)
                 return Forbid();
 
+            // ⭐ Ensure EF Core is tracking the entity
+            _context.Attach(partyInDb);
+
+            // Update allowed fields
             partyInDb.PartyName = Party.PartyName;
             partyInDb.PhoneNumber = Party.PhoneNumber;
             partyInDb.PartySize = Party.PartySize;
@@ -64,7 +68,7 @@ namespace HOST.Pages.Parties
             return RedirectToPage("Index");
         }
 
-        // ⭐ NEW: Delete handler with Guest sign-out
+        // ⭐ Delete handler with Guest sign-out
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
@@ -84,7 +88,7 @@ namespace HOST.Pages.Parties
             _context.Parties.Remove(party);
             await _context.SaveChangesAsync();
 
-            // ⭐ If a Guest deletes their own party → sign them out + redirect home
+            // ⭐ If a Guest deletes their own party → sign out + redirect home
             if (isOwner && !isStaff)
             {
                 await _signInManager.SignOutAsync();
