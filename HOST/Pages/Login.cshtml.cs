@@ -41,51 +41,66 @@ namespace HOST.Pages
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
+            // ============================
+            // 1. MANAGER LOGIN FLOW
+            // ============================
             var managerAccount = await _context.ManagerAccounts
                 .AsNoTracking()
                 .FirstOrDefaultAsync(account => account.Email == Input.Email);
 
-            if (managerAccount == null)
+            if (managerAccount != null)
             {
-                return await HandleFailedLoginAsync();
-            }
+                var passwordHasher = new PasswordHasher<ManagerAccount>();
+                var passwordResult = passwordHasher.VerifyHashedPassword(
+                    managerAccount,
+                    managerAccount.PasswordHash,
+                    Input.Password
+                );
 
-            var passwordHasher = new PasswordHasher<ManagerAccount>();
-            var passwordResult = passwordHasher.VerifyHashedPassword(managerAccount, managerAccount.PasswordHash, Input.Password);
-
-            if (passwordResult == PasswordVerificationResult.Success)
-            {
-                var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null)
+                if (passwordResult == PasswordVerificationResult.Success)
                 {
-                    user = new IdentityUser
-                    {
-                        UserName = Input.Email,
-                        Email = Input.Email,
-                        EmailConfirmed = true
-                    };
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
 
-                    var randomPassword = $"{Guid.NewGuid():N}!aA1";
-                    var createResult = await _userManager.CreateAsync(user, randomPassword);
-                    if (!createResult.Succeeded)
+                    // Create Identity user if missing
+                    if (user == null)
                     {
-                        _logger.LogWarning("Failed to create identity user for manager account {Email}.", Input.Email);
-                        return await HandleFailedLoginAsync();
+                        user = new IdentityUser
+                        {
+                            UserName = Input.Email,
+                            Email = Input.Email,
+                            EmailConfirmed = true
+                        };
+
+                        var randomPassword = $"{Guid.NewGuid():N}!aA1";
+                        var createResult = await _userManager.CreateAsync(user, randomPassword);
+
+                        if (!createResult.Succeeded)
+                            return await HandleFailedLoginAsync();
                     }
-                }
 
-                if (!await _userManager.IsInRoleAsync(user, global::HOST.Constants.Roles.Manager.ToString()))
-                {
-                    await _userManager.AddToRoleAsync(user, global::HOST.Constants.Roles.Manager.ToString());
-                }
+                    // Ensure Manager role
+                    if (!await _userManager.IsInRoleAsync(user, "Manager"))
+                        await _userManager.AddToRoleAsync(user, "Manager");
 
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToPage("/homePage");
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToPage("/homePage");
+                }
             }
+
+            // ============================
+            // 2. HOST / SERVER LOGIN FLOW
+            // ============================
+            var result = await _signInManager.PasswordSignInAsync(
+                Input.Email,
+                Input.Password,
+                isPersistent: false,
+                lockoutOnFailure: false
+            );
+
+            if (result.Succeeded)
+                return RedirectToPage("/homePage");
 
             return await HandleFailedLoginAsync();
         }
