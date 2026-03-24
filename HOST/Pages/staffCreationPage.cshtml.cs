@@ -40,6 +40,13 @@ namespace HOST.Pages
                 return Page();
             }
 
+            // Safety check: prevent Manager creation even if someone tampers with the form
+            if (SelectedRole == "Manager")
+            {
+                ModelState.AddModelError(string.Empty, "Manager accounts cannot be created.");
+                return Page();
+            }
+
             // Create Identity user
             var user = new IdentityUser
             {
@@ -57,38 +64,24 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // Assign Identity role
+            // Assign Identity role (Host or Server only)
             await _userManager.AddToRoleAsync(user, SelectedRole);
 
-            // Create domain model
-            if (SelectedRole == "Manager")
+            // Create domain model entry for employees
+            var employee = new Employee
             {
-                var manager = new ManagerAccount
-                {
-                    Email = Email,
-                    PasswordHash = user.PasswordHash!,
-                    CreatedAt = DateTime.UtcNow
-                };
+                Name = $"{FirstName} {LastName}",
+                Email = Email,
+                Role = SelectedRole,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            };
 
-                _context.ManagerAccounts.Add(manager);
-            }
-            else
-            {
-                var employee = new Employee
-                {
-                    Name = $"{FirstName} {LastName}",
-                    Email = Email,
-                    Role = SelectedRole,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = null
-                };
-
-                _context.Employees.Add(employee);
-            }
+            _context.Employees.Add(employee);
 
             await _context.SaveChangesAsync();
 
-            // Auto-login (RELIABLE METHOD)
+            // Auto-login
             await _signInManager.PasswordSignInAsync(
                 Email,
                 Password,
@@ -96,7 +89,6 @@ namespace HOST.Pages
                 lockoutOnFailure: false
             );
 
-            // Redirect to homePage instead of Index
             return RedirectToPage("/homePage");
         }
     }
