@@ -1,5 +1,5 @@
 @page
-
+@using System.Security.Claims
 @model HOST.Pages.Parties.IndexModel
 
 @{
@@ -10,12 +10,13 @@
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3 fade-in-3">
-        <a class="btn-primary btn-hero" asp-page="Create">New Party</a>
-    </div>
-
+    @* Manager-only controls *@
     @if (User.IsInRole("Manager"))
     {
+        <div class="mb-3 fade-in-3">
+            <a class="btn-primary btn-hero" asp-page="Create">New Party</a>
+        </div>
+
         <div class="mb-4 fade-in-3">
             <form method="post" asp-page-handler="DeleteAll" class="d-inline">
                 <button type="submit"
@@ -34,33 +35,78 @@
                 <thead>
                     <tr>
                         <th>Party Name</th>
-                        <th>Phone Number</th>
+
+                        @* Staff-only columns *@
+                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                        {
+                            <th>Phone Number</th>
+                        }
+
                         <th>Party Size</th>
-                        <th>Notes</th>
+
+                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                        {
+                            <th>Notes</th>
+                        }
+
                         <th class="text-end"></th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Model.Parties)
                     {
                         <tr>
                             <td>@item.PartyName</td>
-                            <td>@item.PhoneNumber</td>
+
+                            @* Staff-only phone number *@
+                            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                            {
+                                <td>@item.PhoneNumber</td>
+                            }
+
                             <td>@item.PartySize</td>
-                            <td>@item.Notes</td>
+
+                            @* Staff-only notes *@
+                            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                            {
+                                <td>@item.Notes</td>
+                            }
 
                             <td class="text-end">
                                 <div class="action-buttons">
-                                    <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
 
-                                    @if (User.IsInRole("Manager"))
+                                    @* STAFF: always see Details *@
+                                    @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                                    {
+                                        <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
+                                    }
+                                    else
+                                    {
+                                        @* GUEST: only see Details for their own party *@
+                                        if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                                        {
+                                            <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
+                                        }
+                                    }
+
+                                    @* STAFF or OWNER can Edit *@
+                                    @if (User.IsInRole("Manager") ||
+                                                                             User.IsInRole("Server") ||
+                                                                             User.IsInRole("Host") ||
+                                                                             item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
                                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
+                                    }
+
+                                    @* Only Managers get Delete *@
+                                    @if (User.IsInRole("Manager"))
+                                    {
                                         <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
                                     }
+
                                 </div>
                             </td>
-
                         </tr>
                     }
                 </tbody>

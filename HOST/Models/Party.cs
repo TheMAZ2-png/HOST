@@ -21,7 +21,9 @@ namespace HOST.Models
         [StringLength(250)]
         public string? Notes { get; set; }
 
-        // Navigation properties
+        public string OwnerId { get; set; }
+
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
     }
+
 }
