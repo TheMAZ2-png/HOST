@@ -3,6 +3,7 @@ using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace HOST.Pages.Parties
@@ -18,7 +19,7 @@ namespace HOST.Pages.Parties
         }
 
         [BindProperty]
-        public Party Party { get; set; } = new();
+        public PartyInputModel PartyInput { get; set; } = new();
 
         public IActionResult OnGet()
         {
@@ -28,21 +29,26 @@ namespace HOST.Pages.Parties
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            // ⭐ FIX A — Set OwnerId to the logged‑in Manager’s IdentityUser ID
-            Party.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Create Party
+            var party = new Party
+            {
+                PartyName = PartyInput.PartyName,
+                PhoneNumber = PartyInput.PhoneNumber,
+                PartySize = PartyInput.PartySize,
+                Notes = PartyInput.Notes,
+                OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Status = "Waiting"
+            };
 
-            // 1. Create the Party
-            _context.Parties.Add(Party);
+            _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            // 2. Automatically create a QueueEntry
+            // Create QueueEntry
             var queueEntry = new QueueEntry
             {
-                PartyId = Party.PartyId,
+                PartyId = party.PartyId,
                 Status = "Waiting",
                 CreatedAt = DateTime.UtcNow
             };
@@ -51,6 +57,24 @@ namespace HOST.Pages.Parties
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
+        }
+
+        public class PartyInputModel
+        {
+            [Required]
+            [StringLength(80)]
+            public string PartyName { get; set; }
+
+            [Required]
+            [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
+            public string PhoneNumber { get; set; }
+
+            [Required]
+            [Range(1, 12)]
+            public int PartySize { get; set; }
+
+            [StringLength(250)]
+            public string? Notes { get; set; }
         }
     }
 }
