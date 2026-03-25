@@ -27,9 +27,7 @@ namespace HOST.Pages.Employees
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
             Employee.CreatedAt = DateTime.UtcNow;
             Employee.UpdatedAt = null;

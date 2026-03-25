@@ -26,12 +26,18 @@
     </div>
 </div>
 
-<form method="post" class="mt-4">
+<!-- ⭐ FORM POSTS TO THE CORRECT ROUTE AND INCLUDES ANTI-FORGERY TOKEN -->
+<form method="post"
+      asp-page="/QueueEntries/Seat"
+      asp-route-id="@Model.QueueEntry.QueueEntryId"
+      class="mt-4">
+
+    @Html.AntiForgeryToken()
 
     <div class="form-group">
         <label>Select Table</label>
-        <select asp-for="SelectedTableId" class="form-control">
-            <option value="">-- Choose a Table --</option>
+        <select asp-for="SelectedTableId" class="form-control" required>
+            <option disabled selected>-- Choose a Table --</option>
             @foreach (var table in Model.AvailableTables)
             {
                 <option value="@table.TableId">
@@ -43,8 +49,8 @@
 
     <div class="form-group mt-3">
         <label>Select Server</label>
-        <select asp-for="SelectedServerId" class="form-control">
-            <option value="">-- Choose a Server --</option>
+        <select asp-for="SelectedServerId" class="form-control" required>
+            <option disabled selected>-- Choose a Server --</option>
             @foreach (var server in Model.Servers)
             {
                 <option value="@server.EmployeeId">

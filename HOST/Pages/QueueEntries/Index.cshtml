@@ -19,7 +19,8 @@
             <table class="table table-pink">
                 <thead>
                     <tr>
-                        <th>Party ID</th>
+                        <th>Party Name</th>
+                        <th>Party Size</th>
                         <th>Status</th>
                         <th>Estimated Wait</th>
                         <th>Created At</th>
@@ -30,7 +31,8 @@
                     @foreach (var item in Model.QueueEntries)
                     {
                         <tr>
-                            <td>@item.PartyId</td>
+                            <td>@item.Party?.PartyName</td>
+                            <td>@item.Party?.PartySize</td>
                             <td>@item.Status</td>
                             <td>@(item.EstimatedWaitMinutes?.ToString() ?? "-")</td>
                             <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
@@ -39,10 +41,11 @@
                                     <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.QueueEntryId">Details</a>
                                     <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.QueueEntryId">Edit</a>
                                     <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.QueueEntryId">Delete</a>
-                                    <a asp-page="./Seat" asp-route-id="@item.QueueEntryId" class="btn btn-success">
+                                    <a asp-page="/QueueEntries/Seat"
+                                           asp-route-id="@item.QueueEntryId"
+                                           class="btn btn-success btn-sm">
                                         Seat
                                     </a>
-
                                 </div>
                             </td>
                         </tr>

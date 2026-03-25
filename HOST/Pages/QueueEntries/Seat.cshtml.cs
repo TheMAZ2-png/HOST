@@ -36,10 +36,32 @@ namespace HOST.Pages.QueueEntries
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (QueueEntry == null)
-                return NotFound($"QueueEntry not found for id={id}");
+            {
+                TempData["ErrorMessage"] = $"Queue entry {id} was not found.";
+                return RedirectToPage("./Index");
+            }
 
             if (QueueEntry.Party == null)
-                return NotFound($"Party not found for QueueEntry id={id}");
+            {
+                TempData["ErrorMessage"] = "This queue entry has no associated party.";
+                return RedirectToPage("./Index");
+            }
+
+            if (QueueEntry.Status == "Seated")
+            {
+                TempData["ErrorMessage"] = "This party is already seated.";
+                return RedirectToPage("./Index");
+            }
+
+            var existingTable = await _context.RestaurantTables
+                .FirstOrDefaultAsync(t => t.CurrentPartyId == QueueEntry.PartyId);
+
+            if (existingTable != null)
+            {
+                TempData["ErrorMessage"] =
+                    $"This party is already seated at Table {existingTable.TableNumber}.";
+                return RedirectToPage("./Index");
+            }
 
             Party = QueueEntry.Party;
 
@@ -56,37 +78,69 @@ namespace HOST.Pages.QueueEntries
             return Page();
         }
 
+        // ⭐ FIX: ValidateAntiForgeryToken belongs HERE, not on the class
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(int id)
         {
+            Console.WriteLine("POST HIT: Starting OnPostAsync");
+
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("FAIL: ModelState invalid");
+                TempData["ErrorMessage"] = "Form submission failed validation.";
+                return RedirectToPage("./Index");
+            }
+
             var queueEntry = await _context.QueueEntries
                 .Include(q => q.Party)
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (queueEntry == null)
-                return NotFound($"QueueEntry not found for id={id}");
+            {
+                Console.WriteLine("FAIL: queueEntry null");
+                TempData["ErrorMessage"] = "Queue entry not found.";
+                return RedirectToPage("./Index");
+            }
 
             if (queueEntry.Party == null)
-                return NotFound($"Party not found for QueueEntry id={id}");
+            {
+                Console.WriteLine("FAIL: Party null");
+                TempData["ErrorMessage"] = "This queue entry has no associated party.";
+                return RedirectToPage("./Index");
+            }
+
+            if (queueEntry.Status == "Seated")
+            {
+                Console.WriteLine("FAIL: Already seated");
+                TempData["ErrorMessage"] = "This party is already seated.";
+                return RedirectToPage("./Index");
+            }
 
             var table = await _context.RestaurantTables
                 .FirstOrDefaultAsync(t => t.TableId == SelectedTableId);
 
             if (table == null)
-                return NotFound($"Table not found for id={SelectedTableId}");
+            {
+                Console.WriteLine($"FAIL: Table {SelectedTableId} not found");
+                TempData["ErrorMessage"] = "Selected table not found.";
+                return RedirectToPage("./Index");
+            }
 
-            // Logged-in IdentityUser
             var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Console.WriteLine($"identityUserId = {identityUserId}");
 
             var employee = await _context.Employees
                 .FirstOrDefaultAsync(e => e.IdentityUserId == identityUserId);
 
             if (employee == null)
             {
-                ModelState.AddModelError("", "Unable to determine the logged-in employee.");
-                return Page();
+                Console.WriteLine("FAIL: employee null");
+                TempData["ErrorMessage"] = "Unable to determine logged-in employee.";
+                return RedirectToPage("./Index");
             }
 
-            // Create seating record
+            Console.WriteLine("SUCCESS: All checks passed, seating party now.");
+
             var seating = new Seating
             {
                 PartyId = queueEntry.PartyId,
@@ -98,19 +152,19 @@ namespace HOST.Pages.QueueEntries
 
             _context.Seatings.Add(seating);
 
-            // Update table
             table.Status = "Occupied";
             table.CurrentPartyId = queueEntry.PartyId;
+            _context.RestaurantTables.Update(table);
 
-            // Update queue entry
             queueEntry.Status = "Seated";
             queueEntry.SeatedAt = DateTime.UtcNow;
-
-            // Update party
             queueEntry.Party.Status = "Seated";
 
             await _context.SaveChangesAsync();
 
+            Console.WriteLine("SUCCESS: SaveChanges completed.");
+
+            TempData["SuccessMessage"] = "Party successfully seated.";
             return RedirectToPage("./Index");
         }
     }
