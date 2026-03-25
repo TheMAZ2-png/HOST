@@ -45,5 +45,18 @@ namespace HOST.Models
         [ValidateNever]
         public virtual Party Party { get; set; }
 
+
+        [NotMapped]
+        public int? ActualWaitMinutes
+        {
+            get
+            {
+                if (SeatedAt == null)
+                    return null;
+
+                return (int)(SeatedAt.Value - CreatedAt).TotalMinutes;
+            }
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace HOST.Models
@@ -27,6 +28,26 @@ namespace HOST.Models
         public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
 
         public string Status { get; set; } = "Waiting";
+
+
+        [NotMapped]
+        public int? CurrentWaitMinutes
+        {
+            get
+            {
+                var activeEntry = QueueEntries
+                    .Where(q => q.Status == "Waiting")
+                    .OrderByDescending(q => q.CreatedAt)
+                    .FirstOrDefault();
+
+                if (activeEntry == null)
+                    return null;
+
+                return (int)(DateTime.UtcNow - activeEntry.CreatedAt).TotalMinutes;
+            }
+        }
+
+
     }
 
 }

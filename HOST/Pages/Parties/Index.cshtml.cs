@@ -22,8 +22,8 @@ namespace HOST.Pages.Parties
 
         public async Task OnGetAsync()
         {
-            // Load all parties for everyone
             Parties = await _context.Parties
+                .Include(p => p.QueueEntries)   // ⭐ Needed for wait time
                 .AsNoTracking()
                 .ToListAsync();
         }

@@ -1,4 +1,5 @@
 @page
+<meta http-equiv="refresh" content="60">
 @using System.Security.Claims
 @model HOST.Pages.Parties.IndexModel
 
@@ -36,7 +37,6 @@
                     <tr>
                         <th>Party Name</th>
 
-                        @* Staff-only columns *@
                         @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                         {
                             <th>Phone Number</th>
@@ -49,6 +49,8 @@
                             <th>Notes</th>
                         }
 
+                        <th>Wait Time</th>
+
                         <th class="text-end"></th>
                     </tr>
                 </thead>
@@ -59,7 +61,6 @@
                         <tr>
                             <td>@item.PartyName</td>
 
-                            @* Staff-only phone number *@
                             @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                             {
                                 <td>@item.PhoneNumber</td>
@@ -67,35 +68,33 @@
 
                             <td>@item.PartySize</td>
 
-                            @* Staff-only notes *@
                             @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                             {
                                 <td>@item.Notes</td>
                             }
 
+                            <td>
+                                @(
+                                    item.CurrentWaitMinutes.HasValue
+                                        ? item.CurrentWaitMinutes + " min"
+                                        : "-"
+                                )
+                            </td>
+
                             <td class="text-end">
                                 <div class="action-buttons">
 
-                                    @* ============================
-                                       DETAILS BUTTON
-                                       ============================ *@
+                                    @* DETAILS *@
                                     @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
                                     {
                                         <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
                                     }
-                                    else
+                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                                     {
-                                        if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                                        {
-                                            <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
-                                        }
+                                        <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
                                     }
 
-
-                                    @* ============================
-                                       EDIT BUTTON
-                                       Only Manager + Guest Owner
-                                       ============================ *@
+                                    @* EDIT *@
                                     @if (User.IsInRole("Manager"))
                                     {
                                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
@@ -105,13 +104,7 @@
                                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
                                     }
 
-
-                                    @* ============================
-                                       DELETE BUTTON
-                                       Manager: full delete page
-                                       Guest owner: delete via Edit handler
-                                       Host/Server: NO delete
-                                       ============================ *@
+                                    @* DELETE *@
                                     @if (User.IsInRole("Manager"))
                                     {
                                         <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
