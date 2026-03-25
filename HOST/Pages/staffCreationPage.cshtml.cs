@@ -40,7 +40,6 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // Safety check: prevent Manager creation even if someone tampers with the form
             if (SelectedRole == "Manager")
             {
                 ModelState.AddModelError(string.Empty, "Manager accounts cannot be created.");
@@ -64,21 +63,21 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // Assign Identity role (Host or Server only)
+            // Assign Identity role
             await _userManager.AddToRoleAsync(user, SelectedRole);
 
-            // Create domain model entry for employees
+            // Create Employee record linked to Identity user
             var employee = new Employee
             {
                 Name = $"{FirstName} {LastName}",
                 Email = Email,
                 Role = SelectedRole,
+                IdentityUserId = user.Id,   // ⭐ REQUIRED FIX
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null
             };
 
             _context.Employees.Add(employee);
-
             await _context.SaveChangesAsync();
 
             // Auto-login

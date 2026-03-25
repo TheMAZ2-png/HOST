@@ -3,6 +3,7 @@ using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace HOST.Pages.Parties
 {
@@ -30,6 +31,9 @@ namespace HOST.Pages.Parties
             {
                 return Page();
             }
+
+            // ⭐ FIX A — Set OwnerId to the logged‑in Manager’s IdentityUser ID
+            Party.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // 1. Create the Party
             _context.Parties.Add(Party);

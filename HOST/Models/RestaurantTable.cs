@@ -35,5 +35,8 @@ namespace HOST.Models
 
         public int? CurrentPartyId { get; set; }
 
+        public Party? CurrentParty { get; set; }
+
+
     }
 }

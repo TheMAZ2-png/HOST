@@ -20,7 +20,11 @@ namespace HOST.Pages.RestaurantTables
 
         public async Task OnGetAsync()
         {
-            RestaurantTables = await _context.RestaurantTables.AsNoTracking().ToListAsync();
+            RestaurantTables = await _context.RestaurantTables
+                .Include(t => t.CurrentParty)   // ⭐ Load assigned party
+                .AsNoTracking()
+                .OrderBy(t => t.TableNumber)
+                .ToListAsync();
         }
     }
 }

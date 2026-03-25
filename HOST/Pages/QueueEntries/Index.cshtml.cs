@@ -20,7 +20,12 @@ namespace HOST.Pages.QueueEntries
 
         public async Task OnGetAsync()
         {
-            QueueEntries = await _context.QueueEntries.AsNoTracking().ToListAsync();
+            QueueEntries = await _context.QueueEntries
+                .Where(q => q.Status == "Waiting")   // ⭐ Only show waiting parties
+                .Include(q => q.Party)               // Load party info
+                .AsNoTracking()
+                .OrderBy(q => q.CreatedAt)
+                .ToListAsync();
         }
     }
 }

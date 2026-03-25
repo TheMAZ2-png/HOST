@@ -18,6 +18,7 @@
             <th>Seat Capacity</th>
             <th>Section</th>
             <th>Status</th>
+            <th>Current Party</th>
             <th>Active</th>
             <th></th>
         </tr>
@@ -30,7 +31,20 @@
                 <td>@item.SeatCapacity</td>
                 <td>@item.Section</td>
                 <td>@item.Status</td>
+
+                <td>
+                    @if (item.CurrentParty != null)
+                    {
+                        <span>@item.CurrentParty.PartyName (@item.CurrentParty.PartySize)</span>
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </td>
+
                 <td>@(item.IsActive ? "Yes" : "No")</td>
+
                 <td class="text-end">
                     <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.TableId">Details</a>
                     <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.TableId">Edit</a>
