@@ -78,40 +78,27 @@ namespace HOST.Pages.QueueEntries
             return Page();
         }
 
-        // ⭐ FIX: ValidateAntiForgeryToken belongs HERE, not on the class
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            Console.WriteLine("POST HIT: Starting OnPostAsync");
-
-            if (!ModelState.IsValid)
-            {
-                Console.WriteLine("FAIL: ModelState invalid");
-                TempData["ErrorMessage"] = "Form submission failed validation.";
-                return RedirectToPage("./Index");
-            }
-
             var queueEntry = await _context.QueueEntries
                 .Include(q => q.Party)
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (queueEntry == null)
             {
-                Console.WriteLine("FAIL: queueEntry null");
                 TempData["ErrorMessage"] = "Queue entry not found.";
                 return RedirectToPage("./Index");
             }
 
             if (queueEntry.Party == null)
             {
-                Console.WriteLine("FAIL: Party null");
                 TempData["ErrorMessage"] = "This queue entry has no associated party.";
                 return RedirectToPage("./Index");
             }
 
             if (queueEntry.Status == "Seated")
             {
-                Console.WriteLine("FAIL: Already seated");
                 TempData["ErrorMessage"] = "This party is already seated.";
                 return RedirectToPage("./Index");
             }
@@ -121,26 +108,21 @@ namespace HOST.Pages.QueueEntries
 
             if (table == null)
             {
-                Console.WriteLine($"FAIL: Table {SelectedTableId} not found");
                 TempData["ErrorMessage"] = "Selected table not found.";
                 return RedirectToPage("./Index");
             }
 
             var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Console.WriteLine($"identityUserId = {identityUserId}");
-
             var employee = await _context.Employees
                 .FirstOrDefaultAsync(e => e.IdentityUserId == identityUserId);
 
             if (employee == null)
             {
-                Console.WriteLine("FAIL: employee null");
                 TempData["ErrorMessage"] = "Unable to determine logged-in employee.";
                 return RedirectToPage("./Index");
             }
 
-            Console.WriteLine("SUCCESS: All checks passed, seating party now.");
-
+            // ⭐ Create seating record
             var seating = new Seating
             {
                 PartyId = queueEntry.PartyId,
@@ -152,17 +134,22 @@ namespace HOST.Pages.QueueEntries
 
             _context.Seatings.Add(seating);
 
+            // ⭐ Update table
             table.Status = "Occupied";
             table.CurrentPartyId = queueEntry.PartyId;
-            _context.RestaurantTables.Update(table);
 
+            // ⭐ Update queue entry
             queueEntry.Status = "Seated";
             queueEntry.SeatedAt = DateTime.UtcNow;
-            queueEntry.Party.Status = "Seated";
 
+            // ⭐ Save seating + table updates BEFORE deleting Party
             await _context.SaveChangesAsync();
 
-            Console.WriteLine("SUCCESS: SaveChanges completed.");
+            // ⭐ Delete QueueEntry + Party
+            _context.QueueEntries.Remove(queueEntry);
+            _context.Parties.Remove(queueEntry.Party);
+
+            await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Party successfully seated.";
             return RedirectToPage("./Index");
