@@ -7,42 +7,64 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<form method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="RestaurantTable.TableId" />
+<div class="card card-pink shadow p-4">
 
-    <div class="mb-3">
-        <label asp-for="RestaurantTable.TableNumber" class="form-label"></label>
-        <input asp-for="RestaurantTable.TableNumber" class="form-control" type="number" />
-        <span asp-validation-for="RestaurantTable.TableNumber" class="text-danger"></span>
-    </div>
+    @if (Model.RestaurantTable.CurrentPartyId != null)
+    {
+        <div class="alert alert-danger">
+            <strong>This table cannot be edited.</strong><br />
+            A party is currently seated at this table.
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="RestaurantTable.SeatCapacity" class="form-label"></label>
-        <input asp-for="RestaurantTable.SeatCapacity" class="form-control" type="number" />
-        <span asp-validation-for="RestaurantTable.SeatCapacity" class="text-danger"></span>
-    </div>
+        <p>
+            <strong>Current Party:</strong>
+            @Model.RestaurantTable.CurrentParty?.PartyName
+            (@Model.RestaurantTable.CurrentParty?.PartySize)
+        </p>
 
-    <div class="mb-3">
-        <label asp-for="RestaurantTable.Section" class="form-label"></label>
-        <input asp-for="RestaurantTable.Section" class="form-control" />
-        <span asp-validation-for="RestaurantTable.Section" class="text-danger"></span>
-    </div>
+        <a asp-page="Clear"
+               asp-route-id="@Model.RestaurantTable.TableId"
+               class="btn btn-warning mt-3">
+            Clear Table
+        </a>
 
-    <div class="mb-3">
-        <label asp-for="RestaurantTable.Status" class="form-label"></label>
-        <input asp-for="RestaurantTable.Status" class="form-control" />
-        <span asp-validation-for="RestaurantTable.Status" class="text-danger"></span>
-    </div>
+        <a asp-page="Index" class="btn btn-secondary mt-3 ms-2">Back</a>
+    }
+    else
+    {
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="RestaurantTable.TableId" />
 
-    <div class="mb-3 form-check">
-        <input asp-for="RestaurantTable.IsActive" class="form-check-input" type="checkbox" />
-        <label asp-for="RestaurantTable.IsActive" class="form-check-label"></label>
-    </div>
+            <div class="mb-3">
+                <label asp-for="RestaurantTable.TableNumber" class="form-label"></label>
+                <input asp-for="RestaurantTable.TableNumber" class="form-control" type="number" />
+                <span asp-validation-for="RestaurantTable.TableNumber" class="text-danger"></span>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a class="btn btn-secondary" asp-page="Index">Cancel</a>
-</form>
+            <div class="mb-3">
+                <label asp-for="RestaurantTable.SeatCapacity" class="form-label"></label>
+                <input asp-for="RestaurantTable.SeatCapacity" class="form-control" type="number" />
+                <span asp-validation-for="RestaurantTable.SeatCapacity" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RestaurantTable.Section" class="form-label"></label>
+                <input asp-for="RestaurantTable.Section" class="form-control" />
+                <span asp-validation-for="RestaurantTable.Section" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input asp-for="RestaurantTable.IsActive" class="form-check-input" type="checkbox" />
+                <label asp-for="RestaurantTable.IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+        </form>
+    }
+
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

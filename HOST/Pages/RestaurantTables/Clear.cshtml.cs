@@ -24,6 +24,7 @@ namespace HOST.Pages.RestaurantTables
         {
             Table = await _context.RestaurantTables
                 .Include(t => t.CurrentParty)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.TableId == id);
 
             if (Table == null)
@@ -34,6 +35,7 @@ namespace HOST.Pages.RestaurantTables
 
         public async Task<IActionResult> OnPostAsync(int id)
         {
+            // Load table with tracking
             var table = await _context.RestaurantTables
                 .FirstOrDefaultAsync(t => t.TableId == id);
 
@@ -46,10 +48,20 @@ namespace HOST.Pages.RestaurantTables
                 return RedirectToPage("Index");
             }
 
-            // ⭐ NEW BEHAVIOR:
-            // Party + QueueEntry are already deleted during seating.
-            // Clearing the table ONLY resets the table.
+            // Load the party assigned to this table
+            var party = await _context.Parties
+                .FirstOrDefaultAsync(p => p.PartyId == table.CurrentPartyId);
 
+            if (party != null)
+            {
+                // Update party status
+                party.Status = "Completed";
+
+                // OPTIONAL: delete the party entirely
+                // _context.Parties.Remove(party);
+            }
+
+            // Clear the table
             table.Status = "Available";
             table.CurrentPartyId = null;
 

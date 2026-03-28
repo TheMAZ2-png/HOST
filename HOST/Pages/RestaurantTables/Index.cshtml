@@ -50,7 +50,6 @@
                     <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.TableId">Edit</a>
                     <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.TableId">Delete</a>
 
-                    @* ⭐ NEW: Clear button only when a party is seated *@
                     @if (item.CurrentPartyId != null)
                     {
                         <a class="btn btn-sm btn-warning"

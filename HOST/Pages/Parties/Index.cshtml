@@ -29,106 +29,30 @@
         </div>
     }
 
-    <div class="card card-pink shadow fade-in-4">
-        <div class="card-body p-4">
+    @* ============================
+       STAFF VIEW (Manager/Host/Server)
+       ============================ *@
+    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+    {
+        <!-- WAITING PARTIES -->
+        <h3 class="mt-4">Waiting Parties</h3>
+        <partial name="_PartyTable" model="Model.WaitingParties" />
 
-            <table class="table table-pink">
-                <thead>
-                    <tr>
-                        <th>Party Name</th>
+        <!-- SEATED PARTIES -->
+        <h3 class="mt-5">Seated Parties</h3>
+        <partial name="_PartyTable" model="Model.SeatedParties" />
 
-                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                        {
-                            <th>Phone Number</th>
-                        }
-
-                        <th>Party Size</th>
-
-                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                        {
-                            <th>Notes</th>
-                        }
-
-                        <th>Wait Time</th>
-
-                        <th class="text-end"></th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var item in Model.Parties)
-                    {
-                        <tr>
-                            <td>@item.PartyName</td>
-
-                            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                            {
-                                <td>@item.PhoneNumber</td>
-                            }
-
-                            <td>@item.PartySize</td>
-
-                            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                            {
-                                <td>@item.Notes</td>
-                            }
-
-                            <td>
-                                @(
-                                    item.CurrentWaitMinutes.HasValue
-                                        ? item.CurrentWaitMinutes + " min"
-                                        : "-"
-                                )
-                            </td>
-
-                            <td class="text-end">
-                                <div class="action-buttons">
-
-                                    @* DETAILS *@
-                                    @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                                    {
-                                        <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
-                                    }
-                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                                    {
-                                        <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
-                                    }
-
-                                    @* EDIT *@
-                                    @if (User.IsInRole("Manager"))
-                                    {
-                                        <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
-                                    }
-                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                                    {
-                                        <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
-                                    }
-
-                                    @* DELETE *@
-                                    @if (User.IsInRole("Manager"))
-                                    {
-                                        <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
-                                    }
-                                    else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
-                                    {
-                                        <form method="post"
-                                              asp-page="Edit"
-                                              asp-page-handler="Delete"
-                                              asp-route-id="@item.PartyId"
-                                              class="d-inline"
-                                              onsubmit="return confirm('Are you sure you want to delete your party?');">
-                                            <button type="submit" class="btn-danger-pink btn-sm">Delete</button>
-                                        </form>
-                                    }
-
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-        </div>
-    </div>
+        <!-- COMPLETED PARTIES -->
+        <h3 class="mt-5">Completed Parties</h3>
+        <partial name="_PartyTable" model="Model.CompletedParties" />
+    }
+    else
+    {
+        @* ============================
+           GUEST VIEW (only their own Waiting party)
+           ============================ *@
+        <h3>Your Party</h3>
+        <partial name="_PartyTable" model="Model.WaitingParties" />
+    }
 
 </div>

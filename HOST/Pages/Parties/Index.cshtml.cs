@@ -1,14 +1,13 @@
 using HOST.Data;
 using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace HOST.Pages.Parties
 {
-    [AllowAnonymous]
+    [Authorize]
     public class IndexModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -18,23 +17,43 @@ namespace HOST.Pages.Parties
             _context = context;
         }
 
-        public IList<Party> Parties { get; set; } = new List<Party>();
+        public IList<Party> WaitingParties { get; set; } = new List<Party>();
+        public IList<Party> SeatedParties { get; set; } = new List<Party>();
+        public IList<Party> CompletedParties { get; set; } = new List<Party>();
 
         public async Task OnGetAsync()
         {
-            Parties = await _context.Parties
-                .Include(p => p.QueueEntries)   // ⭐ Needed for wait time
-                .AsNoTracking()
-                .ToListAsync();
-        }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> OnPostDeleteAllAsync()
-        {
-            _context.Parties.RemoveRange(_context.Parties);
-            await _context.SaveChangesAsync();
+            if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+            {
+                // STAFF: See all parties by status
+                WaitingParties = await _context.Parties
+                    .Where(p => p.Status == "Waiting")
+                    .Include(p => p.QueueEntries)
+                    .OrderBy(p => p.CreatedAt)
+                    .ToListAsync();
 
-            return RedirectToPage();
+                SeatedParties = await _context.Parties
+                    .Where(p => p.Status == "Seated")
+                    .Include(p => p.Seatings)
+                    .OrderBy(p => p.CreatedAt)
+                    .ToListAsync();
+
+                CompletedParties = await _context.Parties
+                    .Where(p => p.Status == "Completed")
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToListAsync();
+            }
+            else
+            {
+                // GUEST: Only see their own Waiting party
+                WaitingParties = await _context.Parties
+                    .Where(p => p.OwnerId == userId && p.Status == "Waiting")
+                    .Include(p => p.QueueEntries)
+                    .OrderBy(p => p.CreatedAt)
+                    .ToListAsync();
+            }
         }
     }
 }
