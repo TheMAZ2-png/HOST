@@ -1,10 +1,10 @@
-using System.Security.Claims;
 using HOST.Data;
 using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HOST.Pages.QueueEntries
 {
@@ -18,10 +18,14 @@ namespace HOST.Pages.QueueEntries
             _context = context;
         }
 
+        // -----------------------------
+        // PROPERTIES REQUIRED BY .cshtml
+        // -----------------------------
+
         public QueueEntry QueueEntry { get; set; }
         public Party Party { get; set; }
-        public List<RestaurantTable> AvailableTables { get; set; }
-        public List<Employee> Servers { get; set; }
+        public List<RestaurantTable> AvailableTables { get; set; } = new();
+        public List<Employee> Servers { get; set; } = new();
 
         [BindProperty]
         public int SelectedTableId { get; set; }
@@ -29,6 +33,9 @@ namespace HOST.Pages.QueueEntries
         [BindProperty]
         public int SelectedServerId { get; set; }
 
+        // -----------------------------
+        // GET: Load seating page
+        // -----------------------------
         public async Task<IActionResult> OnGetAsync(int id)
         {
             QueueEntry = await _context.QueueEntries
@@ -36,40 +43,17 @@ namespace HOST.Pages.QueueEntries
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
 
             if (QueueEntry == null)
-            {
-                TempData["ErrorMessage"] = $"Queue entry {id} was not found.";
-                return RedirectToPage("./Index");
-            }
-
-            if (QueueEntry.Party == null)
-            {
-                TempData["ErrorMessage"] = "This queue entry has no associated party.";
-                return RedirectToPage("./Index");
-            }
-
-            if (QueueEntry.Status == "Seated")
-            {
-                TempData["ErrorMessage"] = "This party is already seated.";
-                return RedirectToPage("./Index");
-            }
-
-            var existingTable = await _context.RestaurantTables
-                .FirstOrDefaultAsync(t => t.CurrentPartyId == QueueEntry.PartyId);
-
-            if (existingTable != null)
-            {
-                TempData["ErrorMessage"] =
-                    $"This party is already seated at Table {existingTable.TableNumber}.";
-                return RedirectToPage("./Index");
-            }
+                return NotFound();
 
             Party = QueueEntry.Party;
 
+            // Load available tables
             AvailableTables = await _context.RestaurantTables
-                .Where(t => t.Status == "Available" && t.IsActive)
+                .Where(t => t.Status == "Available")
                 .OrderBy(t => t.TableNumber)
                 .ToListAsync();
 
+            // Load servers (Option A: sort by DisplayName, fallback to Name)
             Servers = await _context.Employees
                 .Where(e => e.Role == "Server")
                 .OrderBy(e => e.DisplayName ?? e.Name)
@@ -78,6 +62,9 @@ namespace HOST.Pages.QueueEntries
             return Page();
         }
 
+        // -----------------------------
+        // POST: Seat the party
+        // -----------------------------
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(int id)
         {
@@ -122,7 +109,7 @@ namespace HOST.Pages.QueueEntries
                 return RedirectToPage("./Index");
             }
 
-            // ⭐ Create seating record
+            // Create seating record
             var seating = new Seating
             {
                 PartyId = queueEntry.PartyId,
@@ -134,21 +121,21 @@ namespace HOST.Pages.QueueEntries
 
             _context.Seatings.Add(seating);
 
-            // ⭐ Update table
+            // Update table
             table.Status = "Occupied";
             table.CurrentPartyId = queueEntry.PartyId;
 
-            // ⭐ Update queue entry
+            // Update party
+            queueEntry.Party.Status = "Seated";
+
+            // Update queue entry
             queueEntry.Status = "Seated";
             queueEntry.SeatedAt = DateTime.UtcNow;
 
-            // ⭐ Save seating + table updates BEFORE deleting Party
             await _context.SaveChangesAsync();
 
-            // ⭐ Delete QueueEntry + Party
+            // Remove queue entry
             _context.QueueEntries.Remove(queueEntry);
-            _context.Parties.Remove(queueEntry.Party);
-
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Party successfully seated.";

@@ -14,6 +14,7 @@
         <div class="card-body p-4">
 
             <dl class="row text-pink-dark">
+
                 <dt class="col-sm-3">Party Name</dt>
                 <dd class="col-sm-9">@Model.Party.PartyName</dd>
 
@@ -25,11 +26,39 @@
 
                 <dt class="col-sm-3">Notes</dt>
                 <dd class="col-sm-9">@Model.Party.Notes</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">@Model.Party.Status</dd>
+
+                @* WAITING INFO *@
+                @if (Model.Party.Status == "Waiting")
+                {
+                    <dt class="col-sm-3">Current Wait</dt>
+                    <dd class="col-sm-9">
+                        @(Model.Party.CurrentWaitMinutes.HasValue
+                            ? Model.Party.CurrentWaitMinutes + " min"
+                            : "—")
+                    </dd>
+                }
+
+                @* SEATED INFO *@
+                @if (Model.Party.Status == "Seated" && Model.CurrentTable != null)
+                {
+                    <dt class="col-sm-3">Seated At</dt>
+                    <dd class="col-sm-9">
+                        Table @Model.CurrentTable.TableNumber
+                        <br />
+                        <a asp-page="/RestaurantTables/Details"
+                               asp-route-id="@Model.CurrentTable.TableId"
+                               class="btn btn-sm btn-outline-secondary mt-2">
+                            View Table
+                        </a>
+                    </dd>
+                }
+
             </dl>
 
             <div class="mt-4 d-flex gap-3 fade-in-4">
-
-        
 
                 @* Manager: can edit any party *@
                 @if (User.IsInRole("Manager"))
@@ -38,8 +67,9 @@
                 }
                 else
                 {
-                    @* Guest: can edit only their own party *@
-                    if (Model.Party.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                    @* Guest: can edit only their own Waiting party *@
+                    if (Model.Party.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier)
+                        && Model.Party.Status == "Waiting")
                     {
                         <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@Model.Party.PartyId">Edit</a>
                     }
@@ -52,3 +82,7 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

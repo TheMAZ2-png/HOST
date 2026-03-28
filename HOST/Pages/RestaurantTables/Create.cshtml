@@ -5,7 +5,7 @@
     ViewData["Title"] = "Create Table";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>Create Table</h1>
 
 <form method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -26,12 +26,6 @@
         <label asp-for="RestaurantTable.Section" class="form-label"></label>
         <input asp-for="RestaurantTable.Section" class="form-control" />
         <span asp-validation-for="RestaurantTable.Section" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="RestaurantTable.Status" class="form-label"></label>
-        <input asp-for="RestaurantTable.Status" class="form-control" />
-        <span asp-validation-for="RestaurantTable.Status" class="text-danger"></span>
     </div>
 
     <div class="mb-3 form-check">

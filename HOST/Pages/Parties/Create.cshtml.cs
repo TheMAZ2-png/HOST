@@ -39,7 +39,8 @@ namespace HOST.Pages.Parties
                 PartySize = PartyInput.PartySize,
                 Notes = PartyInput.Notes,
                 OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier),
-                Status = "Waiting"
+                Status = "Waiting",
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Parties.Add(party);
@@ -56,6 +57,7 @@ namespace HOST.Pages.Parties
             _context.QueueEntries.Add(queueEntry);
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Party created and added to the queue.";
             return RedirectToPage("./Index");
         }
 

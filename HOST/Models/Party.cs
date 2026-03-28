@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HOST.Models
 {
@@ -24,12 +23,24 @@ namespace HOST.Models
 
         public string OwnerId { get; set; }
 
+        // Navigation
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
         public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
 
+        // Workflow status:
+        // Waiting → in queue
+        // Seated → assigned to a table
+        // Completed → table cleared
         public string Status { get; set; } = "Waiting";
 
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Convenience helpers
+        [NotMapped] public bool IsWaiting => Status == "Waiting";
+        [NotMapped] public bool IsSeated => Status == "Seated";
+        [NotMapped] public bool IsCompleted => Status == "Completed";
+
+        // Wait time calculation
         [NotMapped]
         public int? CurrentWaitMinutes
         {
@@ -46,8 +57,5 @@ namespace HOST.Models
                 return (int)(DateTime.UtcNow - activeEntry.CreatedAt).TotalMinutes;
             }
         }
-
-
     }
-
 }

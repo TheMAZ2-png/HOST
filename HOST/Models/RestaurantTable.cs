@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 
 namespace HOST.Models
 {
@@ -21,22 +20,19 @@ namespace HOST.Models
 
         [Required]
         [StringLength(20)]
-        public string Status { get; set; }
+        public string Status { get; set; } = "Available";
 
         [Required]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         [Required]
         [Column(TypeName = "datetime2")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
+        // Navigation
         public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
 
         public int? CurrentPartyId { get; set; }
-
         public Party? CurrentParty { get; set; }
-
-
     }
 }

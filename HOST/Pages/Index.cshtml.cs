@@ -35,9 +35,7 @@ namespace HOST.Pages
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
             // 1. Prevent duplicate phone numbers
             var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
@@ -73,7 +71,9 @@ namespace HOST.Pages
                 PhoneNumber = PartyRegistration.PhoneNumber,
                 PartySize = PartyRegistration.PartySize,
                 Notes = PartyRegistration.Notes,
-                OwnerId = user.Id
+                OwnerId = user.Id,
+                Status = "Waiting",
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Parties.Add(party);

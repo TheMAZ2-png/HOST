@@ -24,15 +24,21 @@ namespace HOST.Pages.Parties
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
+            Party = await _context.Parties
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.PartyId == id);
 
             if (Party == null)
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Allow Managers OR the owner
-            if (User.IsInRole("Manager") || Party.OwnerId == userId)
+            // Managers can edit anything
+            if (User.IsInRole("Manager"))
+                return Page();
+
+            // Guests can edit only their own Waiting party
+            if (Party.OwnerId == userId && Party.Status == "Waiting")
                 return Page();
 
             return Forbid();
@@ -43,19 +49,20 @@ namespace HOST.Pages.Parties
             if (!ModelState.IsValid)
                 return Page();
 
-            var partyInDb = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == Party.PartyId);
+            var partyInDb = await _context.Parties
+                .FirstOrDefaultAsync(p => p.PartyId == Party.PartyId);
 
             if (partyInDb == null)
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // Only Managers or the owner can update
-            if (!User.IsInRole("Manager") && partyInDb.OwnerId != userId)
-                return Forbid();
+            bool isManager = User.IsInRole("Manager");
+            bool isOwner = partyInDb.OwnerId == userId;
 
-            // ⭐ Ensure EF Core is tracking the entity
-            _context.Attach(partyInDb);
+            // Guests can only edit Waiting parties
+            if (!isManager && (!isOwner || partyInDb.Status != "Waiting"))
+                return Forbid();
 
             // Update allowed fields
             partyInDb.PartyName = Party.PartyName;
@@ -63,24 +70,18 @@ namespace HOST.Pages.Parties
             partyInDb.PartySize = Party.PartySize;
             partyInDb.Notes = Party.Notes;
 
-            // ⭐ Sync QueueEntry (only if still waiting)
+            // Update queue entry timestamp if still waiting
             var queueEntry = await _context.QueueEntries
                 .FirstOrDefaultAsync(q => q.PartyId == partyInDb.PartyId && q.Status == "Waiting");
 
             if (queueEntry != null)
-            {
                 queueEntry.UpdatedAt = DateTime.UtcNow;
-
-                // Optional: recalc wait time
-                // queueEntry.EstimatedWaitMinutes = CalculateWaitTime(partyInDb.PartySize);
-            }
 
             await _context.SaveChangesAsync();
 
             return RedirectToPage("Index");
         }
 
-        // ⭐ Delete handler with Guest sign-out
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
@@ -91,23 +92,26 @@ namespace HOST.Pages.Parties
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             bool isOwner = party.OwnerId == userId;
-            bool isStaff = User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host");
+            bool isManager = User.IsInRole("Manager");
 
-            // Only Managers or the owner can delete
-            if (!isOwner && !isStaff)
+            // Guests can only delete Waiting parties
+            if (!isManager && (!isOwner || party.Status != "Waiting"))
                 return Forbid();
+
+            // Delete queue entries
+            var queueEntries = _context.QueueEntries.Where(q => q.PartyId == party.PartyId);
+            _context.QueueEntries.RemoveRange(queueEntries);
 
             _context.Parties.Remove(party);
             await _context.SaveChangesAsync();
 
-            // ⭐ If a Guest deletes their own party → sign out + redirect home
-            if (isOwner && !isStaff)
+            // Guests deleting their own party → sign out
+            if (isOwner && !isManager)
             {
                 await _signInManager.SignOutAsync();
                 return RedirectToPage("/Index");
             }
 
-            // ⭐ Staff deleting → go back to Parties list
             return RedirectToPage("Index");
         }
     }
