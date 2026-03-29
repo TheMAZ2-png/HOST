@@ -18,10 +18,6 @@ namespace HOST.Pages.QueueEntries
             _context = context;
         }
 
-        // -----------------------------
-        // PROPERTIES REQUIRED BY .cshtml
-        // -----------------------------
-
         public QueueEntry QueueEntry { get; set; }
         public Party Party { get; set; }
         public List<RestaurantTable> AvailableTables { get; set; } = new();
@@ -34,7 +30,7 @@ namespace HOST.Pages.QueueEntries
         public int SelectedServerId { get; set; }
 
         // -----------------------------
-        // GET: Load seating page
+        // GET
         // -----------------------------
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -47,13 +43,11 @@ namespace HOST.Pages.QueueEntries
 
             Party = QueueEntry.Party;
 
-            // Load available tables
             AvailableTables = await _context.RestaurantTables
                 .Where(t => t.Status == "Available")
                 .OrderBy(t => t.TableNumber)
                 .ToListAsync();
 
-            // Load servers (Option A: sort by DisplayName, fallback to Name)
             Servers = await _context.Employees
                 .Where(e => e.Role == "Server")
                 .OrderBy(e => e.DisplayName ?? e.Name)
@@ -63,7 +57,7 @@ namespace HOST.Pages.QueueEntries
         }
 
         // -----------------------------
-        // POST: Seat the party
+        // POST — Seat the party
         // -----------------------------
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(int id)
@@ -107,6 +101,18 @@ namespace HOST.Pages.QueueEntries
             {
                 TempData["ErrorMessage"] = "Unable to determine logged-in employee.";
                 return RedirectToPage("./Index");
+            }
+
+            // ⭐ NEW: Calculate actual wait time
+            var activeQueueEntry = await _context.QueueEntries
+                .Where(q => q.PartyId == queueEntry.PartyId && q.Status == "Waiting")
+                .OrderByDescending(q => q.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (activeQueueEntry != null)
+            {
+                queueEntry.Party.ActualWaitMinutes =
+                    (int)(DateTime.UtcNow - activeQueueEntry.CreatedAt).TotalMinutes;
             }
 
             // Create seating record

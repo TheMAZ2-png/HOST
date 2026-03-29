@@ -29,29 +29,22 @@
         </div>
     }
 
-    @* ============================
-       STAFF VIEW (Manager/Host/Server)
-       ============================ *@
+    @* STAFF VIEW *@
     @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
     {
-        <!-- WAITING PARTIES -->
         <h3 class="mt-4">Waiting Parties</h3>
         <partial name="_PartyTable" model="Model.WaitingParties" />
 
-        <!-- SEATED PARTIES -->
         <h3 class="mt-5">Seated Parties</h3>
         <partial name="_PartyTable" model="Model.SeatedParties" />
 
-        <!-- COMPLETED PARTIES -->
         <h3 class="mt-5">Completed Parties</h3>
         <partial name="_PartyTable" model="Model.CompletedParties" />
     }
     else
     {
-        @* ============================
-           GUEST VIEW (only their own Waiting party)
-           ============================ *@
-        <h3>Your Party</h3>
+        @* GUEST VIEW — sees ALL waiting parties *@
+        <h3 class="mt-4">Waiting Parties</h3>
         <partial name="_PartyTable" model="Model.WaitingParties" />
     }
 

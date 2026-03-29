@@ -18,9 +18,15 @@ namespace HOST.Pages.Employees
 
         public IList<Employee> Employees { get; set; } = new List<Employee>();
 
+        // ============================================================
+        // GET — Load all employees
+        // ============================================================
         public async Task OnGetAsync()
         {
-            Employees = await _context.Employees.AsNoTracking().ToListAsync();
+            Employees = await _context.Employees
+                .AsNoTracking()
+                .OrderBy(e => e.Name)
+                .ToListAsync();
         }
     }
 }

@@ -44,9 +44,11 @@ namespace HOST.Pages.Employees
             if (employee == null)
                 return NotFound();
 
-            // ⭐ Check if employee has seating history
-            bool hasSeatings = await _context.Seatings
-                .AnyAsync(s => s.AssignedServerId == employee.EmployeeId);
+            // Prevent deleting employees with seating history
+            bool hasSeatings = await _context.Seatings.AnyAsync(s =>
+                s.AssignedServerId == employee.EmployeeId ||
+                s.SeatedByEmployeeId == employee.EmployeeId
+            );
 
             if (hasSeatings)
             {

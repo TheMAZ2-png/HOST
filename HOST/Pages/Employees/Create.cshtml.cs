@@ -3,6 +3,7 @@ using HOST.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace HOST.Pages.Employees
 {
@@ -28,6 +29,9 @@ namespace HOST.Pages.Employees
         {
             if (!ModelState.IsValid)
                 return Page();
+
+            // ⭐ REQUIRED: Link employee to Identity user
+            Employee.IdentityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             Employee.CreatedAt = DateTime.UtcNow;
             Employee.UpdatedAt = null;
