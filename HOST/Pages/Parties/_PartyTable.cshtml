@@ -8,8 +8,7 @@
 <table class="table table-pink mt-3">
     <thead>
         <tr>
-            <th>#</th> <!-- NEW COUNTER COLUMN -->
-
+            <th>#</th>
             <th>Party Name</th>
 
             @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
@@ -25,6 +24,7 @@
             }
 
             <th>Wait Time</th>
+            <th>Est. Wait</th>
 
             <th class="text-end"></th>
         </tr>
@@ -34,7 +34,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@counter</td> <!-- COUNTER VALUE -->
+                <td>@counter</td>
                 @{
                     counter++;
                 }
@@ -53,38 +53,60 @@
                     <td>@item.Notes</td>
                 }
 
+                <!-- WAIT TIME COLUMN -->
                 <td>
-                    @(
-                        item.CurrentWaitMinutes.HasValue
-                            ? item.CurrentWaitMinutes + " min"
-                            : "-"
-                    )
+                    @if (item.Status == "Waiting")
+                    {
+                        @($"{item.ActualWaitMinutes} min")
+                    }
+                    else if (item.Status == "Completed" && item.ActualWaitMinutes.HasValue)
+                    {
+                        @($"{item.ActualWaitMinutes} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
+                </td>
+
+                <!-- ESTIMATED WAIT COLUMN -->
+                <td>
+                    @if (item.Status == "Waiting")
+                    {
+                        @(
+                            item.EstimatedWaitMinutes <= 5
+                                ? "Seating soon"
+                                : $"{item.EstimatedWaitMinutes} min"
+                        )
+                    }
+                    else if (item.Status == "Completed" && item.EstimatedWaitAtJoin.HasValue)
+                    {
+                        @($"{item.EstimatedWaitAtJoin} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
                 </td>
 
                 <td class="text-end">
                     <div class="action-buttons">
 
-                        @* DETAILS *@
-                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
-                        {
-                            <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
-                        }
-                        else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        <!-- DETAILS -->
+                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host") ||
+                                                     item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                         {
                             <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
                         }
 
-                        @* EDIT *@
-                        @if (User.IsInRole("Manager"))
-                        {
-                            <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
-                        }
-                        else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        <!-- EDIT -->
+                        @if (User.IsInRole("Manager") ||
+                                                     item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
                         {
                             <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
                         }
 
-                        @* DELETE *@
+                        <!-- DELETE -->
                         @if (User.IsInRole("Manager"))
                         {
                             <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>

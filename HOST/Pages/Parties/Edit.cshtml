@@ -46,8 +46,21 @@
 
                     <div class="mb-3">
                         <label class="form-label text-pink-dark">Party Size</label>
-                        <input asp-for="Party.PartySize" class="form-control input-pink" type="number" />
+
+                        <select asp-for="Party.PartySize"
+                                class="form-control input-pink"
+                                required>
+                            <option value="">Select party size...</option>
+
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i" selected="@(Model.Party.PartySize == i)">
+                                    @i
+                                </option>
+                            }
+                        </select>
                     </div>
+
 
                     <div class="mb-3">
                         <label class="form-label text-pink-dark">Notes</label>

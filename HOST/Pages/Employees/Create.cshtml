@@ -16,33 +16,44 @@
 
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+                <!-- ROLE -->
                 <div class="mb-3">
                     <label asp-for="Employee.Role" class="form-label text-pink-dark"></label>
-                    <select asp-for="Employee.Role" class="form-control input-pink">
+                    <select asp-for="Employee.Role" class="form-control input-pink" required>
                         <option value="">Select a role...</option>
-                        <option>Server</option>
-                        <option>Host</option>
+                        <option value="Server">Server</option>
+                        <option value="Host">Host</option>
+                        <option value="Manager">Manager</option>
                     </select>
+                    <span asp-validation-for="Employee.Role" class="text-danger"></span>
                 </div>
 
+                <!-- NAME -->
                 <div class="mb-3">
                     <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Name" class="form-control input-pink" />
+                    <input asp-for="Employee.Name" class="form-control input-pink" required />
+                    <span asp-validation-for="Employee.Name" class="text-danger"></span>
                 </div>
 
+                <!-- DISPLAY NAME -->
                 <div class="mb-3">
                     <label asp-for="Employee.DisplayName" class="form-label text-pink-dark"></label>
                     <input asp-for="Employee.DisplayName" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.DisplayName" class="text-danger"></span>
                 </div>
 
+                <!-- EMAIL -->
                 <div class="mb-3">
                     <label asp-for="Employee.Email" class="form-label text-pink-dark"></label>
                     <input asp-for="Employee.Email" type="email" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.Email" class="text-danger"></span>
                 </div>
 
+                <!-- PHONE -->
                 <div class="mb-3">
                     <label asp-for="Employee.Phone" class="form-label text-pink-dark"></label>
                     <input asp-for="Employee.Phone" class="form-control input-pink" />
+                    <span asp-validation-for="Employee.Phone" class="text-danger"></span>
                 </div>
 
                 <div class="mt-4 d-flex gap-3">

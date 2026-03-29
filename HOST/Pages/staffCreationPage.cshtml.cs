@@ -70,9 +70,11 @@ namespace HOST.Pages
             var employee = new Employee
             {
                 Name = $"{FirstName} {LastName}",
+                DisplayName = $"{FirstName}", // optional, but nice
                 Email = Email,
+                Phone = null,
                 Role = SelectedRole,
-                IdentityUserId = user.Id,   // ⭐ REQUIRED FIX
+                IdentityUserId = user.Id,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = null
             };
