@@ -1,65 +1,115 @@
 @page
 @model HOST.Pages.RestaurantTables.IndexModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 
 @{
     ViewData["Title"] = "Restaurant Tables";
+
+    // Determine user roles
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<p>
-    <a class="btn btn-primary" asp-page="Create">New Table</a>
-</p>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Table Number</th>
-            <th>Seat Capacity</th>
-            <th>Section</th>
-            <th>Status</th>
-            <th>Current Party</th>
-            <th>Active</th>
-            <th class="text-end"></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.RestaurantTables)
-        {
-            <tr>
-                <td>@item.TableNumber</td>
-                <td>@item.SeatCapacity</td>
-                <td>@item.Section</td>
-                <td>@item.Status</td>
+    <!-- Only Managers + Hosts can create tables -->
+    @if (isManager || isHost)
+    {
+        <div class="mb-3 fade-in-3">
+            <a class="btn-primary btn-hero" asp-page="Create">New Table</a>
+        </div>
+    }
 
-                <td>
-                    @if (item.CurrentParty != null)
+    <div class="card card-pink shadow fade-in-4">
+        <div class="card-body p-4">
+
+            <table class="table-pink fade-in-4">
+                <thead>
+                    <tr>
+                        <th>Table Number</th>
+                        <th>Seat Capacity</th>
+                        <th>Section</th>
+                        <th>Status</th>
+                        <th>Current Party</th>
+                        <th>Active</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model.RestaurantTables)
                     {
-                        <span>@item.CurrentParty.PartyName (@item.CurrentParty.PartySize)</span>
-                    }
-                    else
-                    {
-                        <span>—</span>
-                    }
-                </td>
+                        <tr>
+                            <td>@item.TableNumber</td>
+                            <td>@item.SeatCapacity</td>
+                            <td>@item.Section</td>
+                            <td>@item.Status</td>
 
-                <td>@(item.IsActive ? "Yes" : "No")</td>
+                            <td>
+                                @if (item.CurrentParty != null)
+                                {
+                                    <span>@item.CurrentParty.PartyName (@item.CurrentParty.PartySize)</span>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
 
-                <td class="text-end">
-                    <a class="btn btn-sm btn-outline-secondary" asp-page="Details" asp-route-id="@item.TableId">Details</a>
-                    <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@item.TableId">Edit</a>
-                    <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@item.TableId">Delete</a>
+                            <td>@(item.IsActive ? "Yes" : "No")</td>
 
-                    @if (item.CurrentPartyId != null)
-                    {
-                        <a class="btn btn-sm btn-warning"
-                               asp-page="Clear"
-                               asp-route-id="@item.TableId">
-                            Clear
-                        </a>
+                            <td class="text-end">
+                                <div class="action-buttons">
+
+                                    <!-- ALL ROLES can view details -->
+                                    <a class="btn-secondary btn-sm"
+                                           asp-page="Details"
+                                           asp-route-id="@item.TableId">
+                                        Details
+                                    </a>
+
+                                    <!-- Only Managers + Hosts can edit -->
+                                    @if (isManager || isHost)
+                                    {
+                                        <a class="btn-primary btn-sm"
+                                               asp-page="Edit"
+                                               asp-route-id="@item.TableId">
+                                            Edit
+                                        </a>
+                                    }
+
+                                    <!-- Only Managers + Hosts can delete -->
+                                    @if (isManager || isHost)
+                                    {
+                                        <a class="btn-danger-pink btn-sm"
+                                               asp-page="Delete"
+                                               asp-route-id="@item.TableId">
+                                            Delete
+                                        </a>
+                                    }
+
+                                    <!-- ALL ROLES can clear a table IF it has a party -->
+                                    @if (item.CurrentPartyId != null)
+                                    {
+                                        <a class="btn-danger-pink btn-sm"
+                                               asp-page="Clear"
+                                               asp-route-id="@item.TableId">
+                                            Clear
+                                        </a>
+                                    }
+
+                                </div>
+                            </td>
+                        </tr>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
