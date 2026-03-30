@@ -36,10 +36,20 @@
                             <a asp-page="/RestaurantTables/Index">Tables</a>
                         </li>
 
-                        <li>
-                            <a asp-page="/QueueEntries/Seat">Seating</a>
-                        </li>
                     }
+
+
+                    @if (User.IsInRole("Host"))
+                    {
+                    
+                        <li>
+                            <a asp-page="/QueueEntries/Index">Queue</a>
+                        </li>
+
+                    }
+
+                   
+
                     <!-- Parties -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
@@ -53,17 +63,17 @@
                                 <a asp-page="/Employees/Index">Employees</a>
                             </li>
                             <li>
-                                <a asp-page="/ManagerAccounts/Index">Manager Accounts</a>
+                                <a asp-page="/ManagerAccounts/Index">Managers</a>
                             </li>
                             <li>
-                                <a asp-page="/QueueEntries/Index">Queue Entries</a>
+                                <a asp-page="/QueueEntries/Index">Queue</a>
                             </li>
                         }
 
                         @if (User.IsInRole("Manager"))
                         {
                             <li>
-                                <a asp-page="/errorLog">Error Logging</a>
+                                <a asp-page="/errorLog">Logs</a>
                             </li>
                         }
                     }

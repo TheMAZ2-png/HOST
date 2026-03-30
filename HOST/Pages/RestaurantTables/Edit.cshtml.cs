@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HOST.Pages.RestaurantTables
 {
-    [Authorize]
+    [Authorize(Roles = "Host,Manager")]
+
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
