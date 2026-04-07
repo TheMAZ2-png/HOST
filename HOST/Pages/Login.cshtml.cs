@@ -42,7 +42,9 @@ namespace HOST.Pages
             if (!ModelState.IsValid)
                 return Page();
 
-            // Use Identity for ALL staff authentication
+            // ============================
+            // SINGLE IDENTITY LOGIN FLOW
+            // ============================
             var result = await _signInManager.PasswordSignInAsync(
                 Input.Email,
                 Input.Password,
@@ -51,9 +53,10 @@ namespace HOST.Pages
             );
 
             if (result.Succeeded)
-            {
                 return RedirectToPage("/homePage");
-            }
+
+            return await HandleFailedLoginAsync();
+        }
 
             // Log failed login attempt
             _context.FailedLogins.Add(new FailedLogin

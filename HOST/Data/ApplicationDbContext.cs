@@ -44,6 +44,13 @@ namespace HOST.Data
                 .WithMany(e => e.SeatedByEntries)
                 .HasForeignKey(s => s.SeatedByEmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // ⭐ FIX: Explicitly map RestaurantTable → CurrentParty
+            modelBuilder.Entity<RestaurantTable>()
+                .HasOne(t => t.CurrentParty)
+                .WithMany() // Party does NOT track tables
+                .HasForeignKey(t => t.CurrentPartyId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

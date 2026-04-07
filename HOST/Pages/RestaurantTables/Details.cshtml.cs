@@ -22,17 +22,17 @@ namespace HOST.Pages.RestaurantTables
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var table = await _context.RestaurantTables.AsNoTracking().FirstOrDefaultAsync(t => t.TableId == id);
-            if (table == null)
-            {
+            RestaurantTable = await _context.RestaurantTables
+                .Include(t => t.CurrentParty)
+                .Include(t => t.Seatings)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TableId == id);
+
+            if (RestaurantTable == null)
                 return NotFound();
-            }
 
-            RestaurantTable = table;
             return Page();
         }
     }

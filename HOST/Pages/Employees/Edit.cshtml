@@ -15,12 +15,15 @@
             <form method="post" class="fade-in-4">
 
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                 <input type="hidden" asp-for="Employee.EmployeeId" />
+                <input type="hidden" asp-for="Employee.IdentityUserId" />
+                <input type="hidden" asp-for="Employee.Role" />
 
                 <!-- NAME -->
                 <div class="mb-3">
                     <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Name" class="form-control input-pink" />
+                    <input asp-for="Employee.Name" class="form-control input-pink" required />
                     <span asp-validation-for="Employee.Name" class="text-danger"></span>
                 </div>
 
@@ -34,7 +37,7 @@
                 <!-- EMAIL -->
                 <div class="mb-3">
                     <label asp-for="Employee.Email" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Email" class="form-control input-pink" type="email" />
+                    <input asp-for="Employee.Email" type="email" class="form-control input-pink" />
                     <span asp-validation-for="Employee.Email" class="text-danger"></span>
                 </div>
 
@@ -49,16 +52,16 @@
                 @if (User.IsInRole("Manager"))
                 {
                     <div class="mb-3">
-                        <label asp-for="Employee.Role" class="form-label text-pink-dark">Role</label>
-                        <select asp-for="Employee.Role" class="form-select input-pink">
+                        <label asp-for="Employee.Role" class="form-label text-pink-dark"></label>
+                        <select asp-for="Employee.Role" class="form-select input-pink" required>
                             <option value="Host">Host</option>
                             <option value="Server">Server</option>
+                            <option value="Manager">Manager</option>
                         </select>
                         <span asp-validation-for="Employee.Role" class="text-danger"></span>
                     </div>
                 }
 
-                <!-- BUTTONS -->
                 <div class="mt-4 d-flex gap-3">
                     <button type="submit" class="btn-primary btn-hero">Save</button>
                     <a class="btn-secondary" asp-page="Index">Cancel</a>

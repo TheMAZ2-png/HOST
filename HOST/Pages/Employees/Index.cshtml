@@ -9,8 +9,20 @@
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3 fade-in-3">
-        <a class="btn-primary btn-hero" asp-page="Create">New Employee</a>
+    <div class="d-flex gap-3 mb-4 fade-in-3">
+
+        <a class="btn-primary btn-hero" asp-page="Create">
+            New Employee
+        </a>
+
+        <form method="post" asp-page-handler="DeleteAll">
+            <button type="submit"
+                    class="btn-danger-pink btn-hero"
+                    onclick="return confirm('DELETE ALL EMPLOYEES? This will permanently remove all employee accounts and their login credentials.');">
+                Delete All Employees
+            </button>
+        </form>
+
     </div>
 
     <div class="card card-pink shadow fade-in-4">
@@ -19,7 +31,7 @@
             <table class="table table-pink">
                 <thead>
                     <tr>
-                        <th>Employee ID</th>
+                        <th>ID</th>
                         <th>Name</th>
                         <th>Display Name</th>
                         <th>Email</th>
@@ -53,7 +65,6 @@
                     }
                 </tbody>
             </table>
-
 
         </div>
     </div>

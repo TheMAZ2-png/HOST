@@ -22,18 +22,20 @@
                     <input asp-for="ManagerAccount.Email"
                            class="form-control input-pink"
                            type="email"
-                           placeholder="Manager email..." />
+                           placeholder="Manager email..."
+                           required />
                     <span asp-validation-for="ManagerAccount.Email" class="text-danger"></span>
                 </div>
 
                 <!-- PASSWORD -->
                 <div class="mb-3">
-                    <label asp-for="ManagerAccount.PasswordHash" class="form-label text-pink-dark"></label>
-                    <input asp-for="ManagerAccount.PasswordHash"
+                    <label class="form-label text-pink-dark">Password</label>
+                    <input asp-for="Password"
                            class="form-control input-pink"
                            type="password"
-                           placeholder="Temporary password..." />
-                    <span asp-validation-for="ManagerAccount.PasswordHash" class="text-danger"></span>
+                           placeholder="Temporary password..."
+                           required />
+                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
 
                 <!-- BUTTONS -->

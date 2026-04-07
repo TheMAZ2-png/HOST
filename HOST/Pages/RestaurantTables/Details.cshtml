@@ -1,0 +1,74 @@
+@page "{id:int}"
+@model HOST.Pages.RestaurantTables.DetailsModel
+
+@{
+    ViewData["Title"] = "Table Details";
+}
+
+<h1 class="mb-4">Table @Model.RestaurantTable.TableNumber Details</h1>
+
+<div class="card card-pink shadow p-4">
+
+    <dl class="row">
+
+        <dt class="col-sm-3">Table Number</dt>
+        <dd class="col-sm-9">@Model.RestaurantTable.TableNumber</dd>
+
+        <dt class="col-sm-3">Seat Capacity</dt>
+        <dd class="col-sm-9">@Model.RestaurantTable.SeatCapacity</dd>
+
+        <dt class="col-sm-3">Section</dt>
+        <dd class="col-sm-9">@Model.RestaurantTable.Section</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@Model.RestaurantTable.Status</dd>
+
+        <dt class="col-sm-3">Current Party</dt>
+        <dd class="col-sm-9">
+            @if (Model.RestaurantTable.CurrentParty != null)
+            {
+                <div>
+                    <strong>@Model.RestaurantTable.CurrentParty.PartyName</strong>
+                    (@Model.RestaurantTable.CurrentParty.PartySize)
+                    <br />
+                    <a asp-page="/Parties/Details"
+                           asp-route-id="@Model.RestaurantTable.CurrentParty.PartyId"
+                           class="btn btn-sm btn-outline-secondary mt-2">
+                        View Party Details
+                    </a>
+                </div>
+            }
+            else
+            {
+                <span>—</span>
+            }
+        </dd>
+
+        <dt class="col-sm-3">Active</dt>
+        <dd class="col-sm-9">
+            @(Model.RestaurantTable.IsActive ? "Yes" : "No")
+        </dd>
+
+    </dl>
+
+    <div class="mt-4 d-flex gap-3">
+
+        <a asp-page="Edit"
+               asp-route-id="@Model.RestaurantTable.TableId"
+               class="btn btn-primary">
+            Edit
+        </a>
+
+        @if (Model.RestaurantTable.CurrentPartyId != null)
+        {
+            <a asp-page="Clear"
+                   asp-route-id="@Model.RestaurantTable.TableId"
+                   class="btn btn-warning">
+                Clear Table
+            </a>
+        }
+
+        <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+</div>

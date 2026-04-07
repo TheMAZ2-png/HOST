@@ -18,21 +18,37 @@ namespace HOST.Pages.Parties
         }
 
         public Party Party { get; set; } = new();
+        public RestaurantTable? CurrentTable { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
+
+            Party = await _context.Parties
+                .Include(p => p.QueueEntries)
+                .Include(p => p.Seatings)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.PartyId == id);
+
+            if (Party == null)
+                return NotFound();
+
+            // If seated, load the most recent seating record
+            if (Party.Status == "Seated")
+            {
+                var seating = Party.Seatings
+                    .OrderByDescending(s => s.SeatedAt)   // FIXED
+                    .FirstOrDefault();
+
+                if (seating != null)
+                {
+                    CurrentTable = await _context.RestaurantTables
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(t => t.TableId == seating.RestaurantTableId); // FIXED
+                }
             }
 
-            var party = await _context.Parties.AsNoTracking().FirstOrDefaultAsync(p => p.PartyId == id);
-            if (party == null)
-            {
-                return NotFound();
-            }
-
-            Party = party;
             return Page();
         }
     }
