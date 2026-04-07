@@ -1,65 +1,91 @@
 ﻿@page "{id:int}"
 @model HOST.Pages.QueueEntries.SeatModel
+
 @{
     ViewData["Title"] = "Seat Party";
+
+    var party = Model.Party;
 }
 
-@if (Model.Party == null)
-{
-    <div class="alert alert-danger mt-3">
-        <strong>Error:</strong> No party found for this queue entry.
-    </div>
-    <a asp-page="./Index" class="btn btn-secondary mt-3">Back to Queue</a>
-    return;
-}
+<div class="container mt-5 fade-in-1">
 
-<h2>Seat Party</h2>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-<div class="card mt-3">
-    <div class="card-body">
-        <h4>@Model.Party.PartyName</h4>
-        <p>
-            <strong>Party Size:</strong> @Model.Party.PartySize<br />
-            <strong>Phone:</strong> @Model.Party.PhoneNumber<br />
-            <strong>Notes:</strong> @Model.Party.Notes
-        </p>
+    @if (party == null)
+    {
+        <div class="card card-pink shadow fade-in-3">
+            <div class="card-body p-4">
+                <div class="alert alert-danger mb-3">
+                    <strong>Error:</strong> No party found for this queue entry.
+                </div>
+
+                <a asp-page="./Index" class="btn-secondary btn-hero">Back to Queue</a>
+            </div>
+        </div>
+
+        return;
+    }
+
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
+
+            <h3 class="text-pink-dark mb-3">
+                @party.PartyName
+                <span class="text-muted">(@party.PartySize)</span>
+            </h3>
+
+            <p class="mb-4">
+                <strong>Phone:</strong> @party.PhoneNumber<br />
+                <strong>Notes:</strong> @(string.IsNullOrWhiteSpace(party.Notes) ? "—" : party.Notes)
+            </p>
+
+            <form method="post"
+                  action="/QueueEntries/Seat/@Model.QueueEntry.QueueEntryId">
+
+                @Html.AntiForgeryToken()
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select Table</label>
+                    <select asp-for="SelectedTableId" class="form-control" required>
+                        <option disabled selected>-- Choose a Table --</option>
+                        @foreach (var table in Model.AvailableTables)
+                        {
+                            <option value="@table.TableId">
+                                Table @table.TableNumber (Seats @table.SeatCapacity)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select Server</label>
+                    <select asp-for="SelectedServerId" class="form-control" required>
+                        <option disabled selected>-- Choose a Server --</option>
+                        @foreach (var server in Model.Servers)
+                        {
+                            <option value="@server.EmployeeId">
+                                @(server.DisplayName ?? server.Name)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+
+                    <button type="submit" class="btn-primary btn-hero">
+                        Seat Party
+                    </button>
+
+                    <a asp-page="./Index" class="btn-secondary btn-hero">
+                        Cancel
+                    </a>
+
+                </div>
+
+
+            </form>
+
+        </div>
     </div>
+
 </div>
-
-<form method="post"
-      asp-page="/QueueEntries/Seat"
-      asp-route-id="@Model.QueueEntry.QueueEntryId"
-      class="mt-4">
-
-    @Html.AntiForgeryToken()
-
-    <div class="form-group">
-        <label>Select Table</label>
-        <select asp-for="SelectedTableId" class="form-control" required>
-            <option disabled selected>-- Choose a Table --</option>
-            @foreach (var table in Model.AvailableTables)
-            {
-                <option value="@table.TableId">
-                    Table @table.TableNumber (Seats @table.SeatCapacity)
-                </option>
-            }
-        </select>
-    </div>
-
-    <div class="form-group mt-3">
-        <label>Select Server</label>
-        <select asp-for="SelectedServerId" class="form-control" required>
-            <option disabled selected>-- Choose a Server --</option>
-            @foreach (var server in Model.Servers)
-            {
-                <option value="@server.EmployeeId">
-                    @(server.DisplayName ?? server.Name)
-                </option>
-            }
-        </select>
-    </div>
-
-    <button type="submit" class="btn btn-success mt-4">Seat Party</button>
-    <a asp-page="./Index" class="btn btn-secondary mt-4">Cancel</a>
-
-</form>

@@ -20,12 +20,23 @@ namespace HOST.Pages.QueueEntries
 
         public async Task OnGetAsync()
         {
-            QueueEntries = await _context.QueueEntries
-                .Where(q => q.Status == "Waiting")   // ⭐ Only show waiting parties
-                .Include(q => q.Party)               // Load party info
-                .AsNoTracking()
-                .OrderBy(q => q.CreatedAt)
-                .ToListAsync();
+            bool isStaff = User.IsInRole("Manager") ||
+                           User.IsInRole("Host") ||
+                           User.IsInRole("Server");
+
+            if (isStaff)
+            {
+                QueueEntries = await _context.QueueEntries
+                    .Where(q => q.Status == "Waiting")
+                    .Include(q => q.Party)
+                    .AsNoTracking()
+                    .OrderBy(q => q.CreatedAt)
+                    .ToListAsync();
+            }
+            else
+            {
+                QueueEntries = new List<QueueEntry>();
+            }
         }
     }
 }

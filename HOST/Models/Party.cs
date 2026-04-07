@@ -32,16 +32,19 @@ namespace HOST.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // NEW: Stored historical values
-        public int? ActualWaitMinutes { get; set; }          // How long they actually waited
-        public int? EstimatedWaitAtJoin { get; set; }        // Estimate they were given when joining
+        // ⭐ Stored historical values
+        public int? ActualWaitMinutes { get; set; }          // Final wait time (frozen at completion)
+        public int? EstimatedWaitAtJoin { get; set; }        // Estimate given when joining
+
+        // ⭐ NEW FIELD — required for Clear logic
+        public DateTime? CompletedAt { get; set; }           // When the party was completed
 
         // Convenience helpers
         [NotMapped] public bool IsWaiting => Status == "Waiting";
         [NotMapped] public bool IsSeated => Status == "Seated";
         [NotMapped] public bool IsCompleted => Status == "Completed";
 
-        // Current wait time (live)
+        // Live wait time (only for waiting parties)
         [NotMapped]
         public int? CurrentWaitMinutes
         {

@@ -1,18 +1,22 @@
 @page
-<meta http-equiv="refresh" content="60">
 @using System.Security.Claims
 @model HOST.Pages.Parties.IndexModel
 
 @{
     ViewData["Title"] = "Parties";
+
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
+    bool isStaff = isManager || isHost || isServer;
 }
 
 <div class="container mt-5 fade-in-1">
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    @* Manager-only controls *@
-    @if (User.IsInRole("Manager"))
+    <!-- Manager-only controls -->
+    @if (isManager)
     {
         <div class="mb-3 fade-in-3">
             <a class="btn-primary btn-hero" asp-page="Create">New Party</a>
@@ -29,8 +33,8 @@
         </div>
     }
 
-    @* STAFF VIEW *@
-    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+    <!-- STAFF VIEW -->
+    @if (isStaff)
     {
         <h3 class="mt-4">Waiting Parties</h3>
         <partial name="_PartyTable" model="Model.WaitingParties" />
@@ -43,9 +47,12 @@
     }
     else
     {
-        @* GUEST VIEW — sees ALL waiting parties *@
+        <!-- GUEST VIEW -->
         <h3 class="mt-4">Waiting Parties</h3>
         <partial name="_PartyTable" model="Model.WaitingParties" />
+
+        <h3 class="mt-5">Completed Parties</h3>
+        <partial name="_PartyTable" model="Model.CompletedParties" />
     }
 
 </div>

@@ -6,66 +6,62 @@
 }
 
 <div class="container mt-5 fade-in-1">
+    <div class="row justify-content-center fade-in-2">
+        <div class="col-md-6">
+            <div class="card shadow card-pink">
+                <div class="card-body p-5">
 
-    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
+                    <h2 class="text-center mb-4 text-pink-dark fade-in-3">Create Employee</h2>
 
-    <div class="card card-pink shadow fade-in-3">
-        <div class="card-body p-4">
+                    <form method="post" class="fade-in-4">
 
-            <form method="post" class="fade-in-4">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <!-- ROLE -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">Role</label>
+                            <select asp-for="SelectedRole" class="form-select input-pink" required>
+                                <option value="">Select a role...</option>
+                                <option value="Host">Host</option>
+                                <option value="Server">Server</option>
+                            </select>
+                        </div>
 
-                <!-- ROLE -->
-                <div class="mb-3">
-                    <label asp-for="Employee.Role" class="form-label text-pink-dark"></label>
-                    <select asp-for="Employee.Role" class="form-control input-pink" required>
-                        <option value="">Select a role...</option>
-                        <option value="Server">Server</option>
-                        <option value="Host">Host</option>
-                        <option value="Manager">Manager</option>
-                    </select>
-                    <span asp-validation-for="Employee.Role" class="text-danger"></span>
+                        <!-- FIRST NAME -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">First Name</label>
+                            <input asp-for="FirstName" class="form-control input-pink" required />
+                        </div>
+
+                        <!-- LAST NAME -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">Last Name</label>
+                            <input asp-for="LastName" class="form-control input-pink" required />
+                        </div>
+
+                        <!-- EMAIL -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">Email</label>
+                            <input asp-for="Email" type="email" class="form-control input-pink" required />
+                        </div>
+
+                        <!-- PASSWORD -->
+                        <div class="mb-3">
+                            <label class="form-label text-pink-dark">Password</label>
+                            <input asp-for="Password" type="password" class="form-control input-pink" required />
+                        </div>
+
+                        <div class="mt-4 d-flex gap-3">
+                            <button type="submit" class="btn-primary btn-hero w-100">Create</button>
+                            <a asp-page="Index" class="btn-secondary btn-hero w-100">Cancel</a>
+                        </div>
+
+                    </form>
+
                 </div>
-
-                <!-- NAME -->
-                <div class="mb-3">
-                    <label asp-for="Employee.Name" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Name" class="form-control input-pink" required />
-                    <span asp-validation-for="Employee.Name" class="text-danger"></span>
-                </div>
-
-                <!-- DISPLAY NAME -->
-                <div class="mb-3">
-                    <label asp-for="Employee.DisplayName" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.DisplayName" class="form-control input-pink" />
-                    <span asp-validation-for="Employee.DisplayName" class="text-danger"></span>
-                </div>
-
-                <!-- EMAIL -->
-                <div class="mb-3">
-                    <label asp-for="Employee.Email" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Email" type="email" class="form-control input-pink" />
-                    <span asp-validation-for="Employee.Email" class="text-danger"></span>
-                </div>
-
-                <!-- PHONE -->
-                <div class="mb-3">
-                    <label asp-for="Employee.Phone" class="form-label text-pink-dark"></label>
-                    <input asp-for="Employee.Phone" class="form-control input-pink" />
-                    <span asp-validation-for="Employee.Phone" class="text-danger"></span>
-                </div>
-
-                <div class="mt-4 d-flex gap-3">
-                    <button type="submit" class="btn-primary btn-hero">Create</button>
-                    <a class="btn-secondary" asp-page="Index">Cancel</a>
-                </div>
-
-            </form>
-
+            </div>
         </div>
     </div>
-
 </div>
 
 @section Scripts {

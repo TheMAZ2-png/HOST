@@ -3,35 +3,71 @@
 
 @{
     ViewData["Title"] = "Queue Entry Details";
+
+    var entry = Model.QueueEntry;
+    var party = entry.Party;
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-5 fade-in-1">
 
-<dl class="row">
-    <dt class="col-sm-3">Party ID</dt>
-    <dd class="col-sm-9">@Model.QueueEntry.PartyId</dd>
+    <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <dt class="col-sm-3">Status</dt>
-    <dd class="col-sm-9">@Model.QueueEntry.Status</dd>
+    <div class="card card-pink shadow fade-in-3">
+        <div class="card-body p-4">
 
-    <dt class="col-sm-3">Notes</dt>
-    <dd class="col-sm-9">@Model.QueueEntry.Notes</dd>
+            <h3 class="text-pink-dark mb-4">
+                @party?.PartyName
+                <span class="text-muted">(@party?.PartySize)</span>
+            </h3>
 
-    <dt class="col-sm-3">Public Access Code</dt>
-    <dd class="col-sm-9">@Model.QueueEntry.PublicAccessCode</dd>
+            <dl class="row">
 
-    <dt class="col-sm-3">Estimated Wait</dt>
-    <dd class="col-sm-9">@(Model.QueueEntry.EstimatedWaitMinutes?.ToString() ?? "-")</dd>
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">@entry.Status</dd>
 
-    <dt class="col-sm-3">Created At</dt>
-    <dd class="col-sm-9">@Model.QueueEntry.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+                <dt class="col-sm-3">Notes</dt>
+                <dd class="col-sm-9">@(!string.IsNullOrWhiteSpace(entry.Notes) ? entry.Notes : "—")</dd>
 
-    <dt class="col-sm-3">Updated At</dt>
-    <dd class="col-sm-9">@(Model.QueueEntry.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+                <dt class="col-sm-3">Public Access Code</dt>
+                <dd class="col-sm-9">@entry.PublicAccessCode</dd>
 
-    <dt class="col-sm-3">Seated At</dt>
-    <dd class="col-sm-9">@(Model.QueueEntry.SeatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
-</dl>
+                <dt class="col-sm-3">Time Waiting</dt>
+                <dd class="col-sm-9">
+                    @{
+                        if (entry.CreatedAt != null)
+                        {
+                            var minutes = (int)Math.Floor((DateTime.UtcNow - entry.CreatedAt).TotalMinutes);
+                            @($"{minutes} min")
+                        }
+                        else
+                        {
+                            <text>—</text>
+                        }
+                    }
+                </dd>
 
-<a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.QueueEntry.QueueEntryId">Edit</a>
-<a class="btn btn-secondary" asp-page="Index">Back to List</a>
+                <dt class="col-sm-3">Joined Queue</dt>
+                <dd class="col-sm-9">@entry.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                <dt class="col-sm-3">Last Updated</dt>
+                <dd class="col-sm-9">@entry.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—"</dd>
+
+                <dt class="col-sm-3">Seated At</dt>
+                <dd class="col-sm-9">@entry.SeatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "—"</dd>
+
+            </dl>
+
+            <div class="mt-4 d-flex gap-3">
+                <a class="btn-primary btn-hero" asp-page="Edit" asp-route-id="@entry.QueueEntryId">
+                    Edit
+                </a>
+
+                <a class="btn-secondary btn-hero" asp-page="Index">
+                    Back to List
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

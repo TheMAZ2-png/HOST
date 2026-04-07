@@ -8,12 +8,11 @@ namespace HOST.Models
         [Key]
         public int ManagerId { get; set; }
 
-        [StringLength(120)]
-        public string? Email { get; set; }
-
         [Required]
-        [StringLength(200)]
-        public string PasswordHash { get; set; }
+        [StringLength(120)]
+        public string Email { get; set; }
+
+        // No password stored here — Identity handles that
 
         [Required]
         [Column(TypeName = "datetime2")]

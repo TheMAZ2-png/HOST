@@ -24,21 +24,13 @@
                     <input asp-for="ManagerAccount.Email"
                            class="form-control input-pink"
                            type="email"
-                           placeholder="Manager email..." />
+                           placeholder="Manager email..."
+                           required />
                     <span asp-validation-for="ManagerAccount.Email" class="text-danger"></span>
                 </div>
 
-                <!-- PASSWORD -->
-                <div class="mb-3">
-                    <label asp-for="ManagerAccount.PasswordHash" class="form-label text-pink-dark"></label>
-                    <input asp-for="ManagerAccount.PasswordHash"
-                           class="form-control input-pink"
-                           type="password"
-                           placeholder="Update password..." />
-                    <span asp-validation-for="ManagerAccount.PasswordHash" class="text-danger"></span>
-                </div>
+                <!-- NO PASSWORD FIELD ANYMORE -->
 
-                <!-- BUTTONS -->
                 <div class="mt-4 d-flex gap-3">
                     <button type="submit" class="btn-primary btn-hero">Save</button>
                     <a class="btn-secondary" asp-page="Index">Cancel</a>
