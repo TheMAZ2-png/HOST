@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace HOST.Pages
 {
@@ -58,7 +59,10 @@ namespace HOST.Pages
             return await HandleFailedLoginAsync();
         }
 
-            // Log failed login attempt
+        private async Task<IActionResult> HandleFailedLoginAsync()
+        {
+            _logger.LogWarning("Failed login attempt for user {Email}", Input.Email);
+
             _context.FailedLogins.Add(new FailedLogin
             {
                 Username = Input.Email,
