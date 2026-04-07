@@ -19,7 +19,7 @@
         <header>
             <nav class="navBar">
                 <ul>
-                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                   @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
                     {
                         <li>
                             <a asp-page="/homePage" class="icon-button">
@@ -35,26 +35,8 @@
                         </li>
                     }
 
-                   
-
                     @if (User.IsInRole("Host"))
                     {
-                        <li>
-                            <a asp-page="/QueueEntries/Index">Queue</a>
-                        </li>
-                    }
-
-                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
-                    {
-                        <li>
-                            <a asp-page="/RestaurantTables/Index">Tables</a>
-                        </li>
-                    }
-
-
-                    @if (User.IsInRole("Manager"))
-                    {
-                           
                         <li>
                             <a asp-page="/QueueEntries/Index">Queue</a>
                         </li>
@@ -80,12 +62,20 @@
                                 <a asp-page="/ManagerAccounts/Index">Managers</a>
                             </li>
                             <li>
+                                <a asp-page="/QueueEntries/Index">Queue</a>
+                            </li>
+                            <li>
                                 <a asp-page="/errorLog">Logs</a>
                             </li>
                         }
                     }
 
-                   
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <li>
+                            <a asp-page="/CurriculumPages/Index">Specials</a>
+                        </li>
+                    }
 
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
