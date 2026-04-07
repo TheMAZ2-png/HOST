@@ -23,18 +23,14 @@ namespace HOST.Pages.Employees
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var employee = await _context.Employees
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
 
             if (employee == null)
-            {
                 return NotFound();
-            }
 
             Employee = employee;
             return Page();
@@ -43,25 +39,26 @@ namespace HOST.Pages.Employees
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
             var existing = await _context.Employees
                 .FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
 
             if (existing == null)
-            {
                 return NotFound();
-            }
 
+            // Update editable fields
             existing.Name = Employee.Name;
             existing.DisplayName = Employee.DisplayName;
             existing.Email = Employee.Email;
             existing.Phone = Employee.Phone;
 
-            // Save role (Manager-only dropdown)
-            existing.Role = Employee.Role;
+            // Manager-only role update
+            if (User.IsInRole("Manager"))
+                existing.Role = Employee.Role;
+
+            // Preserve IdentityUserId
+            existing.IdentityUserId = Employee.IdentityUserId;
 
             existing.UpdatedAt = DateTime.UtcNow;
 

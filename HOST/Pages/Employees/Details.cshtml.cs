@@ -19,18 +19,20 @@ namespace HOST.Pages.Employees
 
         public Employee Employee { get; set; } = new();
 
+        // ============================================================
+        // GET — Load employee details
+        // ============================================================
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var employee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.EmployeeId == id);
+            var employee = await _context.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
             if (employee == null)
-            {
                 return NotFound();
-            }
 
             Employee = employee;
             return Page();

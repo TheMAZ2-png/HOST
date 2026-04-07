@@ -14,6 +14,7 @@
         <div class="card-body p-4">
 
             <dl class="row text-pink-dark">
+
                 <dt class="col-sm-3">Name</dt>
                 <dd class="col-sm-9">@Model.Employee.Name</dd>
 
@@ -25,6 +26,20 @@
 
                 <dt class="col-sm-3">Phone</dt>
                 <dd class="col-sm-9">@Model.Employee.Phone</dd>
+
+                <dt class="col-sm-3">Role</dt>
+                <dd class="col-sm-9">@Model.Employee.Role</dd>
+
+                <dt class="col-sm-3">Created At</dt>
+                <dd class="col-sm-9">@Model.Employee.CreatedAt.ToString("g")</dd>
+
+                <dt class="col-sm-3">Updated At</dt>
+                <dd class="col-sm-9">
+                    @(Model.Employee.UpdatedAt.HasValue
+                        ? Model.Employee.UpdatedAt.Value.ToString("g")
+                        : "—")
+                </dd>
+
             </dl>
 
             <form method="post" class="fade-in-4 mt-4">

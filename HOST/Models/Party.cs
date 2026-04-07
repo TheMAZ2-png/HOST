@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HOST.Models
 {
@@ -21,7 +21,49 @@ namespace HOST.Models
         [StringLength(250)]
         public string? Notes { get; set; }
 
-        // Navigation properties
+        public string OwnerId { get; set; }
+
+        // Navigation
         public virtual ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
+        public virtual ICollection<Seating> Seatings { get; set; } = new List<Seating>();
+
+        // Workflow status
+        public string Status { get; set; } = "Waiting";
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // ⭐ Stored historical values
+        public int? ActualWaitMinutes { get; set; }          // Final wait time (frozen at completion)
+        public int? EstimatedWaitAtJoin { get; set; }        // Estimate given when joining
+
+        // ⭐ NEW FIELD — required for Clear logic
+        public DateTime? CompletedAt { get; set; }           // When the party was completed
+
+        // Convenience helpers
+        [NotMapped] public bool IsWaiting => Status == "Waiting";
+        [NotMapped] public bool IsSeated => Status == "Seated";
+        [NotMapped] public bool IsCompleted => Status == "Completed";
+
+        // Live wait time (only for waiting parties)
+        [NotMapped]
+        public int? CurrentWaitMinutes
+        {
+            get
+            {
+                var activeEntry = QueueEntries
+                    .Where(q => q.Status == "Waiting")
+                    .OrderByDescending(q => q.CreatedAt)
+                    .FirstOrDefault();
+
+                if (activeEntry == null)
+                    return null;
+
+                return (int)(DateTime.UtcNow - activeEntry.CreatedAt).TotalMinutes;
+            }
+        }
+
+        // Live estimated wait time (computed in Index.cshtml.cs)
+        [NotMapped]
+        public int EstimatedWaitMinutes { get; set; }
     }
 }
