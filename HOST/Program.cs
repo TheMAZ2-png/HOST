@@ -17,7 +17,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Parties/Index");
 
     // ⭐ CRITICAL FIX: Allow Seat page to bypass fallback authorization
-    options.Conventions.AllowAnonymousToPage("/QueueEntries/Seat");
+  
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

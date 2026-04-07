@@ -29,6 +29,10 @@
         </p>
 
         <form method="post" class="mt-4">
+
+            <!-- REQUIRED: send TableId back to POST handler -->
+            <input type="hidden" asp-for="RestaurantTable.TableId" />
+
             <button type="submit" class="btn btn-danger">Delete</button>
             <a asp-page="Index" class="btn btn-secondary ms-2">Cancel</a>
         </form>

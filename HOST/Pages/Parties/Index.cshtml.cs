@@ -28,9 +28,12 @@ namespace HOST.Pages.Parties
         public async Task OnGetAsync()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isStaff = User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server");
 
+            // ============================================================
             // STAFF VIEW
-            if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+            // ============================================================
+            if (isStaff)
             {
                 WaitingParties = await _context.Parties
                     .Where(p => p.Status == "Waiting")
@@ -49,10 +52,18 @@ namespace HOST.Pages.Parties
             }
             else
             {
+                // ============================================================
                 // GUEST VIEW
+                // ============================================================
                 WaitingParties = await _context.Parties
                     .Where(p => p.Status == "Waiting")
                     .OrderBy(p => p.CreatedAt)
+                    .ToListAsync();
+
+                // ⭐ FIX: Guests now see completed parties
+                CompletedParties = await _context.Parties
+                    .Where(p => p.Status == "Completed")
+                    .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
             }
 

@@ -6,7 +6,6 @@
 @{
     ViewData["Title"] = "Restaurant Tables";
 
-    // Determine user roles
     bool isManager = User.IsInRole("Manager");
     bool isHost = User.IsInRole("Host");
     bool isServer = User.IsInRole("Server");
@@ -16,11 +15,32 @@
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <!-- Only Managers + Hosts can create tables -->
     @if (isManager || isHost)
     {
-        <div class="mb-3 fade-in-3">
-            <a class="btn-primary btn-hero" asp-page="Create">New Table</a>
+        <div class="d-flex gap-3 mb-4 fade-in-3">
+
+            <a class="btn-primary btn-hero" asp-page="Create">
+                New Table
+            </a>
+
+            <form method="post" asp-page-handler="ClearAll">
+                <button type="submit"
+                        class="btn-secondary btn-hero"
+                        onclick="return confirm('Clear ALL tables? This will complete all parties and reset all tables.');">
+                    Clear All Tables
+                </button>
+            </form>
+
+            @if (isManager)
+            {
+                <form method="post" asp-page-handler="DeleteAll">
+                    <button type="submit"
+                            class="btn-danger-pink btn-hero"
+                            onclick="return confirm('DELETE ALL TABLES? This will permanently remove every table.');">
+                        Delete All Tables
+                    </button>
+                </form>
+            }
         </div>
     }
 
@@ -65,14 +85,12 @@
                             <td class="text-end">
                                 <div class="action-buttons">
 
-                                    <!-- ALL ROLES can view details -->
                                     <a class="btn-secondary btn-sm"
                                            asp-page="Details"
                                            asp-route-id="@item.TableId">
                                         Details
                                     </a>
 
-                                    <!-- Only Managers + Hosts can edit -->
                                     @if (isManager || isHost)
                                     {
                                         <a class="btn-primary btn-sm"
@@ -80,11 +98,7 @@
                                                asp-route-id="@item.TableId">
                                             Edit
                                         </a>
-                                    }
 
-                                    <!-- Only Managers + Hosts can delete -->
-                                    @if (isManager || isHost)
-                                    {
                                         <a class="btn-danger-pink btn-sm"
                                                asp-page="Delete"
                                                asp-route-id="@item.TableId">
@@ -92,7 +106,6 @@
                                         </a>
                                     }
 
-                                    <!-- ALL ROLES can clear a table IF it has a party -->
                                     @if (item.CurrentPartyId != null)
                                     {
                                         <a class="btn-danger-pink btn-sm"

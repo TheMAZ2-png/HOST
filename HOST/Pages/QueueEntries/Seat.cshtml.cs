@@ -29,9 +29,9 @@ namespace HOST.Pages.QueueEntries
         [BindProperty]
         public int SelectedServerId { get; set; }
 
-        // -----------------------------
+        // ---------------------------------------------------------
         // GET
-        // -----------------------------
+        // ---------------------------------------------------------
         public async Task<IActionResult> OnGetAsync(int id)
         {
             QueueEntry = await _context.QueueEntries
@@ -44,7 +44,7 @@ namespace HOST.Pages.QueueEntries
             Party = QueueEntry.Party;
 
             AvailableTables = await _context.RestaurantTables
-                .Where(t => t.Status == "Available")
+                .Where(t => t.Status == "Available" && t.CurrentPartyId == null)
                 .OrderBy(t => t.TableNumber)
                 .ToListAsync();
 
@@ -56,12 +56,14 @@ namespace HOST.Pages.QueueEntries
             return Page();
         }
 
-        // -----------------------------
-        // POST — Seat the party
-        // -----------------------------
-        [ValidateAntiForgeryToken]
+        // ---------------------------------------------------------
+        // POST (with full debugging)
+        // ---------------------------------------------------------
         public async Task<IActionResult> OnPostAsync(int id)
         {
+            TempData["Debug"] = $"POST HIT → id={id}";
+            Console.WriteLine($"DEBUG: POST HIT → id={id}");
+
             var queueEntry = await _context.QueueEntries
                 .Include(q => q.Party)
                 .FirstOrDefaultAsync(q => q.QueueEntryId == id);
@@ -69,51 +71,74 @@ namespace HOST.Pages.QueueEntries
             if (queueEntry == null)
             {
                 TempData["ErrorMessage"] = "Queue entry not found.";
+                TempData["Debug"] = "FAIL → queueEntry null";
                 return RedirectToPage("./Index");
             }
 
             if (queueEntry.Party == null)
             {
                 TempData["ErrorMessage"] = "This queue entry has no associated party.";
+                TempData["Debug"] = "FAIL → Party null";
                 return RedirectToPage("./Index");
             }
 
             if (queueEntry.Status == "Seated")
             {
                 TempData["ErrorMessage"] = "This party is already seated.";
+                TempData["Debug"] = "FAIL → Already seated";
                 return RedirectToPage("./Index");
             }
 
+            TempData["Debug"] = $"PASS → queueEntry OK, SelectedTableId={SelectedTableId}, SelectedServerId={SelectedServerId}";
+            Console.WriteLine(TempData["Debug"]);
+
             var table = await _context.RestaurantTables
+                .Include(t => t.Seatings)
                 .FirstOrDefaultAsync(t => t.TableId == SelectedTableId);
 
             if (table == null)
             {
                 TempData["ErrorMessage"] = "Selected table not found.";
+                TempData["Debug"] = "FAIL → table null";
                 return RedirectToPage("./Index");
             }
+
+            if (table.Status != "Available" || table.CurrentPartyId != null)
+            {
+                TempData["ErrorMessage"] = "Selected table is not available.";
+                TempData["Debug"] = $"FAIL → table not available (Status={table.Status}, CurrentPartyId={table.CurrentPartyId})";
+                return RedirectToPage("./Index");
+            }
+
+            var server = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeId == SelectedServerId && e.Role == "Server");
+
+            if (server == null)
+            {
+                TempData["ErrorMessage"] = "Selected server not found.";
+                TempData["Debug"] = "FAIL → server null";
+                return RedirectToPage("./Index");
+            }
+
+            TempData["Debug"] = "PASS → table + server OK";
+            Console.WriteLine(TempData["Debug"]);
 
             var identityUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var employee = await _context.Employees
+            var seatingEmployee = await _context.Employees
                 .FirstOrDefaultAsync(e => e.IdentityUserId == identityUserId);
 
-            if (employee == null)
+            if (seatingEmployee == null)
             {
                 TempData["ErrorMessage"] = "Unable to determine logged-in employee.";
+                TempData["Debug"] = "FAIL → seatingEmployee null";
                 return RedirectToPage("./Index");
             }
 
-            // ⭐ NEW: Calculate actual wait time
-            var activeQueueEntry = await _context.QueueEntries
-                .Where(q => q.PartyId == queueEntry.PartyId && q.Status == "Waiting")
-                .OrderByDescending(q => q.CreatedAt)
-                .FirstOrDefaultAsync();
+            TempData["Debug"] = "PASS → seatingEmployee OK";
+            Console.WriteLine(TempData["Debug"]);
 
-            if (activeQueueEntry != null)
-            {
-                queueEntry.Party.ActualWaitMinutes =
-                    (int)(DateTime.UtcNow - activeQueueEntry.CreatedAt).TotalMinutes;
-            }
+            // Update queue entry
+            queueEntry.Status = "Completed";
 
             // Create seating record
             var seating = new Seating
@@ -121,7 +146,7 @@ namespace HOST.Pages.QueueEntries
                 PartyId = queueEntry.PartyId,
                 RestaurantTableId = table.TableId,
                 AssignedServerId = SelectedServerId,
-                SeatedByEmployeeId = employee.EmployeeId,
+                SeatedByEmployeeId = seatingEmployee.EmployeeId,
                 SeatedAt = DateTime.UtcNow
             };
 
@@ -134,17 +159,15 @@ namespace HOST.Pages.QueueEntries
             // Update party
             queueEntry.Party.Status = "Seated";
 
-            // Update queue entry
-            queueEntry.Status = "Seated";
-            queueEntry.SeatedAt = DateTime.UtcNow;
+            TempData["Debug"] = "PASS → Saving changes…";
+            Console.WriteLine(TempData["Debug"]);
 
-            await _context.SaveChangesAsync();
-
-            // Remove queue entry
-            _context.QueueEntries.Remove(queueEntry);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Party successfully seated.";
+            TempData["Debug"] = "PASS → Save complete";
+            Console.WriteLine(TempData["Debug"]);
+
             return RedirectToPage("./Index");
         }
     }

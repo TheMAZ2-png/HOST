@@ -42,6 +42,23 @@
                         </li>
                     }
 
+
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <li>
+                            <a asp-page="/QueueEntries/Index">Queue</a>
+                        </li>
+                    }
+
+
+                    @if (User.IsInRole("Host") || User.IsInRole("Server") || User.IsInRole("Manager"))
+                    {
+                        <li>
+                            <a asp-page="/RestaurantTables/Index">Tables</a>
+                        </li>
+                    }
+                    
+
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
@@ -51,7 +68,7 @@
                         @if (User.IsInRole("Manager"))
                         {
                            
-                            
+                          
                             
                             <li>
                                 <a asp-page="/Employees/Index">Employees</a>
@@ -61,9 +78,7 @@
                             <li>
                                 <a asp-page="/ManagerAccounts/Index">Managers</a>
                             </li>
-                            <li>
-                                <a asp-page="/QueueEntries/Index">Queue</a>
-                            </li>
+                        
                             <li>
                                 <a asp-page="/errorLog">Logs</a>
                             </li>

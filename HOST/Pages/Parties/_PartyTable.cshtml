@@ -3,6 +3,12 @@
 
 @{
     var counter = 1;
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
+    bool isStaff = isManager || isHost || isServer;
+
+    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 }
 
 <table class="table table-pink mt-3">
@@ -11,14 +17,14 @@
             <th>#</th>
             <th>Party Name</th>
 
-            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+            @if (isStaff)
             {
                 <th>Phone Number</th>
             }
 
             <th>Party Size</th>
 
-            @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+            @if (isStaff)
             {
                 <th>Notes</th>
             }
@@ -41,23 +47,25 @@
 
                 <td>@item.PartyName</td>
 
-                @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                @if (isStaff)
                 {
                     <td>@item.PhoneNumber</td>
                 }
 
                 <td>@item.PartySize</td>
 
-                @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host"))
+                @if (isStaff)
                 {
                     <td>@item.Notes</td>
                 }
 
-                <!-- WAIT TIME COLUMN -->
+                <!-- WAIT TIME -->
                 <td>
-                    @if (item.Status == "Waiting")
+                    @if (item.Status == "Waiting" || item.Status == "Seated")
                     {
-                        @($"{item.ActualWaitMinutes} min")
+                        @(item.ActualWaitMinutes.HasValue
+                            ? $"{item.ActualWaitMinutes} min"
+                            : "0 min")
                     }
                     else if (item.Status == "Completed" && item.ActualWaitMinutes.HasValue)
                     {
@@ -69,17 +77,16 @@
                     }
                 </td>
 
-                <!-- ESTIMATED WAIT COLUMN -->
+                <!-- ESTIMATED WAIT -->
                 <td>
                     @if (item.Status == "Waiting")
                     {
-                        @(
-                            item.EstimatedWaitMinutes <= 5
-                                ? "Seating soon"
-                                : $"{item.EstimatedWaitMinutes} min"
-                        )
+                        @(item.EstimatedWaitMinutes <= 5
+                            ? "Seating soon"
+                            : $"{item.EstimatedWaitMinutes} min")
                     }
-                    else if (item.Status == "Completed" && item.EstimatedWaitAtJoin.HasValue)
+                    else if ((item.Status == "Seated" || item.Status == "Completed")
+                             && item.EstimatedWaitAtJoin.HasValue)
                     {
                         @($"{item.EstimatedWaitAtJoin} min")
                     }
@@ -89,29 +96,41 @@
                     }
                 </td>
 
+                <!-- ACTIONS -->
                 <td class="text-end">
                     <div class="action-buttons">
 
                         <!-- DETAILS -->
-                        @if (User.IsInRole("Manager") || User.IsInRole("Server") || User.IsInRole("Host") ||
-                                                     item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        @if (isStaff || item.OwnerId == userId)
                         {
-                            <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
+                            <a class="btn-secondary btn-sm"
+                                   asp-page="Details"
+                                   asp-route-id="@item.PartyId">
+                                Details
+                            </a>
                         }
 
-                        <!-- EDIT -->
-                        @if (User.IsInRole("Manager") ||
-                                                     item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        <!-- EDIT (only staff OR owner while waiting) -->
+                        @if (isManager ||
+                                                    (item.Status == "Waiting" && item.OwnerId == userId))
                         {
-                            <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
+                            <a class="btn-primary btn-sm"
+                                   asp-page="Edit"
+                                   asp-route-id="@item.PartyId">
+                                Edit
+                            </a>
                         }
 
-                        <!-- DELETE -->
-                        @if (User.IsInRole("Manager"))
+                        <!-- DELETE (only staff OR owner while waiting) -->
+                        @if (isManager)
                         {
-                            <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
+                            <a class="btn-danger-pink btn-sm"
+                                   asp-page="Delete"
+                                   asp-route-id="@item.PartyId">
+                                Delete
+                            </a>
                         }
-                        else if (item.OwnerId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        else if (item.Status == "Waiting" && item.OwnerId == userId)
                         {
                             <form method="post"
                                   asp-page="Edit"

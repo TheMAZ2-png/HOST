@@ -9,14 +9,16 @@
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3 fade-in-3">
-        <a class="btn-primary btn-hero" asp-page="Create">New Manager Account</a>
+    <div class="d-flex gap-3 mb-4 fade-in-3">
+        <a asp-page="Create" class="btn-primary btn-hero">
+            Create New Manager
+        </a>
     </div>
 
     <div class="card card-pink shadow fade-in-4">
         <div class="card-body p-4">
 
-            <table class="table table-pink">
+            <table class="table-pink fade-in-4">
                 <thead>
                     <tr>
                         <th>Email</th>
@@ -24,17 +26,33 @@
                         <th class="text-end"></th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    @foreach (var item in Model.ManagerAccounts)
+                    @foreach (var account in Model.ManagerAccounts)
                     {
                         <tr>
-                            <td>@item.Email</td>
-                            <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>@account.Email</td>
+                            <td>@account.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+
                             <td class="text-end">
                                 <div class="action-buttons">
-                                    <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.ManagerId">Details</a>
-                                    <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.ManagerId">Edit</a>
-                                    <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.ManagerId">Delete</a>
+                                    <a asp-page="Details"
+                                           asp-route-id="@account.ManagerId"
+                                           class="btn-secondary btn-sm">
+                                        Details
+                                    </a>
+
+                                    <a asp-page="Edit"
+                                           asp-route-id="@account.ManagerId"
+                                           class="btn-primary btn-sm">
+                                        Edit
+                                    </a>
+
+                                    <a asp-page="Delete"
+                                           asp-route-id="@account.ManagerId"
+                                           class="btn-danger-pink btn-sm">
+                                        Delete
+                                    </a>
                                 </div>
                             </td>
                         </tr>

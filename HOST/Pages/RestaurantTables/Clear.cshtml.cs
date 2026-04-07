@@ -35,8 +35,9 @@ namespace HOST.Pages.RestaurantTables
 
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            // Load table with tracking
             var table = await _context.RestaurantTables
+                .Include(t => t.Seatings)
+                .Include(t => t.CurrentParty)
                 .FirstOrDefaultAsync(t => t.TableId == id);
 
             if (table == null)
@@ -48,22 +49,36 @@ namespace HOST.Pages.RestaurantTables
                 return RedirectToPage("Index");
             }
 
-            // Load the party assigned to this table
-            var party = await _context.Parties
-                .FirstOrDefaultAsync(p => p.PartyId == table.CurrentPartyId);
+            var activeSeating = table.Seatings
+                .Where(s => s.ClearedAt == null)
+                .OrderByDescending(s => s.SeatedAt)
+                .FirstOrDefault();
 
+            if (activeSeating != null)
+                activeSeating.ClearedAt = DateTime.UtcNow;
+
+            var party = table.CurrentParty;
             if (party != null)
             {
-                // Update party status
                 party.Status = "Completed";
+                party.CompletedAt = DateTime.UtcNow;
 
-                // OPTIONAL: delete the party entirely
-                // _context.Parties.Remove(party);
+                party.ActualWaitMinutes =
+                    (int)Math.Floor((DateTime.UtcNow - party.CreatedAt).TotalMinutes);
+
+                if (!party.EstimatedWaitAtJoin.HasValue)
+                    party.EstimatedWaitAtJoin = party.EstimatedWaitMinutes;
+
+                var queueEntries = await _context.QueueEntries
+                    .Where(q => q.PartyId == party.PartyId)
+                    .ToListAsync();
+
+                _context.QueueEntries.RemoveRange(queueEntries);
             }
 
-            // Clear the table
             table.Status = "Available";
             table.CurrentPartyId = null;
+            table.CurrentParty = null;
 
             await _context.SaveChangesAsync();
 
