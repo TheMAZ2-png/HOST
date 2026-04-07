@@ -19,8 +19,7 @@
         <header>
             <nav class="navBar">
                 <ul>
-
-                   @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
                     {
                         <li>
                             <a asp-page="/homePage" class="icon-button">
@@ -29,28 +28,38 @@
                         </li>
                     }
 
-                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                    @if (User.Identity?.IsAuthenticated ?? false)
                     {
-                    
                         <li>
-                            <a asp-page="/RestaurantTables/Index">Tables</a>
+                            <a asp-page="/CurriculumPages/Index">Specials</a>
                         </li>
-
-                    }
-
-
-                    @if (User.IsInRole("Host"))
-                    {
-                    
-                        <li>
-                            <a asp-page="/QueueEntries/Index">Queue</a>
-                        </li>
-
                     }
 
                    
 
-                    <!-- Parties -->
+                    @if (User.IsInRole("Host"))
+                    {
+                        <li>
+                            <a asp-page="/QueueEntries/Index">Queue</a>
+                        </li>
+                    }
+
+                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+                    {
+                        <li>
+                            <a asp-page="/RestaurantTables/Index">Tables</a>
+                        </li>
+                    }
+
+
+                    @if (User.IsInRole("Manager"))
+                    {
+                           
+                        <li>
+                            <a asp-page="/QueueEntries/Index">Queue</a>
+                        </li>
+                    }
+
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
@@ -59,35 +68,31 @@
 
                         @if (User.IsInRole("Manager"))
                         {
+                           
+                            
+                            
                             <li>
                                 <a asp-page="/Employees/Index">Employees</a>
                             </li>
+                            
+                           
                             <li>
                                 <a asp-page="/ManagerAccounts/Index">Managers</a>
                             </li>
-                            <li>
-                                <a asp-page="/QueueEntries/Index">Queue</a>
-                            </li>
-                        }
-
-                        @if (User.IsInRole("Manager"))
-                        {
                             <li>
                                 <a asp-page="/errorLog">Logs</a>
                             </li>
                         }
                     }
 
+                   
 
-
-                    <!-- Username -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
                             <span>@User.FindFirst("PartyName")?.Value</span>
                         </li>
 
-                        <!-- Logout -->
                         <li>
                             <form method="post" asp-area="Identity" asp-page="/Account/Logout" class="logout-form">
                                 <button type="submit" class="icon-button">
@@ -96,6 +101,7 @@
                             </form>
                         </li>
                     }
+
 
                 </ul>
             </nav>
