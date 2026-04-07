@@ -43,15 +43,21 @@
                         <!-- PARTY SIZE -->
                         <div class="mb-3">
                             <label asp-for="PartyRegistration.PartySize" class="form-label text-pink-dark">Party size</label>
-                            <input asp-for="PartyRegistration.PartySize"
-                                   class="form-control input-pink"
-                                   type="number"
-                                   min="1"
-                                   max="12"
-                                   placeholder="Please enter size of party..."
-                                   required />
+
+                            <select asp-for="PartyRegistration.PartySize"
+                                    class="form-control input-pink"
+                                    required>
+                                <option value="">Select party size...</option>
+
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+
                             <span asp-validation-for="PartyRegistration.PartySize" class="text-danger"></span>
                         </div>
+
 
                         <!-- NOTES -->
                         <div class="mb-3">
@@ -99,7 +105,7 @@
                         <h2 class="text-pink-dark mb-4">Host Program</h2>
 
                         <p class="text-pink-dark lead mb-4">
-                            Providing the best queueing solutions for restaurants and staff.
+                            Providing the best queuing solutions for restaurants and staff.
                         </p>
                     </div>
 

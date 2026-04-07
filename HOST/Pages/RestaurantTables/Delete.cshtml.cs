@@ -23,31 +23,38 @@ namespace HOST.Pages.RestaurantTables
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var table = await _context.RestaurantTables.AsNoTracking().FirstOrDefaultAsync(t => t.TableId == id);
-            if (table == null)
-            {
+            RestaurantTable = await _context.RestaurantTables
+                .Include(t => t.CurrentParty)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TableId == id);
+
+            if (RestaurantTable == null)
                 return NotFound();
-            }
 
-            RestaurantTable = table;
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var table = await _context.RestaurantTables.FindAsync(RestaurantTable.TableId);
+            var table = await _context.RestaurantTables
+                .FirstOrDefaultAsync(t => t.TableId == RestaurantTable.TableId);
+
             if (table == null)
-            {
                 return NotFound();
+
+            // ❌ Prevent deletion if a party is seated
+            if (table.CurrentPartyId != null)
+            {
+                TempData["ErrorMessage"] = "Cannot delete a table that is currently occupied.";
+                return RedirectToPage("./Index");
             }
 
             _context.RestaurantTables.Remove(table);
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Table deleted successfully.";
             return RedirectToPage("./Index");
         }
     }

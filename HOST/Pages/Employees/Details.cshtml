@@ -12,7 +12,7 @@
     <div class="card card-pink shadow fade-in-3">
         <div class="card-body p-4">
 
-            <dl class="row fade-in-4">
+            <dl class="row fade-in-4 text-pink-dark">
 
                 <dt class="col-sm-3">Name</dt>
                 <dd class="col-sm-9">@Model.Employee.Name</dd>
@@ -29,11 +29,20 @@
                 <dt class="col-sm-3">Role</dt>
                 <dd class="col-sm-9">@Model.Employee.Role</dd>
 
+                <dt class="col-sm-3">Identity User ID</dt>
+                <dd class="col-sm-9">@Model.Employee.IdentityUserId</dd>
+
                 <dt class="col-sm-3">Created At</dt>
-                <dd class="col-sm-9">@Model.Employee.CreatedAt</dd>
+                <dd class="col-sm-9">@Model.Employee.CreatedAt.ToString("g")</dd>
+
+                <dt class="col-sm-3">Updated At</dt>
+                <dd class="col-sm-9">
+                    @(Model.Employee.UpdatedAt.HasValue
+                        ? Model.Employee.UpdatedAt.Value.ToString("g")
+                        : "—")
+                </dd>
 
             </dl>
-
 
             <div class="mt-4 d-flex gap-3">
                 <a class="btn-secondary" asp-page="Index">Back</a>

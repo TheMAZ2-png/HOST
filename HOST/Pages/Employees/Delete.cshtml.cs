@@ -23,15 +23,14 @@ namespace HOST.Pages.Employees
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var employee = await _context.Employees.AsNoTracking().FirstOrDefaultAsync(e => e.EmployeeId == id);
+            var employee = await _context.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
+
             if (employee == null)
-            {
                 return NotFound();
-            }
 
             Employee = employee;
             return Page();
@@ -39,15 +38,29 @@ namespace HOST.Pages.Employees
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var employee = await _context.Employees.FindAsync(Employee.EmployeeId);
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeId == Employee.EmployeeId);
+
             if (employee == null)
-            {
                 return NotFound();
+
+            // Prevent deleting employees with seating history
+            bool hasSeatings = await _context.Seatings.AnyAsync(s =>
+                s.AssignedServerId == employee.EmployeeId ||
+                s.SeatedByEmployeeId == employee.EmployeeId
+            );
+
+            if (hasSeatings)
+            {
+                TempData["ErrorMessage"] =
+                    "This employee cannot be deleted because they have seating history.";
+                return RedirectToPage("./Index");
             }
 
             _context.Employees.Remove(employee);
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Employee deleted successfully.";
             return RedirectToPage("./Index");
         }
     }

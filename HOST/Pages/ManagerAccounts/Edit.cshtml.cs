@@ -23,15 +23,14 @@ namespace HOST.Pages.ManagerAccounts
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var account = await _context.ManagerAccounts.AsNoTracking().FirstOrDefaultAsync(m => m.ManagerId == id);
+            var account = await _context.ManagerAccounts
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.ManagerId == id);
+
             if (account == null)
-            {
                 return NotFound();
-            }
 
             ManagerAccount = account;
             return Page();
@@ -40,18 +39,16 @@ namespace HOST.Pages.ManagerAccounts
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            var existing = await _context.ManagerAccounts.FirstOrDefaultAsync(m => m.ManagerId == ManagerAccount.ManagerId);
+            var existing = await _context.ManagerAccounts
+                .FirstOrDefaultAsync(m => m.ManagerId == ManagerAccount.ManagerId);
+
             if (existing == null)
-            {
                 return NotFound();
-            }
 
+            // Only update email — no password stored here anymore
             existing.Email = ManagerAccount.Email;
-            existing.PasswordHash = ManagerAccount.PasswordHash;
 
             await _context.SaveChangesAsync();
 

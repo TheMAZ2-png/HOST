@@ -22,6 +22,52 @@ namespace HOST.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Employee", b =>
+                {
+                    b.Property<int>("EmployeeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("IdentityUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("EmployeeId");
+
+                    b.ToTable("Employees");
+                });
+
             modelBuilder.Entity("HOST.Models.AssignTableToServer", b =>
                 {
                     b.Property<int>("EmployeeID")
@@ -56,47 +102,6 @@ namespace HOST.Migrations
                     b.HasKey("EmployeeID");
 
                     b.ToTable("AssignTableToServers");
-                });
-
-            modelBuilder.Entity("HOST.Models.Employee", b =>
-                {
-                    b.Property<int>("EmployeeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DisplayName")
-                        .HasMaxLength(80)
-                        .HasColumnType("nvarchar(80)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("EmployeeId");
-
-                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("HOST.Models.EmployeeRole", b =>
@@ -190,13 +195,9 @@ namespace HOST.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("ManagerId");
 
@@ -211,9 +212,25 @@ namespace HOST.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PartyId"));
 
+                    b.Property<int?>("ActualWaitMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("EstimatedWaitAtJoin")
+                        .HasColumnType("int");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PartyName")
                         .IsRequired()
@@ -226,6 +243,10 @@ namespace HOST.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PartyId");
 
@@ -286,6 +307,9 @@ namespace HOST.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("CurrentPartyId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -306,6 +330,8 @@ namespace HOST.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TableId");
+
+                    b.HasIndex("CurrentPartyId");
 
                     b.ToTable("RestaurantTables");
                 });
@@ -342,6 +368,12 @@ namespace HOST.Migrations
                     b.Property<DateTime?>("ClearedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EmployeeId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("PartyId")
                         .HasColumnType("int");
 
@@ -357,6 +389,10 @@ namespace HOST.Migrations
                     b.HasKey("SeatingId");
 
                     b.HasIndex("AssignedServerId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("EmployeeId1");
 
                     b.HasIndex("PartyId");
 
@@ -590,7 +626,7 @@ namespace HOST.Migrations
 
             modelBuilder.Entity("HOST.Models.EmployeeRole", b =>
                 {
-                    b.HasOne("HOST.Models.Employee", "Employee")
+                    b.HasOne("Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -609,15 +645,15 @@ namespace HOST.Migrations
 
             modelBuilder.Entity("HOST.Models.EmployeeShift", b =>
                 {
-                    b.HasOne("HOST.Models.Employee", "ClockInByEmployee")
+                    b.HasOne("Employee", "ClockInByEmployee")
                         .WithMany()
                         .HasForeignKey("ClockInByEmployeeId");
 
-                    b.HasOne("HOST.Models.Employee", "ClockOutByEmployee")
+                    b.HasOne("Employee", "ClockOutByEmployee")
                         .WithMany()
                         .HasForeignKey("ClockOutByEmployeeId");
 
-                    b.HasOne("HOST.Models.Employee", "Employee")
+                    b.HasOne("Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -641,16 +677,34 @@ namespace HOST.Migrations
                     b.Navigation("Party");
                 });
 
+            modelBuilder.Entity("HOST.Models.RestaurantTable", b =>
+                {
+                    b.HasOne("HOST.Models.Party", "CurrentParty")
+                        .WithMany()
+                        .HasForeignKey("CurrentPartyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("CurrentParty");
+                });
+
             modelBuilder.Entity("HOST.Models.Seating", b =>
                 {
-                    b.HasOne("HOST.Models.Employee", "AssignedServer")
+                    b.HasOne("Employee", "AssignedServer")
                         .WithMany("AssignedServerEntries")
                         .HasForeignKey("AssignedServerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Employee", null)
+                        .WithMany("AssignedSeatings")
+                        .HasForeignKey("EmployeeId");
+
+                    b.HasOne("Employee", null)
+                        .WithMany("SeatedParties")
+                        .HasForeignKey("EmployeeId1");
+
                     b.HasOne("HOST.Models.Party", "Party")
-                        .WithMany()
+                        .WithMany("Seatings")
                         .HasForeignKey("PartyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -661,7 +715,7 @@ namespace HOST.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HOST.Models.Employee", "SeatedByEmployee")
+                    b.HasOne("Employee", "SeatedByEmployee")
                         .WithMany("SeatedByEntries")
                         .HasForeignKey("SeatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -678,7 +732,7 @@ namespace HOST.Migrations
 
             modelBuilder.Entity("HOST.Models.SystemSetting", b =>
                 {
-                    b.HasOne("HOST.Models.Employee", "UpdatedByEmployee")
+                    b.HasOne("Employee", "UpdatedByEmployee")
                         .WithMany()
                         .HasForeignKey("UpdatedByEmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -738,16 +792,22 @@ namespace HOST.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("HOST.Models.Employee", b =>
+            modelBuilder.Entity("Employee", b =>
                 {
+                    b.Navigation("AssignedSeatings");
+
                     b.Navigation("AssignedServerEntries");
 
                     b.Navigation("SeatedByEntries");
+
+                    b.Navigation("SeatedParties");
                 });
 
             modelBuilder.Entity("HOST.Models.Party", b =>
                 {
                     b.Navigation("QueueEntries");
+
+                    b.Navigation("Seatings");
                 });
 
             modelBuilder.Entity("HOST.Models.RestaurantTable", b =>
