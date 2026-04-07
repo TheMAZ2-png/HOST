@@ -70,12 +70,6 @@
                         }
                     }
 
-                    @if (User.Identity?.IsAuthenticated ?? false)
-                    {
-                        <li>
-                            <a asp-page="/CurriculumPages/Index">Specials</a>
-                        </li>
-                    }
 
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
