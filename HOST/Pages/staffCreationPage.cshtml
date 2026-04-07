@@ -23,7 +23,6 @@
                             <label class="form-label text-pink-dark">Role</label>
                             <select asp-for="SelectedRole" class="form-select input-pink" required>
                                 <option value="">Select a role...</option>
-                                <option value="Manager">Manager</option>
                                 <option value="Host">Host</option>
                                 <option value="Server">Server</option>
                             </select>
@@ -32,46 +31,27 @@
                         <!-- FIRST NAME -->
                         <div class="mb-3">
                             <label asp-for="FirstName" class="form-label text-pink-dark">First Name</label>
-                            <input asp-for="FirstName"
-                                   class="form-control input-pink"
-                                   placeholder="First name..."
-                                   required />
-                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                            <input asp-for="FirstName" class="form-control input-pink" required />
                         </div>
 
                         <!-- LAST NAME -->
                         <div class="mb-3">
                             <label asp-for="LastName" class="form-label text-pink-dark">Last Name</label>
-                            <input asp-for="LastName"
-                                   class="form-control input-pink"
-                                   placeholder="Last name..."
-                                   required />
-                            <span asp-validation-for="LastName" class="text-danger"></span>
+                            <input asp-for="LastName" class="form-control input-pink" required />
                         </div>
 
                         <!-- EMAIL -->
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label text-pink-dark">Email</label>
-                            <input asp-for="Email"
-                                   class="form-control input-pink"
-                                   type="email"
-                                   placeholder="Email address..."
-                                   required />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <input asp-for="Email" type="email" class="form-control input-pink" required />
                         </div>
 
                         <!-- PASSWORD -->
                         <div class="mb-3">
                             <label asp-for="Password" class="form-label text-pink-dark">Password</label>
-                            <input asp-for="Password"
-                                   class="form-control input-pink"
-                                   type="password"
-                                   placeholder="Password..."
-                                   required />
-                            <span asp-validation-for="Password" class="text-danger"></span>
+                            <input asp-for="Password" type="password" class="form-control input-pink" required />
                         </div>
 
-                        <!-- SUBMIT -->
                         <button type="submit" class="btn-primary w-100 btn-large fade-in-4">
                             Create Account
                         </button>
@@ -87,3 +67,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

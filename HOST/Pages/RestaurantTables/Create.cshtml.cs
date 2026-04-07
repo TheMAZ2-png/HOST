@@ -27,10 +27,10 @@ namespace HOST.Pages.RestaurantTables
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
+            // System-controlled fields
+            RestaurantTable.Status = "Available";
             RestaurantTable.CreatedAt = DateTime.UtcNow;
 
             _context.RestaurantTables.Add(RestaurantTable);

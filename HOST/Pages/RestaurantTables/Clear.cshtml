@@ -1,0 +1,31 @@
+﻿@page "{id:int}"
+@model HOST.Pages.RestaurantTables.ClearModel
+
+@{
+    ViewData["Title"] = "Clear Table";
+}
+
+<h1 class="mb-4">Clear Table @Model.Table.TableNumber</h1>
+
+<div class="card card-pink shadow p-4">
+
+    <h4>Are you sure you want to clear this table?</h4>
+
+    @if (Model.Table.CurrentParty != null)
+    {
+        <p class="mt-3">
+            <strong>Current Party:</strong>
+            @Model.Table.CurrentParty.PartyName (@Model.Table.CurrentParty.PartySize)
+        </p>
+    }
+    else
+    {
+        <p class="mt-3 text-muted">This table is already empty.</p>
+    }
+
+    <form method="post" class="mt-4">
+        <button type="submit" class="btn btn-warning">Clear Table</button>
+        <a asp-page="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+
+</div>

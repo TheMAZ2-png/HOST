@@ -1,21 +1,27 @@
 @page
-
+@using System.Security.Claims
 @model HOST.Pages.Parties.IndexModel
 
 @{
     ViewData["Title"] = "Parties";
+
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
+    bool isStaff = isManager || isHost || isServer;
 }
 
 <div class="container mt-5 fade-in-1">
 
     <h1 class="text-pink-dark mb-4 fade-in-2">@ViewData["Title"]</h1>
 
-    <div class="mb-3 fade-in-3">
-        <a class="btn-primary btn-hero" asp-page="Create">New Party</a>
-    </div>
-
-    @if (User.IsInRole("Manager"))
+    <!-- Manager-only controls -->
+    @if (isManager)
     {
+        <div class="mb-3 fade-in-3">
+            <a class="btn-primary btn-hero" asp-page="Create">New Party</a>
+        </div>
+
         <div class="mb-4 fade-in-3">
             <form method="post" asp-page-handler="DeleteAll" class="d-inline">
                 <button type="submit"
@@ -27,46 +33,26 @@
         </div>
     }
 
-    <div class="card card-pink shadow fade-in-4">
-        <div class="card-body p-4">
+    <!-- STAFF VIEW -->
+    @if (isStaff)
+    {
+        <h3 class="mt-4">Waiting Parties</h3>
+        <partial name="_PartyTable" model="Model.WaitingParties" />
 
-            <table class="table table-pink">
-                <thead>
-                    <tr>
-                        <th>Party Name</th>
-                        <th>Phone Number</th>
-                        <th>Party Size</th>
-                        <th>Notes</th>
-                        <th class="text-end"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.Parties)
-                    {
-                        <tr>
-                            <td>@item.PartyName</td>
-                            <td>@item.PhoneNumber</td>
-                            <td>@item.PartySize</td>
-                            <td>@item.Notes</td>
+        <h3 class="mt-5">Seated Parties</h3>
+        <partial name="_PartyTable" model="Model.SeatedParties" />
 
-                            <td class="text-end">
-                                <div class="action-buttons">
-                                    <a class="btn-secondary btn-sm" asp-page="Details" asp-route-id="@item.PartyId">Details</a>
+        <h3 class="mt-5">Completed Parties</h3>
+        <partial name="_PartyTable" model="Model.CompletedParties" />
+    }
+    else
+    {
+        <!-- GUEST VIEW -->
+        <h3 class="mt-4">Waiting Parties</h3>
+        <partial name="_PartyTable" model="Model.WaitingParties" />
 
-                                    @if (User.IsInRole("Manager"))
-                                    {
-                                        <a class="btn-primary btn-sm" asp-page="Edit" asp-route-id="@item.PartyId">Edit</a>
-                                        <a class="btn-danger-pink btn-sm" asp-page="Delete" asp-route-id="@item.PartyId">Delete</a>
-                                    }
-                                </div>
-                            </td>
-
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-        </div>
-    </div>
+        <h3 class="mt-5">Completed Parties</h3>
+        <partial name="_PartyTable" model="Model.CompletedParties" />
+    }
 
 </div>

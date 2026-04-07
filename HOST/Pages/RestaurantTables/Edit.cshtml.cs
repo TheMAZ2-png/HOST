@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HOST.Pages.RestaurantTables
 {
-    [Authorize]
+    [Authorize(Roles = "Host,Manager")]
+
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -23,41 +24,50 @@ namespace HOST.Pages.RestaurantTables
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var table = await _context.RestaurantTables.AsNoTracking().FirstOrDefaultAsync(t => t.TableId == id);
-            if (table == null)
-            {
+            RestaurantTable = await _context.RestaurantTables
+                .Include(t => t.CurrentParty)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.TableId == id);
+
+            if (RestaurantTable == null)
                 return NotFound();
-            }
 
-            RestaurantTable = table;
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            var existing = await _context.RestaurantTables.FirstOrDefaultAsync(t => t.TableId == RestaurantTable.TableId);
+            var existing = await _context.RestaurantTables
+                .Include(t => t.CurrentParty)
+                .FirstOrDefaultAsync(t => t.TableId == RestaurantTable.TableId);
+
             if (existing == null)
-            {
                 return NotFound();
+
+            // ❌ Prevent editing if a party is seated
+            if (existing.CurrentPartyId != null)
+            {
+                TempData["ErrorMessage"] = "Cannot edit a table that is currently occupied.";
+                return RedirectToPage("./Index");
             }
 
+            // Editable fields
             existing.TableNumber = RestaurantTable.TableNumber;
             existing.SeatCapacity = RestaurantTable.SeatCapacity;
             existing.Section = RestaurantTable.Section;
-            existing.Status = RestaurantTable.Status;
             existing.IsActive = RestaurantTable.IsActive;
+
+            // ❌ Status is system-controlled (Seat/Clear)
+            // Do NOT update existing.Status
 
             await _context.SaveChangesAsync();
 
+            TempData["SuccessMessage"] = "Table updated successfully.";
             return RedirectToPage("./Index");
         }
     }

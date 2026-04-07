@@ -40,6 +40,12 @@ namespace HOST.Pages
                 return Page();
             }
 
+            if (SelectedRole == "Manager")
+            {
+                ModelState.AddModelError(string.Empty, "Manager accounts cannot be created.");
+                return Page();
+            }
+
             // Create Identity user
             var user = new IdentityUser
             {
@@ -60,35 +66,23 @@ namespace HOST.Pages
             // Assign Identity role
             await _userManager.AddToRoleAsync(user, SelectedRole);
 
-            // Create domain model
-            if (SelectedRole == "Manager")
+            // Create Employee record linked to Identity user
+            var employee = new Employee
             {
-                var manager = new ManagerAccount
-                {
-                    Email = Email,
-                    PasswordHash = user.PasswordHash!,
-                    CreatedAt = DateTime.UtcNow
-                };
+                Name = $"{FirstName} {LastName}",
+                DisplayName = $"{FirstName}", // optional, but nice
+                Email = Email,
+                Phone = null,
+                Role = SelectedRole,
+                IdentityUserId = user.Id,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            };
 
-                _context.ManagerAccounts.Add(manager);
-            }
-            else
-            {
-                var employee = new Employee
-                {
-                    Name = $"{FirstName} {LastName}",
-                    Email = Email,
-                    Role = SelectedRole,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = null
-                };
-
-                _context.Employees.Add(employee);
-            }
-
+            _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
 
-            // Auto-login (RELIABLE METHOD)
+            // Auto-login
             await _signInManager.PasswordSignInAsync(
                 Email,
                 Password,
@@ -96,7 +90,6 @@ namespace HOST.Pages
                 lockoutOnFailure: false
             );
 
-            // Redirect to homePage instead of Index
             return RedirectToPage("/homePage");
         }
     }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using HOST.Data;
+using HOST.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,11 +10,14 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-builder.Services.AddRazorPages();
-
+// Razor Pages + page-level overrides
 builder.Services.AddRazorPages(options =>
 {
+    // Existing rule
     options.Conventions.AllowAnonymousToPage("/Parties/Index");
+
+    // ⭐ CRITICAL FIX: Allow Seat page to bypass fallback authorization
+  
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -50,12 +54,15 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// Global fallback authorization policy
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
 });
+
+builder.Services.AddSingleton<MongoDBService>();
 
 var app = builder.Build();
 
@@ -78,6 +85,7 @@ app.MapStaticAssets().AllowAnonymous();
 app.MapRazorPages()
    .WithStaticAssets();
 
+// Database migration + seeding
 using (var scope = app.Services.CreateScope())
 {
     try
