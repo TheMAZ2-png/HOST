@@ -38,34 +38,55 @@ namespace HOST.Pages
             if (!ModelState.IsValid)
                 return Page();
 
-            // 1. Prevent duplicate phone numbers
+            var today = DateTime.UtcNow.Date;
+
+            // ⭐ NEW RULE: Only block if same phone number already joined TODAY
+            var existingTodayParty = await _context.Parties
+                .Where(p =>
+                    p.PhoneNumber == PartyRegistration.PhoneNumber &&
+                    !p.IsDeleted &&
+                    p.CreatedAt.Date == today)
+                .FirstOrDefaultAsync();
+
+            if (existingTodayParty != null)
+            {
+                ModelState.AddModelError("PartyRegistration.PhoneNumber",
+                    "This phone number already has a party on the waitlist today.");
+                return Page();
+            }
+
+            // ⭐ Identity user check stays the same (one account per phone number)
             var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
-            if (existingUser != null)
+            IdentityUser user;
+
+            if (existingUser == null)
             {
-                ModelState.AddModelError("PartyRegistration.PhoneNumber", "This phone number is already registered.");
-                return Page();
+                // Create new guest user
+                user = new IdentityUser
+                {
+                    UserName = PartyRegistration.PhoneNumber,
+                    Email = $"{Guid.NewGuid()}@guest.local"
+                };
+
+                var password = Guid.NewGuid().ToString("N") + "!aA1";
+                var result = await _userManager.CreateAsync(user, password);
+
+                if (!result.Succeeded)
+                {
+                    ModelState.AddModelError("", "Unable to create user.");
+                    return Page();
+                }
+
+                await _userManager.AddToRoleAsync(user, "Guest");
+                await _userManager.AddClaimAsync(user, new Claim("PartyName", PartyRegistration.PartyName));
+            }
+            else
+            {
+                // Reuse existing guest account
+                user = existingUser;
             }
 
-            // 2. Create the Identity user
-            var user = new IdentityUser
-            {
-                UserName = PartyRegistration.PhoneNumber,
-                Email = $"{Guid.NewGuid()}@guest.local"
-            };
-
-            var password = Guid.NewGuid().ToString("N") + "!aA1";
-            var result = await _userManager.CreateAsync(user, password);
-
-            if (!result.Succeeded)
-            {
-                ModelState.AddModelError("", "Unable to create user.");
-                return Page();
-            }
-
-            await _userManager.AddToRoleAsync(user, "Guest");
-            await _userManager.AddClaimAsync(user, new Claim("PartyName", PartyRegistration.PartyName));
-
-            // 3. Create the Party
+            // ⭐ Create Party (soft-delete fields included)
             var party = new Party
             {
                 PartyName = PartyRegistration.PartyName,
@@ -74,16 +95,18 @@ namespace HOST.Pages
                 Notes = PartyRegistration.Notes,
                 OwnerId = user.Id,
                 Status = "Waiting",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                IsDeleted = false,
+                DeletedAt = null
             };
 
-            // ⭐ NEW: Store estimated wait time at join using improved algorithm
+            // ⭐ Store estimated wait time at join
             party.EstimatedWaitAtJoin = await CalculateEstimatedWaitAtJoinAsync(party.PartySize);
 
             _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            // 4. Automatically create a QueueEntry
+            // Create QueueEntry
             var queueEntry = new QueueEntry
             {
                 PartyId = party.PartyId,
@@ -94,21 +117,16 @@ namespace HOST.Pages
             _context.QueueEntries.Add(queueEntry);
             await _context.SaveChangesAsync();
 
-            // 5. Sign in the guest
+            // Sign in guest
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            // 6. Redirect to guest party dashboard
             return RedirectToPage("/Parties/Index");
         }
 
-        // ============================================================
-        // ⭐ NEW: Calculate estimated wait time at join
-        // ============================================================
         private async Task<int> CalculateEstimatedWaitAtJoinAsync(int partySize)
         {
-            // Determine the new party's position (last in line)
             var waiting = await _context.Parties
-                .Where(p => p.Status == "Waiting")
+                .Where(p => p.Status == "Waiting" && !p.IsDeleted)
                 .OrderBy(p => p.CreatedAt)
                 .ToListAsync();
 
@@ -117,12 +135,8 @@ namespace HOST.Pages
             return await CalculateEstimatedWaitAsync(partySize, position);
         }
 
-        // ============================================================
-        // ⭐ NEW: Full wait-time algorithm (self-contained)
-        // ============================================================
         private async Task<int> CalculateEstimatedWaitAsync(int partySize, int position)
         {
-            // 1. Get recent seatings (last 2 hours)
             var recentSeatings = await _context.Seatings
                 .Where(s => s.SeatedAt > DateTime.UtcNow.AddHours(-2))
                 .Include(s => s.Party)
@@ -130,40 +144,24 @@ namespace HOST.Pages
                 .Take(20)
                 .ToListAsync();
 
-            // 2. Compute average actual wait time
             double avgWait = recentSeatings
                 .Where(s => s.Party.ActualWaitMinutes.HasValue)
                 .Select(s => (double)s.Party.ActualWaitMinutes.Value)
-                .DefaultIfEmpty(10) // fallback if no data
+                .DefaultIfEmpty(10)
                 .Average();
 
-            // 3. Count available tables (safe logic)
             int availableTables = await _context.RestaurantTables
                 .CountAsync(t => t.Status == "Available" && t.CurrentPartyId == null);
 
             double tableWeight = availableTables == 0 ? 1.5 : 1.0;
+            double sizeWeight = Math.Max(1.0, 1.0 + (partySize - 2) * 0.10);
 
-            // 4. Party size weight
-            double sizeWeight = 1.0 + (partySize - 2) * 0.10;
-            if (sizeWeight < 1.0)
-                sizeWeight = 1.0;
-
-            // 5. Core formula
             double estimate = (position + 1) * avgWait * sizeWeight * tableWeight;
-
-            // 6. Minimum and maximum bounds
-            if (estimate < 5)
-                estimate = 5;
-
-            if (estimate > 90)
-                estimate = 90;
+            estimate = Math.Clamp(estimate, 5, 90);
 
             return (int)Math.Round(estimate);
         }
 
-        // ============================================================
-        // Input Model
-        // ============================================================
         public class PartyRegistrationInput
         {
             [System.ComponentModel.DataAnnotations.Required]

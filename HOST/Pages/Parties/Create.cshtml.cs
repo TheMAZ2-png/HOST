@@ -32,6 +32,23 @@ namespace HOST.Pages.Parties
             if (!ModelState.IsValid)
                 return Page();
 
+            var today = DateTime.UtcNow.Date;
+
+            // ⭐ NEW RULE: Only block if same phone number already used TODAY
+            var existingTodayParty = await _context.Parties
+                .Where(p =>
+                    p.PhoneNumber == PartyInput.PhoneNumber &&
+                    !p.IsDeleted &&
+                    p.CreatedAt.Date == today)
+                .FirstOrDefaultAsync();
+
+            if (existingTodayParty != null)
+            {
+                ModelState.AddModelError("PartyInput.PhoneNumber",
+                    "A party with this phone number already exists today.");
+                return Page();
+            }
+
             // Create Party
             var party = new Party
             {
@@ -41,10 +58,12 @@ namespace HOST.Pages.Parties
                 Notes = PartyInput.Notes,
                 OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier),
                 Status = "Waiting",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                IsDeleted = false,
+                DeletedAt = null
             };
 
-            // ⭐ NEW: Store estimated wait time at join using improved algorithm
+            // Store estimated wait time at join
             party.EstimatedWaitAtJoin = await CalculateEstimatedWaitAtJoinAsync(party.PartySize);
 
             _context.Parties.Add(party);
@@ -65,14 +84,10 @@ namespace HOST.Pages.Parties
             return RedirectToPage("./Index");
         }
 
-        // ============================================================
-        // ⭐ NEW: Calculate estimated wait time at join
-        // ============================================================
         private async Task<int> CalculateEstimatedWaitAtJoinAsync(int partySize)
         {
-            // Determine the new party's position (last in line)
             var waiting = await _context.Parties
-                .Where(p => p.Status == "Waiting")
+                .Where(p => p.Status == "Waiting" && !p.IsDeleted)
                 .OrderBy(p => p.CreatedAt)
                 .ToListAsync();
 
@@ -81,12 +96,8 @@ namespace HOST.Pages.Parties
             return await CalculateEstimatedWaitAsync(partySize, position);
         }
 
-        // ============================================================
-        // ⭐ NEW: Full wait-time algorithm (self-contained)
-        // ============================================================
         private async Task<int> CalculateEstimatedWaitAsync(int partySize, int position)
         {
-            // 1. Get recent seatings (last 2 hours)
             var recentSeatings = await _context.Seatings
                 .Where(s => s.SeatedAt > DateTime.UtcNow.AddHours(-2))
                 .Include(s => s.Party)
@@ -94,40 +105,24 @@ namespace HOST.Pages.Parties
                 .Take(20)
                 .ToListAsync();
 
-            // 2. Compute average actual wait time
             double avgWait = recentSeatings
                 .Where(s => s.Party.ActualWaitMinutes.HasValue)
                 .Select(s => (double)s.Party.ActualWaitMinutes.Value)
-                .DefaultIfEmpty(10) // fallback if no data
+                .DefaultIfEmpty(10)
                 .Average();
 
-            // 3. Count available tables (safe logic)
             int availableTables = await _context.RestaurantTables
                 .CountAsync(t => t.Status == "Available" && t.CurrentPartyId == null);
 
             double tableWeight = availableTables == 0 ? 1.5 : 1.0;
+            double sizeWeight = Math.Max(1.0, 1.0 + (partySize - 2) * 0.10);
 
-            // 4. Party size weight
-            double sizeWeight = 1.0 + (partySize - 2) * 0.10;
-            if (sizeWeight < 1.0)
-                sizeWeight = 1.0;
-
-            // 5. Core formula
             double estimate = (position + 1) * avgWait * sizeWeight * tableWeight;
-
-            // 6. Minimum and maximum bounds
-            if (estimate < 5)
-                estimate = 5;
-
-            if (estimate > 90)
-                estimate = 90;
+            estimate = Math.Clamp(estimate, 5, 90);
 
             return (int)Math.Round(estimate);
         }
 
-        // ============================================================
-        // Input Model
-        // ============================================================
         public class PartyInputModel
         {
             [Required]

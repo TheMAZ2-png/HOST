@@ -110,7 +110,7 @@
                             </a>
                         }
 
-                        <!-- EDIT (only staff OR owner while waiting) -->
+                        <!-- EDIT -->
                         @if (isManager ||
                                                     (item.Status == "Waiting" && item.OwnerId == userId))
                         {
@@ -121,9 +121,10 @@
                             </a>
                         }
 
-                        <!-- DELETE (only staff OR owner while waiting) -->
+                        <!-- DELETE -->
                         @if (isManager)
                         {
+                            <!-- Manager uses Delete page (now soft delete) -->
                             <a class="btn-danger-pink btn-sm"
                                    asp-page="Delete"
                                    asp-route-id="@item.PartyId">
@@ -132,6 +133,7 @@
                         }
                         else if (item.Status == "Waiting" && item.OwnerId == userId)
                         {
+                            <!-- Guest soft-deletes via Edit handler -->
                             <form method="post"
                                   asp-page="Edit"
                                   asp-page-handler="Delete"
