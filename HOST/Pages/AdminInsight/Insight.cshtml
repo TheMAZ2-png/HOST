@@ -1,0 +1,219 @@
+﻿@page
+@model HOST.Pages.AdminInsight.InsightModel
+@{
+    ViewData["Title"] = "Insights";
+}
+
+<div class="container mt-5 fade-in-1">
+
+    <h1 class="text-pink-dark mb-4 fade-in-2">Insight</h1>
+
+    <!-- WAIT TIME ANALYTICS -->
+    <h3 class="text-pink-dark mt-4 mb-3">Wait Time Insights:</h3>
+
+    <div class="row fade-in-3">
+
+        <!-- BUSIEST WEEKLY HOUR -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body text-center p-4">
+                    <h4 class="text-pink-dark mb-3">Busiest Hour (ET)</h4>
+                    <p class="display-6 text-pink-dark">
+                        @(Model.BusiestHourET.HasValue ? $"{Model.BusiestHourET}:00" : "—")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUSIEST DAY OF WEEK -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body text-center p-4">
+                    <h4 class="text-pink-dark mb-3">Busiest Day</h4>
+                    <p class="display-6 text-pink-dark">
+                        @(Model.BusiestDayOfWeek ?? "—")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AVG WAIT BY DAY -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body p-4">
+                    <h4 class="text-pink-dark mb-3 text-center">Avg Wait by Day</h4>
+
+                    @if (Model.AvgWaitByDay.Any())
+                    {
+                        <ul class="list-unstyled text-pink-dark">
+                            @foreach (var day in Model.AvgWaitByDay)
+                            {
+                                <li class="mb-2">
+                                    <strong>@day.Day:</strong> @day.AvgWait min
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No data</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- PARTY ANALYTICS -->
+    <h3 class="text-pink-dark mt-5 mb-3">Party Insights:</h3>
+
+    <div class="row fade-in-3">
+
+        <!-- AVG PARTY SIZE -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body text-center p-4">
+                    <h4 class="text-pink-dark mb-3">Average Party Size</h4>
+                    <p class="display-6 text-pink-dark">
+                        @(Model.AvgPartySize.HasValue? Model.AvgPartySize.ToString() : "—")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AVG WAIT BY PARTY SIZE -->
+        <div class="col-md-6 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body p-4">
+                    <h4 class="text-pink-dark mb-3 text-center">Avg Wait by Party Size</h4>
+
+                    @if (Model.AvgWaitByPartySize.Any())
+                    {
+                        <ul class="list-unstyled text-pink-dark">
+                            @foreach (var item in Model.AvgWaitByPartySize)
+                            {
+                                <li class="mb-2">
+                                    <strong>@item.PartySize people:</strong> @item.AvgWait min
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No data</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TABLE ANALYTICS -->
+    <h3 class="text-pink-dark mt-5 mb-3">Table Analytics:</h3>
+
+    <div class="row fade-in-3">
+
+        <!-- TABLE TURNOVER -->
+        <div class="col-md-12 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body p-4">
+                    <h4 class="text-pink-dark mb-3 text-center">Table Turnover (Weekly)</h4>
+
+                    @if (Model.TableTurnover.Any())
+                    {
+                        <ul class="list-unstyled text-pink-dark">
+                            @foreach (var t in Model.TableTurnover)
+                            {
+                                <li class="mb-2">
+                                    <strong>Table @t.TableNumber:</strong> @t.Turnovers seats
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">No data</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- CUSTOMER ANALYTICS -->
+    <h3 class="text-pink-dark mt-5 mb-3">Customer Insights:</h3>
+
+    <div class="row fade-in-3">
+
+        <!-- RETURNING CUSTOMERS -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body text-center p-4">
+                    <h4 class="text-pink-dark mb-3">Returning Customers</h4>
+                    <p class="display-6 text-pink-dark">@Model.ReturningCustomersWeekly</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW CUSTOMERS -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body text-center p-4">
+                    <h4 class="text-pink-dark mb-3">New Customers</h4>
+                    <p class="display-6 text-pink-dark">@Model.NewCustomersWeekly</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PIE CHART -->
+        <div class="col-md-4 mb-4">
+            <div class="card card-pink shadow h-100">
+                <div class="card-body p-4 text-center">
+                    <h4 class="text-pink-dark mb-3">New vs Returning</h4>
+
+                    <canvas id="customerPieChart" width="200" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CHART.JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('customerPieChart');
+
+    new Chart(ctx, {
+    type: 'pie',
+    data: {
+    labels: ['New Customers', 'Returning Customers'],
+    datasets: [{
+    data: [@Model.NewCustomersWeekly, @Model.ReturningCustomersWeekly],
+    backgroundColor: [
+    '#ff8fb1',   // light pink
+    '#d6336c'    // dark pink
+    ],
+    borderColor: '#ffffff',
+    borderWidth: 2
+    }]
+    },
+    options: {
+    responsive: true,
+    plugins: {
+    legend: {
+    position: 'bottom',
+    labels: {
+    color: '#d6336c',
+    font: { size: 14 }
+    }
+    }
+    }
+    }
+    });
+</script>

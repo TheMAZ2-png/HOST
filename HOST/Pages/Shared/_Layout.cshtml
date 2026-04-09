@@ -31,8 +31,15 @@
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
-                            <a asp-page="/CurriculumPages/Index">Specials</a>
+                            <a asp-page="/CurriculumPages/Index" class="icon-button"> <img src="~/Imgs/Icons/Specials.svg" alt="Specials" /></a>
                         </li>
+
+
+                        <li>
+                            <a asp-page="/AIPage/AIChatPage" class="icon-button"> <img src="~/Imgs/Icons/AIPage.svg" alt="Chat with Chat" /></a>
+                        </li>
+                       
+
                     }
 
                     @if (User.IsInRole("Host"))
@@ -81,6 +88,9 @@
                         
                             <li>
                                 <a asp-page="/errorLog">Logs</a>
+                            </li>
+                            <li>
+                                <a asp-page="/AdminInsight/Insight">Insight</a>
                             </li>
                         }
                     }
