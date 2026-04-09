@@ -43,19 +43,21 @@ namespace HOST.Pages.Parties
             if (party == null)
                 return NotFound();
 
-            // ❌ Prevent deleting Seated or Completed parties
+            // Already deleted?
+            if (party.IsDeleted)
+                return RedirectToPage("./Index");
+
+            // Only Waiting parties can be deleted
             if (party.Status != "Waiting")
             {
                 TempData["ErrorMessage"] = "Only parties that are still waiting can be deleted.";
                 return RedirectToPage("./Index");
             }
 
-            // Delete queue entries first
-            var queueEntries = _context.QueueEntries.Where(q => q.PartyId == party.PartyId);
-            _context.QueueEntries.RemoveRange(queueEntries);
+            // ⭐ Soft delete instead of hard delete
+            party.IsDeleted = true;
+            party.DeletedAt = DateTime.UtcNow;
 
-            // Delete the party
-            _context.Parties.Remove(party);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Party deleted successfully.";

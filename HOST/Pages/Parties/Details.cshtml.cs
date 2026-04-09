@@ -20,6 +20,9 @@ namespace HOST.Pages.Parties
         public Party Party { get; set; } = new();
         public RestaurantTable? CurrentTable { get; set; }
 
+        // ⭐ NEW: Returning customer flag
+        public bool IsReturningCustomer { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -34,18 +37,28 @@ namespace HOST.Pages.Parties
             if (Party == null)
                 return NotFound();
 
+            // ⭐ Block viewing deleted parties
+            if (Party.IsDeleted)
+                return NotFound();
+
+            // ⭐ NEW: Determine if this phone number has appeared before
+            IsReturningCustomer = await _context.Parties
+                .AnyAsync(p =>
+                    p.PhoneNumber == Party.PhoneNumber &&
+                    p.PartyId != Party.PartyId); // exclude current party
+
             // If seated, load the most recent seating record
             if (Party.Status == "Seated")
             {
                 var seating = Party.Seatings
-                    .OrderByDescending(s => s.SeatedAt)   // FIXED
+                    .OrderByDescending(s => s.SeatedAt)
                     .FirstOrDefault();
 
                 if (seating != null)
                 {
                     CurrentTable = await _context.RestaurantTables
                         .AsNoTracking()
-                        .FirstOrDefaultAsync(t => t.TableId == seating.RestaurantTableId); // FIXED
+                        .FirstOrDefaultAsync(t => t.TableId == seating.RestaurantTableId);
                 }
             }
 

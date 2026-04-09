@@ -31,6 +31,10 @@ namespace HOST.Pages.Parties
             if (Party == null)
                 return NotFound();
 
+            // Block editing deleted parties
+            if (Party.IsDeleted)
+                return NotFound();
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Managers can edit anything
@@ -52,7 +56,7 @@ namespace HOST.Pages.Parties
             var partyInDb = await _context.Parties
                 .FirstOrDefaultAsync(p => p.PartyId == Party.PartyId);
 
-            if (partyInDb == null)
+            if (partyInDb == null || partyInDb.IsDeleted)
                 return NotFound();
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -63,6 +67,24 @@ namespace HOST.Pages.Parties
             // Guests can only edit Waiting parties
             if (!isManager && (!isOwner || partyInDb.Status != "Waiting"))
                 return Forbid();
+
+            var today = DateTime.UtcNow.Date;
+
+            // ⭐ NEW RULE: Only block if same phone number already used TODAY by another party
+            var existingTodayParty = await _context.Parties
+                .Where(p =>
+                    p.PhoneNumber == Party.PhoneNumber &&
+                    p.PartyId != partyInDb.PartyId &&   // exclude the current party
+                    !p.IsDeleted &&
+                    p.CreatedAt.Date == today)
+                .FirstOrDefaultAsync();
+
+            if (existingTodayParty != null)
+            {
+                ModelState.AddModelError("Party.PhoneNumber",
+                    "Another party with this phone number already exists today.");
+                return Page();
+            }
 
             // Update allowed fields
             partyInDb.PartyName = Party.PartyName;
@@ -82,6 +104,7 @@ namespace HOST.Pages.Parties
             return RedirectToPage("Index");
         }
 
+        // ⭐ SOFT DELETE
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var party = await _context.Parties.FirstOrDefaultAsync(p => p.PartyId == id);
@@ -98,11 +121,10 @@ namespace HOST.Pages.Parties
             if (!isManager && (!isOwner || party.Status != "Waiting"))
                 return Forbid();
 
-            // Delete queue entries
-            var queueEntries = _context.QueueEntries.Where(q => q.PartyId == party.PartyId);
-            _context.QueueEntries.RemoveRange(queueEntries);
+            // ⭐ Soft delete instead of hard delete
+            party.IsDeleted = true;
+            party.DeletedAt = DateTime.UtcNow;
 
-            _context.Parties.Remove(party);
             await _context.SaveChangesAsync();
 
             // Guests deleting their own party → sign out

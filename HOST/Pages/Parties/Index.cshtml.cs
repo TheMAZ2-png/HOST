@@ -21,68 +21,46 @@ namespace HOST.Pages.Parties
         public IList<Party> WaitingParties { get; set; } = new List<Party>();
         public IList<Party> SeatedParties { get; set; } = new List<Party>();
         public IList<Party> CompletedParties { get; set; } = new List<Party>();
+        public IList<Party> DeletedParties { get; set; } = new List<Party>();
 
-        // ============================================================
-        // GET — Load all parties
-        // ============================================================
         public async Task OnGetAsync()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            bool isStaff = User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server");
+            bool isManager = User.IsInRole("Manager");
 
-            // ============================================================
-            // STAFF VIEW
-            // ============================================================
-            if (isStaff)
+            // ACTIVE PARTIES
+            WaitingParties = await _context.Parties
+                .Where(p => !p.IsDeleted && p.Status == "Waiting")
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync();
+
+            SeatedParties = await _context.Parties
+                .Where(p => !p.IsDeleted && p.Status == "Seated")
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync();
+
+            CompletedParties = await _context.Parties
+                .Where(p => !p.IsDeleted && p.Status == "Completed")
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+
+            // DELETED PARTIES (Manager only)
+            if (isManager)
             {
-                WaitingParties = await _context.Parties
-                    .Where(p => p.Status == "Waiting")
-                    .OrderBy(p => p.CreatedAt)
-                    .ToListAsync();
-
-                SeatedParties = await _context.Parties
-                    .Where(p => p.Status == "Seated")
-                    .OrderBy(p => p.CreatedAt)
-                    .ToListAsync();
-
-                CompletedParties = await _context.Parties
-                    .Where(p => p.Status == "Completed")
-                    .OrderByDescending(p => p.CreatedAt)
-                    .ToListAsync();
-            }
-            else
-            {
-                // ============================================================
-                // GUEST VIEW
-                // ============================================================
-                WaitingParties = await _context.Parties
-                    .Where(p => p.Status == "Waiting")
-                    .OrderBy(p => p.CreatedAt)
-                    .ToListAsync();
-
-                // ⭐ FIX: Guests now see completed parties
-                CompletedParties = await _context.Parties
-                    .Where(p => p.Status == "Completed")
-                    .OrderByDescending(p => p.CreatedAt)
+                DeletedParties = await _context.Parties
+                    .Where(p => p.IsDeleted)
+                    .OrderByDescending(p => p.DeletedAt)
                     .ToListAsync();
             }
 
-            // ============================================================
-            // ⭐ LIVE WAIT TIME FOR WAITING PARTIES
-            // ============================================================
+            // LIVE WAIT TIME
             foreach (var party in WaitingParties)
             {
                 party.ActualWaitMinutes =
                     (int)Math.Floor((DateTime.UtcNow - party.CreatedAt).TotalMinutes);
             }
 
-            // ============================================================
-            // ⭐ ESTIMATED WAIT-TIME ALGORITHM
-            // ============================================================
-            var orderedWaiting = WaitingParties
-                .OrderBy(p => p.CreatedAt)
-                .ToList();
-
+            // ESTIMATED WAIT TIME
+            var orderedWaiting = WaitingParties.OrderBy(p => p.CreatedAt).ToList();
             for (int i = 0; i < orderedWaiting.Count; i++)
             {
                 var party = orderedWaiting[i];
@@ -90,20 +68,42 @@ namespace HOST.Pages.Parties
             }
         }
 
-        // ============================================================
-        // ⭐ POST — HARD DELETE ALL PARTIES + RELATED DATA
-        // ============================================================
+        // ⭐ RESTORE PARTY
+        public async Task<IActionResult> OnPostRestoreAsync(int id)
+        {
+            var party = await _context.Parties.FindAsync(id);
+            if (party == null)
+                return NotFound();
+
+            party.IsDeleted = false;
+            party.DeletedAt = null;
+
+            await _context.SaveChangesAsync();
+            return RedirectToPage();
+        }
+
+        // ⭐ UPDATED: SOFT DELETE ALL PARTIES
         public async Task<IActionResult> OnPostDeleteAllAsync()
         {
-            // 1. Delete all queue entries
+            // Soft delete all parties
+            var parties = await _context.Parties.ToListAsync();
+            foreach (var party in parties)
+            {
+                party.IsDeleted = true;
+                party.DeletedAt = DateTime.UtcNow;
+            }
+
+            // Soft delete all queue entries
             var queueEntries = await _context.QueueEntries.ToListAsync();
-            _context.QueueEntries.RemoveRange(queueEntries);
+            foreach (var entry in queueEntries)
+            {
+                entry.Status = "Deleted";
+                entry.UpdatedAt = DateTime.UtcNow;
+            }
 
-            // 2. Delete all seatings
-            var seatings = await _context.Seatings.ToListAsync();
-            _context.Seatings.RemoveRange(seatings);
+            // ⭐ DO NOT TOUCH SEATINGS — they have no Status and should remain historical
 
-            // 3. Reset all tables
+            // Reset tables
             var tables = await _context.RestaurantTables.ToListAsync();
             foreach (var table in tables)
             {
@@ -111,23 +111,14 @@ namespace HOST.Pages.Parties
                 table.CurrentPartyId = null;
             }
 
-            // 4. Delete all parties
-            var parties = await _context.Parties.ToListAsync();
-            _context.Parties.RemoveRange(parties);
-
-            // 5. Save changes
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "All parties and related data have been permanently deleted.";
+            TempData["SuccessMessage"] = "All parties have been soft-deleted and moved to the Deleted Parties section.";
             return RedirectToPage();
         }
 
-        // ============================================================
-        // ⭐ ESTIMATED WAIT-TIME ALGORITHM
-        // ============================================================
         private async Task<int> CalculateEstimatedWaitAsync(int partySize, int position)
         {
-            // 1. Recent seatings (last 2 hours)
             var recentSeatings = await _context.Seatings
                 .Where(s => s.SeatedAt > DateTime.UtcNow.AddHours(-2))
                 .Include(s => s.Party)
@@ -135,33 +126,21 @@ namespace HOST.Pages.Parties
                 .Take(20)
                 .ToListAsync();
 
-            // 2. Average actual wait time
             double avgWait = recentSeatings
                 .Where(s => s.Party.ActualWaitMinutes.HasValue)
                 .Select(s => (double)s.Party.ActualWaitMinutes.Value)
                 .DefaultIfEmpty(10)
                 .Average();
 
-            // 3. Available tables
             int availableTables = await _context.RestaurantTables
                 .CountAsync(t => t.Status == "Available" && t.CurrentPartyId == null);
 
             double tableWeight = availableTables == 0 ? 1.5 : 1.0;
+            double sizeWeight = Math.Max(1.0, 1.0 + (partySize - 2) * 0.10);
 
-            // 4. Party size weight
-            double sizeWeight = 1.0 + (partySize - 2) * 0.10;
-            if (sizeWeight < 1.0)
-                sizeWeight = 1.0;
-
-            // 5. Core formula
             double estimate = (position + 1) * avgWait * sizeWeight * tableWeight;
 
-            // 6. Bounds
-            if (estimate < 5)
-                estimate = 5;
-
-            if (estimate > 90)
-                estimate = 90;
+            estimate = Math.Clamp(estimate, 5, 90);
 
             return (int)Math.Round(estimate);
         }

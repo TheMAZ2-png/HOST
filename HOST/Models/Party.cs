@@ -36,8 +36,12 @@ namespace HOST.Models
         public int? ActualWaitMinutes { get; set; }          // Final wait time (frozen at completion)
         public int? EstimatedWaitAtJoin { get; set; }        // Estimate given when joining
 
-        // ⭐ NEW FIELD — required for Clear logic
-        public DateTime? CompletedAt { get; set; }           // When the party was completed
+        // ⭐ When the party was fully completed (seated + finished)
+        public DateTime? CompletedAt { get; set; }
+
+        // ⭐ NEW — Soft Delete Support
+        public bool IsDeleted { get; set; } = false;         // Hidden from queue, preserved for analytics
+        public DateTime? DeletedAt { get; set; }             // When the party was removed
 
         // Convenience helpers
         [NotMapped] public bool IsWaiting => Status == "Waiting";

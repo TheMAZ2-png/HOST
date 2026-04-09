@@ -5,21 +5,83 @@
 }
 
 <div class="container mt-5 fade-in-1">
+
+  
+
+    <!-- ANALYTICS SECTION (Managers + Hosts only) -->
+    @if (User.IsInRole("Manager") || User.IsInRole("Host"))
+    {
+        <div class="row mt-5 fade-in-3">
+
+            <!-- TODAY AVERAGE WAIT -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-pink shadow h-100">
+                    <div class="card-body text-center p-4">
+                        <h4 class="text-pink-dark mb-3">Today's Avg Wait</h4>
+                        <p class="display-6 text-pink-dark">
+                            @(Model.TodayAverageWait.HasValue
+                                ? $"{Model.TodayAverageWait} min"
+                                : "—")
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WEEKLY AVERAGE WAIT -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-pink shadow h-100">
+                    <div class="card-body text-center p-4">
+                        <h4 class="text-pink-dark mb-3">Weekly Avg Wait</h4>
+                        <p class="display-6 text-pink-dark">
+                            @(Model.WeeklyAverageWait.HasValue
+                                ? $"{Model.WeeklyAverageWait} min"
+                                : "—")
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLOWEST HOURS -->
+            <div class="col-md-4 mb-4">
+                <div class="card card-pink shadow h-100">
+                    <div class="card-body text-center p-4">
+                        <h4 class="text-pink-dark mb-3">Slowest Hours</h4>
+
+                        @if (Model.SlowestHours.Any())
+                        {
+                            <ul class="list-unstyled text-pink-dark">
+                                @foreach (var hour in Model.SlowestHours)
+                                {
+                                    <li class="mb-2">
+                                        <strong>@hour.Hour:00</strong> — @hour.AverageWait min
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No data</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    }
+
+
+    <!-- HEADER -->
     <div class="row justify-content-center">
-
         <div class="col-lg-8 text-center fade-in-2">
-
             <h1 class="text-pink-dark mb-4 fade-in-3">Host Systems</h1>
-
             <p class="text-pink-dark lead fade-in-3">
                 Providing the best queueing solutions for restaurants and staff.
             </p>
-
             <img src="~/Imgs/HOSTLogo.png"
                  alt="HOST Logo"
                  class="company-logo fade-in-4" />
-
         </div>
-
     </div>
+
+
 </div>
