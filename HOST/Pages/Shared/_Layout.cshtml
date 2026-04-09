@@ -13,13 +13,15 @@
 </head>
 
 <body>
-    <!--Comment-->
+
     @if (ViewData["HideNavbar"] == null)
     {
         <header>
             <nav class="navBar">
                 <ul>
-                   @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
+
+                    <!-- HOME ICON (all authenticated roles) -->
+                    @if (User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server"))
                     {
                         <li>
                             <a asp-page="/homePage" class="icon-button">
@@ -28,74 +30,94 @@
                         </li>
                     }
 
+                    <!-- BOOK ICON (authenticated users) -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
-                            <a asp-page="/CurriculumPages/Index" class="icon-button"> <img src="~/Imgs/Icons/Specials.svg" alt="Specials" /></a>
+                            <a asp-page="/CurriculumPages/Index" class="icon-button">
+                                <img src="~/Imgs/Icons/Specials.svg" alt="Specials" />
+                            </a>
                         </li>
 
-
+                        <!-- PLAY ICON -->
                         <li>
-                            <a asp-page="/AIPage/AIChatPage" class="icon-button"> <img src="~/Imgs/Icons/AIPage.svg" alt="Chat with Chat" /></a>
+                            <a asp-page="/AIPage/AIChatPage" class="icon-button">
+                                <img src="~/Imgs/Icons/AIPage.svg" alt="Chat with Chat" />
+                            </a>
                         </li>
-                       
-
                     }
 
-                    @if (User.IsInRole("Host"))
+
+                    @if (User.IsInRole("Guest"))
                     {
                         <li>
-                            <a asp-page="/QueueEntries/Index">Queue</a>
+                            <a asp-page="/Parties/Index">
+                                Parties
+                            </a>
                         </li>
                     }
 
 
+                    <!-- ============================
+                         MANAGER NAVIGATION
+                         ============================ -->
                     @if (User.IsInRole("Manager"))
                     {
-                        <li>
-                            <a asp-page="/QueueEntries/Index">Queue</a>
+                        <!-- SEATING DROPDOWN -->
+                        <li class="has-dropdown">
+                            <a href="#">Seating</a>
+                            <ul class="dropdown">
+                                <li><a asp-page="/QueueEntries/Index">Queue</a></li>
+                                <li><a asp-page="/RestaurantTables/Index">Tables</a></li>
+                                <li><a asp-page="/Parties/Index">Parties</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- EMPLOYEES DROPDOWN -->
+                        <li class="has-dropdown">
+                            <a href="#">Employees</a>
+                            <ul class="dropdown">
+                                <li><a asp-page="/Employees/Index">Employees</a></li>
+                                <li><a asp-page="/ManagerAccounts/Index">Managers</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- MANAGEMENT DROPDOWN -->
+                        <li class="has-dropdown">
+                            <a href="#">Management</a>
+                            <ul class="dropdown">
+                                <li><a asp-page="/errorLog">Logs</a></li>
+                                <li><a asp-page="/AdminInsight/Insight">Insight</a></li>
+                            </ul>
                         </li>
                     }
 
-
-                    @if (User.IsInRole("Host") || User.IsInRole("Server") || User.IsInRole("Manager"))
+                    <!-- ============================
+                         HOST / SERVER NAVIGATION
+                         ============================ -->
+                    @if (User.IsInRole("Host") || User.IsInRole("Server"))
                     {
-                        <li>
-                            <a asp-page="/RestaurantTables/Index">Tables</a>
+                        <li class="has-dropdown">
+                            <a href="#">Seating</a>
+                            <ul class="dropdown">
+                                <li><a asp-page="/QueueEntries/Index">Queue</a></li>
+                                <li><a asp-page="/RestaurantTables/Index">Tables</a></li>
+                                <li><a asp-page="/Parties/Index">Parties</a></li>
+                            </ul>
                         </li>
                     }
-                    
 
-                    @if (User.Identity?.IsAuthenticated ?? false)
+                    <!-- ============================
+                         GUEST NAVIGATION (unchanged)
+                         ============================ -->
+                    @if (!(User.IsInRole("Manager") || User.IsInRole("Host") || User.IsInRole("Server")))
                     {
-                        <li>
-                            <a asp-page="/Parties/Index">Parties</a>
-                        </li>
-
-                        @if (User.IsInRole("Manager"))
-                        {
-                           
-                          
-                            
-                            <li>
-                                <a asp-page="/Employees/Index">Employees</a>
-                            </li>
-                            
-                           
-                            <li>
-                                <a asp-page="/ManagerAccounts/Index">Managers</a>
-                            </li>
-                        
-                            <li>
-                                <a asp-page="/errorLog">Logs</a>
-                            </li>
-                            <li>
-                                <a asp-page="/AdminInsight/Insight">Insight</a>
-                            </li>
-                        }
+                        <!-- Your guest nav stays unchanged -->
                     }
 
-
+                    <!-- ============================
+                         USER NAME + LOGOUT
+                         ============================ -->
                     @if (User.Identity?.IsAuthenticated ?? false)
                     {
                         <li>
@@ -110,7 +132,6 @@
                             </form>
                         </li>
                     }
-
 
                 </ul>
             </nav>

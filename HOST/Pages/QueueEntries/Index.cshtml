@@ -57,32 +57,39 @@
                                 <td class="text-end">
                                     <div class="action-buttons">
 
+                                        <!-- DETAILS (Visible to EVERYONE) -->
                                         <a class="btn-secondary btn-sm"
                                                asp-page="Details"
                                                asp-route-id="@item.QueueEntryId">
                                             Details
                                         </a>
 
-                                        <a class="btn-primary btn-sm"
-                                               asp-page="Edit"
-                                               asp-route-id="@item.QueueEntryId">
-                                            Edit
-                                        </a>
+                                        @if (isManager || isHost)
+                                        {
+                                            <!-- EDIT -->
+                                            <a class="btn-primary btn-sm"
+                                                   asp-page="Edit"
+                                                   asp-route-id="@item.QueueEntryId">
+                                                Edit
+                                            </a>
 
-                                        <a class="btn-danger-pink btn-sm"
-                                               asp-page="Delete"
-                                               asp-route-id="@item.QueueEntryId">
-                                            Delete
-                                        </a>
+                                            <!-- DELETE -->
+                                            <a class="btn-danger-pink btn-sm"
+                                                   asp-page="Delete"
+                                                   asp-route-id="@item.QueueEntryId">
+                                                Delete
+                                            </a>
 
-                                        <a class="btn-primary btn-sm"
-                                               asp-page="Seat"
-                                               asp-route-id="@item.QueueEntryId">
-                                            Seat
-                                        </a>
-
+                                            <!-- SEAT -->
+                                            <a class="btn-primary btn-sm"
+                                                   asp-page="Seat"
+                                                   asp-route-id="@item.QueueEntryId">
+                                                Seat
+                                            </a>
+                                        }
                                     </div>
                                 </td>
+
                             </tr>
                         }
                     </tbody>
