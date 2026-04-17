@@ -1,34 +1,115 @@
 ﻿@page
 @model HOST.Pages.CurriculumPages.ChatbotModel
 @{
-    ViewData["Title"] = "AI Assistant";
+    ViewData["Title"] = "AI Chat Assistant";
 }
 
-<h1>AI Assistant – Menu Item Allergy Checker</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>AI Chat Assistant</title>
 
-<form method="post">
-    <div>
-        <label for="SelectedItemId">Select a Menu Item</label>
-        <select asp-for="SelectedItemId"
-                asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Items, "item_id", "name"))">
-            <option value="">-- choose an item --</option>
-        </select>
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #f5f6f8;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .chat-container {
+                width: 80%;
+                max-width: 900px;
+                margin: auto;
+            }
+
+            .chat-box {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                height: 500px;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+            }
+
+            .bubble {
+                max-width: 70%;
+                padding: 12px 16px;
+                margin: 10px 0;
+                border-radius: 15px;
+                line-height: 1.4;
+                font-size: 15px;
+            }
+
+            .user {
+                background: #007bff;
+                color: white;
+                margin-left: auto;
+                text-align: right;
+            }
+
+            .ai {
+                background: #e0e0e0;
+                color: black;
+                margin-right: auto;
+            }
+
+            .input-area {
+                margin-top: 20px;
+                display: flex;
+                gap: 10px;
+            }
+
+            textarea {
+                width: 100%;
+                height: 60px;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #aaa;
+                resize: none;
+            }
+
+            button {
+                padding: 10px 20px;
+                background: black;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+
+                button:hover {
+                    background: #333;
+                }
+    </style>
+</head>
+
+<body>
+    <div class="chat-container">
+        <h2>AI Chat Assistant</h2>
+
+        <div id="chatHistory" class="chat-box">
+            @foreach (var msg in Model.ChatHistory)
+            {
+                <div class="bubble @(msg.Role)">
+                    @msg.Text
+                </div>
+            }
+        </div>
+
+        <form method="post">
+            <div class="input-area">
+                <textarea name="UserQuestion" placeholder="Ask something..." required></textarea>
+                <button type="submit">Send</button>
+            </div>
+        </form>
     </div>
 
-    <div style="margin-top: 15px;">
-        <label for="UserQuestion">Ask a question about allergies or ingredients</label><br />
-        <textarea asp-for="UserQuestion" rows="4" cols="80"></textarea>
-    </div>
-
-    <div style="margin-top: 15px;">
-        <button type="submit" disabled="@(Model.IsProcessing ? "disabled" : null)">Ask</button>
-    </div>
-
-    <div asp-validation-summary="All"></div>
-</form>
-
-@if (!string.IsNullOrEmpty(Model.AIResponse))
-{
-    <h2>AI Response</h2>
-    <pre>@Model.AIResponse</pre>
-}
+    <script>
+            // Auto-scroll to bottom
+            var chatBox = document.getElementById("chatHistory");
+            chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
+</body>
+</html>

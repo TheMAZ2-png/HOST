@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HOST.Extensions;
 using HOST.Models;
 using HOST.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,84 +12,119 @@ namespace HOST.Pages.CurriculumPages
 {
     public class ChatbotModel : PageModel
     {
-        private readonly MongoDBService _mongo;
         private readonly AIService _ai;
         private readonly ILogger<ChatbotModel> _logger;
+        private readonly MongoDBService _mongo;
 
-        public ChatbotModel(MongoDBService mongo, AIService ai, ILogger<ChatbotModel> logger)
+        public ChatbotModel(AIService ai, ILogger<ChatbotModel> logger, MongoDBService mongo)
         {
-            _mongo = mongo;
             _ai = ai;
             _logger = logger;
+            _mongo = mongo;
         }
-
-        public List<MenuItem> Items { get; private set; } = new();
-
-        [BindProperty]
-        public string SelectedItemId { get; set; }
 
         [BindProperty]
         public string UserQuestion { get; set; }
 
-        public string AIResponse { get; private set; }
-
-        public bool IsProcessing { get; private set; }
+        public List<ChatMessage> ChatHistory { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            var menu = await _mongo.GetAsync("SPECIALS_MENU");
-
-            Items = menu.categories
-                        .SelectMany(c => c.items)
-                        .ToList();
+            LoadChatHistory();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            IsProcessing = true;
+            LoadChatHistory();
 
-            try
+            if (!string.IsNullOrWhiteSpace(UserQuestion))
             {
-                var menu = await _mongo.GetAsync("SPECIALS_MENU");
-
-                Items = menu.categories
-                            .SelectMany(c => c.items)
-                            .ToList();
-
-                if (string.IsNullOrWhiteSpace(SelectedItemId))
+                // Add user message
+                ChatHistory.Add(new ChatMessage
                 {
-                    ModelState.AddModelError(string.Empty, "Please select a menu item.");
-                    return Page();
+                    Role = "user",
+                    Text = UserQuestion
+                });
+
+                var lower = UserQuestion.ToLower();
+
+                //  Decide if this is a menu-related question
+                bool isMenuQuestion =
+                    lower.Contains("menu") ||
+                    lower.Contains("specials") ||
+                    lower.Contains("item") ||
+                    lower.Contains("eat") ||
+                    lower.Contains("order") ||
+                    lower.Contains("allergy") ||
+                    lower.Contains("allergies") ||
+                    lower.Contains("gluten") ||
+                    lower.Contains("dairy") ||
+                    lower.Contains("egg") ||
+                    lower.Contains("eggs") ||
+                    lower.Contains("nut") ||
+                    lower.Contains("nuts") ||
+                    lower.Contains("peanut") ||
+                    lower.Contains("peanuts") ||
+                    lower.Contains("vegan") ||
+                    lower.Contains("vegetarian") ||
+                    lower.Contains("calorie") ||
+                    lower.Contains("calories") ||
+                    lower.Contains("under ") ||
+                    lower.Contains("less than");
+
+                string response;
+
+                if (isMenuQuestion)
+                {
+                    //  Load menu from MongoDB
+                    var menus = await _mongo.GetAllAsync();
+
+                    // Flatten categories → items
+                    var menuItems = menus
+                        .Where(m => m.categories != null)
+                        .SelectMany(m => m.categories)
+                        .Where(c => c.items != null)
+                        .SelectMany(c => c.items)
+                        .ToList();
+
+                    // Let the AI reason over the full menu + question
+                    response = await _ai.SendPromptWithMenuListAsync(menuItems, UserQuestion);
+                }
+                else
+                {
+                    // Non-menu question → general chat
+                    response = await _ai.SendGeneralPromptAsync(UserQuestion);
                 }
 
-                var item = Items.FirstOrDefault(i => i.item_id == SelectedItemId);
-
-                if (item == null)
+                // Add AI response
+                ChatHistory.Add(new ChatMessage
                 {
-                    ModelState.AddModelError(string.Empty, "Selected item not found.");
-                    return Page();
-                }
+                    Role = "ai",
+                    Text = response
+                });
 
-                if (string.IsNullOrWhiteSpace(UserQuestion))
-                {
-                    ModelState.AddModelError(string.Empty, "Please enter a question.");
-                    return Page();
-                }
+                SaveChatHistory();
+            }
 
-                AIResponse = await _ai.SendPromptWithMenuItemAsync(item, UserQuestion);
-
-                return Page();
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError(ex, "Chatbot request failed.");
-                ModelState.AddModelError(string.Empty, "Failed to get response from AI: " + ex.Message);
-                return Page();
-            }
-            finally
-            {
-                IsProcessing = false;
-            }
+            return Page();
         }
+
+        private void LoadChatHistory()
+        {
+            var stored = HttpContext.Session.GetObject<List<ChatMessage>>("ChatHistory");
+            if (stored != null)
+                ChatHistory = stored;
+        }
+
+        private void SaveChatHistory()
+        {
+            HttpContext.Session.SetObject("ChatHistory", ChatHistory);
+        }
+    }
+
+    public class ChatMessage
+    {
+        public string Role { get; set; }
+        public string Text { get; set; }
     }
 }

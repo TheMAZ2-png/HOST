@@ -25,6 +25,7 @@ namespace HOST.Data
         public DbSet<ManagerAccount> ManagerAccounts { get; set; }
         public DbSet<FailedLogin> FailedLogins { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HOST.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace HOST.Services
 {
@@ -73,6 +74,56 @@ namespace HOST.Services
                 throw;
             }
         }
+
+        // ---------------------------------------------------------
+        // GENERAL CHAT FUNCTION
+        // ---------------------------------------------------------
+        public async Task<string> SendGeneralPromptAsync(string userMessage)
+        {
+            if (string.IsNullOrWhiteSpace(userMessage))
+                throw new ArgumentNullException(nameof(userMessage));
+
+            var prompt = new[]
+            {
+                new { role = "system", content = "You are a helpful AI assistant. Respond conversationally and clearly." },
+                new { role = "user", content = userMessage }
+            };
+
+            var promptText = BuildPromptFromMessages(prompt);
+
+            var payload = new
+            {
+                contents = new[]
+                {
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new { text = promptText }
+                        }
+                    }
+                }
+            };
+
+            var json = JsonSerializer.Serialize(payload);
+            var endpoint = $"models/{_model}:generateContent?key={_apiKey}";
+
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var resp = await _httpClient.PostAsync(endpoint, content);
+            var respText = await resp.Content.ReadAsStringAsync();
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                _logger.LogError("Gemini API error: {Status} - {Response}", resp.StatusCode, respText);
+                throw new InvalidOperationException($"Gemini API error: {resp.StatusCode} - {respText}");
+            }
+
+            return ExtractGeminiText(respText, _logger);
+        }
+
+        // ---------------------------------------------------------
+        // EXISTING FUNCTIONS BELOW (unchanged)
+        // ---------------------------------------------------------
 
         public async Task<string> SendCurriculumAsync(curriculum cur)
         {
@@ -193,9 +244,41 @@ namespace HOST.Services
             return ExtractGeminiText(respText, _logger);
         }
 
-        // ---------------------------------------------------------
-        // NEW METHOD: SendPromptWithMenuItemAsync
-        // ---------------------------------------------------------
+        public async Task<string> DigestPdfToCurriculumJsonAsync(string pdfText, string curriculumName)
+        {
+            if (string.IsNullOrWhiteSpace(pdfText))
+                throw new ArgumentNullException(nameof(pdfText));
+
+            var prompt = $@"You are a precise JSON-output assistant. 
+Given the following text extracted from a PDF document, parse it and return ONLY a valid JSON object matching this schema:
+
+{{
+  ""Id"": ""string"",
+  ""department_id"": ""string"",
+  ""Dname"": ""string"",
+  ""major_name"": ""{curriculumName}"",
+  ""catalog_year"": ""string"",
+  ""total_credits"": number,
+  ""sections"": [
+    {{
+      ""section_name"": ""string"",
+      ""credits_required"": number,
+      ""courses"": [
+        {{
+          ""course_id"": ""string"",
+          ""course_name"": ""string""
+        }}
+      ]
+    }}
+  ]
+}}
+
+PDF Text:
+{pdfText}";
+
+            return await AskGeminiAsync(prompt);
+        }
+
         public async Task<string> SendPromptWithMenuItemAsync(MenuItem item, string userQuestion)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
@@ -215,33 +298,39 @@ User Question: {userQuestion}
 Provide a clear, safe, helpful answer about allergies, ingredients, or dietary concerns.
 ";
 
-            var payload = new
-            {
-                contents = new[]
-                {
-                    new
-                    {
-                        parts = new[]
-                        {
-                            new { text = prompt }
-                        }
-                    }
-                }
-            };
+            return await AskGeminiAsync(prompt);
+        }
 
-            var json = JsonSerializer.Serialize(payload);
-            var endpoint = $"models/{_model}:generateContent?key={_apiKey}";
-            using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            using var resp = await _httpClient.PostAsync(endpoint, content);
-            var respText = await resp.Content.ReadAsStringAsync();
+        // ---------------------------------------------------------
+        // ⭐ NEW: FULL MENU REASONING FOR INGREDIENT QUESTIONS
+        // ---------------------------------------------------------
+        public async Task<string> SendPromptWithMenuListAsync(List<MenuItem> items, string userQuestion)
+        {
+            if (items == null || items.Count == 0)
+                throw new ArgumentNullException(nameof(items));
+            if (string.IsNullOrWhiteSpace(userQuestion))
+                throw new ArgumentNullException(nameof(userQuestion));
 
-            if (!resp.IsSuccessStatusCode)
+            var sb = new StringBuilder();
+            sb.AppendLine("You are an allergy- and ingredient-aware restaurant assistant.");
+            sb.AppendLine("You are given the FULL MENU with ingredients. Answer the user's question ONLY using this menu.");
+            sb.AppendLine();
+            sb.AppendLine("MENU:");
+
+            foreach (var item in items)
             {
-                _logger.LogError("Gemini API error: {Status} - {Response}", resp.StatusCode, respText);
-                throw new InvalidOperationException($"Gemini API error: {resp.StatusCode} - {respText}");
+                sb.AppendLine($"Name: {item.name}");
+                sb.AppendLine($"Description: {item.description}");
+                sb.AppendLine($"Ingredients: {string.Join(", ", item.ingredients ?? new List<string>())}");
+                sb.AppendLine($"Calories: {item.calories}");
+                sb.AppendLine($"Price: {item.price}");
+                sb.AppendLine();
             }
 
-            return ExtractGeminiText(respText, _logger);
+            sb.AppendLine("User question:");
+            sb.AppendLine(userQuestion);
+
+            return await AskGeminiAsync(sb.ToString());
         }
     }
 }
