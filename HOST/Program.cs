@@ -17,8 +17,16 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Parties/Index");
 
     // ⭐ CRITICAL FIX: Allow Seat page to bypass fallback authorization
-  
+
 });
+// Enable session storage
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HOST")));
@@ -63,6 +71,8 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddSingleton<MongoDBService>();
+// Register AI service with HttpClient
+builder.Services.AddHttpClient<AIService>();
 
 var app = builder.Build();
 
@@ -77,13 +87,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets().AllowAnonymous();
 
-app.MapRazorPages()
-   .WithStaticAssets();
+// Use the standard Razor Pages endpoint mapping so the framework
+// initializes PageContext/ViewData correctly for generated pages.
+app.MapRazorPages();
 
 // Database migration + seeding
 using (var scope = app.Services.CreateScope())
