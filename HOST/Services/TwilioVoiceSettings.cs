@@ -7,5 +7,5 @@ public class TwilioVoiceSettings
     public string AccountSid { get; set; } = string.Empty;
     public string AuthToken { get; set; } = string.Empty;
     public string FromPhoneNumber { get; set; } = string.Empty;
-    public string TableReadyMessage { get; set; } = "thank you for waiting, your table is available. Enjoy your food!";
+    public string TableReadyMessage { get; set; } = "Thank you for waiting. Please aggressively push your way, to the host stand, and wave your arms about. Your table is ready!";
 }
