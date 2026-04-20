@@ -6,6 +6,7 @@ namespace HOST.Services
     public class MongoDBService
     {
         private readonly IMongoCollection<curriculum> _collection;
+        private readonly IMongoCollection<PdfDocument> _pdfCollection;
 
         public MongoDBService(IConfiguration configuration)
         {
@@ -17,6 +18,9 @@ namespace HOST.Services
 
             _collection = database.GetCollection<curriculum>(
                 configuration["MongoDBSettings:CollectionName"]);
+
+            _pdfCollection = database.GetCollection<PdfDocument>(
+                configuration["MongoDBSettings:PDFCollectionName"] ?? "pdf_documents");
         }
 
         public async Task<List<curriculum>> GetAllAsync() =>
@@ -33,6 +37,19 @@ namespace HOST.Services
 
         public async Task DeleteAsync(string id) =>
             await _collection.DeleteOneAsync(x => x.Id == id);
+
+        // --- PDF Document methods ---
+        public async Task CreatePdfDocumentAsync(PdfDocument doc) =>
+            await _pdfCollection.InsertOneAsync(doc);
+
+        public async Task ReplaceMenuAsync(curriculum menu)
+        {
+            await _collection.ReplaceOneAsync(
+                x => x.Id == "SPECIALS_MENU",
+                menu,
+                new ReplaceOptions { IsUpsert = true }
+            );
+        }
 
     }
 }

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using HOST.Services;
 
 namespace HOST.Pages.QueueEntries
 {
@@ -13,12 +12,10 @@ namespace HOST.Pages.QueueEntries
     public class SeatModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly TwilioVoiceCallService _twilioVoiceCallService;
 
-        public SeatModel(ApplicationDbContext context, TwilioVoiceCallService twilioVoiceCallService)
+        public SeatModel(ApplicationDbContext context)
         {
             _context = context;
-            _twilioVoiceCallService = twilioVoiceCallService;
         }
 
         public QueueEntry QueueEntry { get; set; }
@@ -150,19 +147,7 @@ namespace HOST.Pages.QueueEntries
 
             await _context.SaveChangesAsync();
 
-            var callResult = await _twilioVoiceCallService.PlaceTableReadyCallAsync(
-                queueEntry.Party.PhoneNumber,
-                queueEntry.Party.PartyName);
-
-            TempData["SuccessMessage"] = callResult.Succeeded
-                ? "Party successfully seated and notified by phone call."
-                : "Party successfully seated.";
-
-            if (!callResult.Succeeded)
-            {
-                TempData["ErrorMessage"] = $"Party was seated, but the phone call failed: {callResult.ErrorMessage}";
-            }
-
+            TempData["SuccessMessage"] = "Party successfully seated.";
             return RedirectToPage("./Index");
         }
     }
