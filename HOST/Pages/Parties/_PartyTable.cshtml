@@ -1,4 +1,5 @@
-﻿@model IList<HOST.Models.Party>
+﻿@page
+@model HOST.Pages.Parties._PartyTableModel
 @using System.Security.Claims
 
 @{
@@ -37,7 +38,7 @@
     </thead>
 
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Parties)
         {
             <tr>
                 <td>@counter</td>
@@ -111,8 +112,7 @@
                         }
 
                         <!-- EDIT -->
-                        @if (isManager ||
-                                                    (item.Status == "Waiting" && item.OwnerId == userId))
+                        @if (isManager || (item.Status == "Waiting" && item.OwnerId == userId))
                         {
                             <a class="btn-primary btn-sm"
                                    asp-page="Edit"
@@ -124,7 +124,6 @@
                         <!-- DELETE -->
                         @if (isManager)
                         {
-                            <!-- Manager uses Delete page (now soft delete) -->
                             <a class="btn-danger-pink btn-sm"
                                    asp-page="Delete"
                                    asp-route-id="@item.PartyId">
@@ -133,7 +132,6 @@
                         }
                         else if (item.Status == "Waiting" && item.OwnerId == userId)
                         {
-                            <!-- Guest soft-deletes via Edit handler -->
                             <form method="post"
                                   asp-page="Edit"
                                   asp-page-handler="Delete"

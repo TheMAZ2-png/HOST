@@ -1,0 +1,87 @@
+﻿@model IList<HOST.Models.Party>
+
+@using System.Security.Claims
+
+@{
+    var counter = 1;
+
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
+    bool isStaff = isManager || isHost || isServer;
+
+    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<table class="table table-pink mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Party Name</th>
+
+          
+
+            <th>Party Size</th>
+
+
+            <th>Wait Time</th>
+            <th>Est. Wait</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@counter</td>
+                @{
+                    counter++;
+                }
+
+                <td>@item.PartyName</td>
+
+            
+
+                <td>@item.PartySize</td>
+
+
+                <!-- WAIT TIME -->
+                <td>
+                    @if (item.Status == "Waiting" || item.Status == "Seated")
+                    {
+                        @(item.ActualWaitMinutes.HasValue
+                            ? $"{item.ActualWaitMinutes} min"
+                            : "0 min")
+                    }
+                    else if (item.Status == "Completed" && item.ActualWaitMinutes.HasValue)
+                    {
+                        @($"{item.ActualWaitMinutes} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
+                </td>
+
+                <!-- ESTIMATED WAIT -->
+                <td>
+                    @if (item.Status == "Waiting")
+                    {
+                        @(item.EstimatedWaitMinutes <= 5
+                            ? "Seating soon"
+                            : $"{item.EstimatedWaitMinutes} min")
+                    }
+                    else if ((item.Status == "Seated" || item.Status == "Completed")
+                             && item.EstimatedWaitAtJoin.HasValue)
+                    {
+                        @($"{item.EstimatedWaitAtJoin} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace HOST.Pages.Parties
 {
@@ -27,7 +26,6 @@ namespace HOST.Pages.Parties
         {
             bool isManager = User.IsInRole("Manager");
 
-            // ACTIVE PARTIES
             WaitingParties = await _context.Parties
                 .Where(p => !p.IsDeleted && p.Status == "Waiting")
                 .OrderBy(p => p.CreatedAt)
@@ -43,7 +41,6 @@ namespace HOST.Pages.Parties
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
 
-            // DELETED PARTIES (Manager only)
             if (isManager)
             {
                 DeletedParties = await _context.Parties
@@ -52,14 +49,12 @@ namespace HOST.Pages.Parties
                     .ToListAsync();
             }
 
-            // LIVE WAIT TIME
             foreach (var party in WaitingParties)
             {
                 party.ActualWaitMinutes =
                     (int)Math.Floor((DateTime.UtcNow - party.CreatedAt).TotalMinutes);
             }
 
-            // ESTIMATED WAIT TIME
             var orderedWaiting = WaitingParties.OrderBy(p => p.CreatedAt).ToList();
             for (int i = 0; i < orderedWaiting.Count; i++)
             {
@@ -68,7 +63,6 @@ namespace HOST.Pages.Parties
             }
         }
 
-        // ⭐ RESTORE PARTY
         public async Task<IActionResult> OnPostRestoreAsync(int id)
         {
             var party = await _context.Parties.FindAsync(id);
@@ -82,10 +76,8 @@ namespace HOST.Pages.Parties
             return RedirectToPage();
         }
 
-        // ⭐ UPDATED: SOFT DELETE ALL PARTIES
         public async Task<IActionResult> OnPostDeleteAllAsync()
         {
-            // Soft delete all parties
             var parties = await _context.Parties.ToListAsync();
             foreach (var party in parties)
             {
@@ -93,7 +85,6 @@ namespace HOST.Pages.Parties
                 party.DeletedAt = DateTime.UtcNow;
             }
 
-            // Soft delete all queue entries
             var queueEntries = await _context.QueueEntries.ToListAsync();
             foreach (var entry in queueEntries)
             {
@@ -101,9 +92,6 @@ namespace HOST.Pages.Parties
                 entry.UpdatedAt = DateTime.UtcNow;
             }
 
-            // ⭐ DO NOT TOUCH SEATINGS — they have no Status and should remain historical
-
-            // Reset tables
             var tables = await _context.RestaurantTables.ToListAsync();
             foreach (var table in tables)
             {

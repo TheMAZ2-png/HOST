@@ -120,6 +120,22 @@
     </div>
 </div>
 
+<!-- ============================
+     CURRENT WAITING PARTY LIST
+     ============================ -->
+<div class="container mt-5 fade-in-3">
+    <h2 class="text-pink-dark mb-4">Current Waiting Parties</h2>
+
+    @if (Model.WaitingParties != null && Model.WaitingParties.Any())
+    {
+        <partial name="_PartyTable" model="Model.WaitingParties" />
+    }
+    else
+    {
+        <p class="text-muted">No parties are currently waiting.</p>
+    }
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

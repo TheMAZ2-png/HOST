@@ -37,22 +37,22 @@
     @if (isStaff)
     {
         <h3 class="mt-4">Waiting Parties</h3>
-        <partial name="_PartyTable" model="Model.WaitingParties" />
+        <partial name="_PartyTable_Full" model="Model.WaitingParties" />
 
         <h3 class="mt-5">Seated Parties</h3>
-        <partial name="_PartyTable" model="Model.SeatedParties" />
+        <partial name="_PartyTable_Full" model="Model.SeatedParties" />
 
         <h3 class="mt-5">Completed Parties</h3>
-        <partial name="_PartyTable" model="Model.CompletedParties" />
+        <partial name="_PartyTable_Full" model="Model.CompletedParties" />
     }
     else
     {
         <!-- GUEST VIEW -->
         <h3 class="mt-4">Waiting Parties</h3>
-        <partial name="_PartyTable" model="Model.WaitingParties" />
+        <partial name="_PartyTable_Full" model="Model.WaitingParties" />
 
         <h3 class="mt-5">Completed Parties</h3>
-        <partial name="_PartyTable" model="Model.CompletedParties" />
+        <partial name="_PartyTable_Full" model="Model.CompletedParties" />
     }
 
     <!-- ⭐ MANAGER-ONLY: Deleted Parties -->

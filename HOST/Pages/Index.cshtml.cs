@@ -26,11 +26,26 @@ namespace HOST.Pages
             _signInManager = signInManager;
         }
 
+        // ⭐ NEW: Waiting Parties for homepage
+        public IList<Party> WaitingParties { get; set; } = new List<Party>();
+
         [BindProperty]
         public PartyRegistrationInput PartyRegistration { get; set; } = new();
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
+            // Load current waiting parties
+            WaitingParties = await _context.Parties
+                .Where(p => !p.IsDeleted && p.Status == "Waiting")
+                .OrderBy(p => p.CreatedAt)
+                .ToListAsync();
+
+            // Live wait time
+            foreach (var party in WaitingParties)
+            {
+                party.ActualWaitMinutes =
+                    (int)Math.Floor((DateTime.UtcNow - party.CreatedAt).TotalMinutes);
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -40,7 +55,7 @@ namespace HOST.Pages
 
             var today = DateTime.UtcNow.Date;
 
-            // ⭐ NEW RULE: Only block if same phone number already joined TODAY
+            // Prevent duplicate phone number same day
             var existingTodayParty = await _context.Parties
                 .Where(p =>
                     p.PhoneNumber == PartyRegistration.PhoneNumber &&
@@ -55,13 +70,12 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // ⭐ Identity user check stays the same (one account per phone number)
+            // Identity user check
             var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
             IdentityUser user;
 
             if (existingUser == null)
             {
-                // Create new guest user
                 user = new IdentityUser
                 {
                     UserName = PartyRegistration.PhoneNumber,
@@ -82,11 +96,10 @@ namespace HOST.Pages
             }
             else
             {
-                // Reuse existing guest account
                 user = existingUser;
             }
 
-            // ⭐ Create Party (soft-delete fields included)
+            // Create Party
             var party = new Party
             {
                 PartyName = PartyRegistration.PartyName,
@@ -96,11 +109,9 @@ namespace HOST.Pages
                 OwnerId = user.Id,
                 Status = "Waiting",
                 CreatedAt = DateTime.UtcNow,
-                IsDeleted = false,
-                DeletedAt = null
+                IsDeleted = false
             };
 
-            // ⭐ Store estimated wait time at join
             party.EstimatedWaitAtJoin = await CalculateEstimatedWaitAtJoinAsync(party.PartySize);
 
             _context.Parties.Add(party);
@@ -117,7 +128,6 @@ namespace HOST.Pages
             _context.QueueEntries.Add(queueEntry);
             await _context.SaveChangesAsync();
 
-            // Sign in guest
             await _signInManager.SignInAsync(user, isPersistent: false);
 
             return RedirectToPage("/Parties/Index");

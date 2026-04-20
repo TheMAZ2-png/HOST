@@ -1,0 +1,102 @@
+﻿@model IList<HOST.Models.Party>
+@using System.Security.Claims
+
+@{
+    var counter = 1;
+
+    bool isManager = User.IsInRole("Manager");
+    bool isHost = User.IsInRole("Host");
+    bool isServer = User.IsInRole("Server");
+    bool isStaff = isManager || isHost || isServer;
+
+    string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<table class="table table-pink mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Party Name</th>
+            <th>Phone Number</th>
+            <th>Party Size</th>
+            <th>Notes</th>
+            <th>Wait Time</th>
+            <th>Est. Wait</th>
+            <th class="text-end"></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@counter</td>
+                @{
+                    counter++;
+                }
+
+                <td>@item.PartyName</td>
+                <td>@item.PhoneNumber</td>
+                <td>@item.PartySize</td>
+                <td>@item.Notes</td>
+
+                <td>
+                    @if (item.Status == "Waiting" || item.Status == "Seated")
+                    {
+                        @(item.ActualWaitMinutes.HasValue ? $"{item.ActualWaitMinutes} min" : "0 min")
+                    }
+                    else if (item.Status == "Completed" && item.ActualWaitMinutes.HasValue)
+                    {
+                        @($"{item.ActualWaitMinutes} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
+                </td>
+
+                <td>
+                    @if (item.Status == "Waiting")
+                    {
+                        @(item.EstimatedWaitMinutes <= 5 ? "Seating soon" : $"{item.EstimatedWaitMinutes} min")
+                    }
+                    else if ((item.Status == "Seated" || item.Status == "Completed") && item.EstimatedWaitAtJoin.HasValue)
+                    {
+                        @($"{item.EstimatedWaitAtJoin} min")
+                    }
+                    else
+                    {
+                        <text>—</text>
+                    }
+                </td>
+
+                <td class="text-end">
+                    <div class="action-buttons">
+
+                        <a class="btn-secondary btn-sm"
+                               asp-page="Details"
+                               asp-route-id="@item.PartyId">
+                            Details
+                        </a>
+
+                        <a class="btn-primary btn-sm"
+                               asp-page="Edit"
+                               asp-route-id="@item.PartyId">
+                            Edit
+                        </a>
+
+                        @if (isManager)
+                        {
+                            <a class="btn-danger-pink btn-sm"
+                                   asp-page="Delete"
+                                   asp-route-id="@item.PartyId">
+                                Delete
+                            </a>
+                        }
+
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
