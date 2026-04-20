@@ -61,22 +61,25 @@ public class TwilioVoiceCallService
             using var response = await _httpClient.SendAsync(request, cancellationToken);
             var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
+            _logger.LogInformation("?? Twilio API Response Status: {StatusCode}", (int)response.StatusCode);
+            _logger.LogInformation("?? Twilio API Response Body: {ResponseBody}", responseBody);
+
             if (response.IsSuccessStatusCode)
             {
-                _logger.LogInformation("Placed Twilio table-ready call to {PhoneNumber}.", toPhoneNumber);
+                _logger.LogInformation("? Successfully placed Twilio call to {PhoneNumber}. Response: {Response}", toPhoneNumber, responseBody);
                 return TwilioVoiceCallResult.Success();
             }
 
             _logger.LogWarning(
-                "Twilio voice call failed with status {StatusCode}: {ResponseBody}",
+                "? Twilio call failed with status {StatusCode}: {ResponseBody}",
                 (int)response.StatusCode,
                 responseBody);
 
-            return TwilioVoiceCallResult.Failure("Twilio rejected the outbound call request.");
+            return TwilioVoiceCallResult.Failure($"Twilio rejected the request (Status: {(int)response.StatusCode}). {responseBody}");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to place Twilio voice call.");
+            _logger.LogError(ex, "? Exception while placing Twilio call: {Message}", ex.Message);
             return TwilioVoiceCallResult.Failure("An error occurred while contacting Twilio.");
         }
     }

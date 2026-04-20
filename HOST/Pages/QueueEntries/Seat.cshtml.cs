@@ -1,5 +1,6 @@
 using HOST.Data;
 using HOST.Models;
+using HOST.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,10 +13,17 @@ namespace HOST.Pages.QueueEntries
     public class SeatModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly TwilioVoiceCallService _twilioService;
+        private readonly ILogger<SeatModel> _logger;
 
-        public SeatModel(ApplicationDbContext context)
+        public SeatModel(
+            ApplicationDbContext context,
+            TwilioVoiceCallService twilioService,
+            ILogger<SeatModel> logger)
         {
             _context = context;
+            _twilioService = twilioService;
+            _logger = logger;
         }
 
         public QueueEntry QueueEntry { get; set; }
@@ -146,6 +154,41 @@ namespace HOST.Pages.QueueEntries
             queueEntry.Party.Status = "Seated";
 
             await _context.SaveChangesAsync();
+
+            // ⭐ Place Twilio voice call to notify party their table is ready
+            _logger.LogInformation("🔔 Attempting to call party {PartyName} at {PhoneNumber}", 
+                queueEntry.Party.PartyName, 
+                queueEntry.Party.PhoneNumber);
+
+            if (!string.IsNullOrWhiteSpace(queueEntry.Party.PhoneNumber))
+            {
+                var twilioResult = await _twilioService.PlaceTableReadyCallAsync(
+                    queueEntry.Party.PhoneNumber,
+                    queueEntry.Party.PartyName,
+                    CancellationToken.None);
+
+                if (!twilioResult.Succeeded)
+                {
+                    _logger.LogError(
+                        "❌ Failed to place Twilio call for party {PartyId}: {ErrorMessage}",
+                        queueEntry.PartyId,
+                        twilioResult.ErrorMessage);
+                    TempData["WarningMessage"] = $"Party seated, but call failed: {twilioResult.ErrorMessage}";
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "✅ Successfully placed Twilio call for party {PartyId} ({PartyName})",
+                        queueEntry.PartyId,
+                        queueEntry.Party.PartyName);
+                    TempData["InfoMessage"] = $"Party seated and call placed successfully!";
+                }
+            }
+            else
+            {
+                _logger.LogWarning("⚠️ Party {PartyId} has no phone number on file", queueEntry.PartyId);
+                TempData["WarningMessage"] = "Party seated but has no phone number on file.";
+            }
 
             TempData["SuccessMessage"] = "Party successfully seated.";
             return RedirectToPage("./Index");

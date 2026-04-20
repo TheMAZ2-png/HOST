@@ -1,0 +1,51 @@
+@page
+@model HOST.Pages.Admin.TestTwilioModel
+@{
+    ViewData["Title"] = "Test Twilio Integration";
+}
+
+<div class="container mt-4">
+    <h1>🔧 Twilio Integration Test</h1>
+
+    @if (!string.IsNullOrEmpty(Model.ResultMessage))
+    {
+        <div class="alert alert-@(Model.IsSuccess ? "success" : "danger") mt-3">
+            <strong>@(Model.IsSuccess ? "✅ Success" : "❌ Failed"):</strong> @Model.ResultMessage
+        </div>
+    }
+
+    <form method="post" class="mt-4">
+        <div class="form-group mb-3">
+            <label for="phoneNumber" class="form-label">Phone Number to Test</label>
+            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
+                   placeholder="+1 (555) 123-4567" required>
+            <small class="form-text text-muted">Enter a US phone number (10-11 digits)</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="partyName" class="form-label">Party Name</label>
+            <input type="text" class="form-control" id="partyName" name="partyName" 
+                   placeholder="John Doe" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Test Twilio Call</button>
+    </form>
+
+    <div class="mt-4">
+        <h4>Configuration Status:</h4>
+        <table class="table">
+            <tr>
+                <td><strong>Account SID:</strong></td>
+                <td>@(string.IsNullOrEmpty(Model.ConfigStatus.AccountSid) ? "❌ NOT SET" : "✅ SET")</td>
+            </tr>
+            <tr>
+                <td><strong>Auth Token:</strong></td>
+                <td>@(string.IsNullOrEmpty(Model.ConfigStatus.AuthToken) ? "❌ NOT SET" : "✅ SET")</td>
+            </tr>
+            <tr>
+                <td><strong>From Phone:</strong></td>
+                <td>@(string.IsNullOrEmpty(Model.ConfigStatus.FromPhone) ? "❌ NOT SET" : Model.ConfigStatus.FromPhone)</td>
+            </tr>
+        </table>
+    </div>
+</div>

@@ -74,6 +74,11 @@ builder.Services.AddSingleton<MongoDBService>();
 // Register AI service with HttpClient
 builder.Services.AddHttpClient<AIService>();
 
+// Register Twilio Voice Call Service with HttpClient and settings
+builder.Services.Configure<TwilioVoiceSettings>(
+    builder.Configuration.GetSection(TwilioVoiceSettings.SectionName));
+builder.Services.AddHttpClient<TwilioVoiceCallService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
