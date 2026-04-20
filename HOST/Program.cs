@@ -62,6 +62,10 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+builder.Services.Configure<TwilioVoiceSettings>(
+    builder.Configuration.GetSection(TwilioVoiceSettings.SectionName));
+builder.Services.AddHttpClient<TwilioVoiceCallService>();
+
 builder.Services.AddSingleton<MongoDBService>();
 
 var app = builder.Build();
