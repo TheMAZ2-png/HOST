@@ -5,9 +5,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text;
 using System.Text.Json;
 using UglyToad.PdfPig;
+using Microsoft.AspNetCore.Authorization;
+
+
 
 namespace HOST.Pages.CurriculumPages
 {
+    [Authorize(Roles = "Manager")]
     public class UploadPdfModel : PageModel
     {
         private readonly MongoDBService _mongo;
@@ -24,9 +28,9 @@ namespace HOST.Pages.CurriculumPages
         [BindProperty]
         public IFormFile? PdfFile { get; set; }
 
-        // Renamed meaning only — property name stays the same to avoid breaking code
+        // This is now the correct property name for the menu
         [BindProperty]
-        public string CurriculumName { get; set; } = string.Empty;
+        public string MenuName { get; set; } = string.Empty;
 
         public string? ExtractedText { get; set; }
         public string? AiJsonResult { get; set; }
@@ -46,7 +50,7 @@ namespace HOST.Pages.CurriculumPages
 
             try
             {
-                if (string.IsNullOrWhiteSpace(CurriculumName))
+                if (string.IsNullOrWhiteSpace(MenuName))
                 {
                     ModelState.AddModelError(string.Empty, "Please provide a name for the menu.");
                     return Page();
@@ -84,13 +88,13 @@ namespace HOST.Pages.CurriculumPages
                 }
 
                 // Send to Gemini AI with the user-provided menu name
-                AiJsonResult = await _ai.DigestPdfToCurriculumJsonAsync(ExtractedText, CurriculumName);
+                AiJsonResult = await _ai.DigestPdfToMenuJsonAsync(ExtractedText, MenuName);
 
                 // Store in TempData for the Save step
                 TempData["ExtractedText"] = ExtractedText;
                 TempData["AiJsonResult"] = AiJsonResult;
                 TempData["FileName"] = PdfFile.FileName;
-                TempData["CurriculumName"] = CurriculumName;
+                TempData["MenuName"] = MenuName;
 
                 return Page();
             }
@@ -116,7 +120,7 @@ namespace HOST.Pages.CurriculumPages
                 var extractedText = TempData["ExtractedText"]?.ToString() ?? string.Empty;
                 var aiJsonResult = TempData["AiJsonResult"]?.ToString() ?? string.Empty;
                 var fileName = TempData["FileName"]?.ToString() ?? "unknown.pdf";
-                var curriculumName = TempData["CurriculumName"]?.ToString() ?? string.Empty;
+                var menuName = TempData["MenuName"]?.ToString() ?? string.Empty;
 
                 if (string.IsNullOrWhiteSpace(aiJsonResult))
                 {
@@ -124,19 +128,26 @@ namespace HOST.Pages.CurriculumPages
                     return Page();
                 }
 
-                // Try to parse the AI JSON into a curriculum object
+                // Try to parse the AI JSON into a curriculum (menu) object
                 curriculum? parsedCurriculum = null;
                 try
                 {
-                    parsedCurriculum = JsonSerializer.Deserialize<curriculum>(aiJsonResult, new JsonSerializerOptions
+                    // Clean AI JSON (remove backticks and code fences)
+                    var cleanedJson = aiJsonResult
+                        .Replace("```json", "")
+                        .Replace("```", "")
+                        .Trim();
+
+                    parsedCurriculum = JsonSerializer.Deserialize<curriculum>(cleanedJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
 
+
                     // Ensure the user-provided menu name is used
-                    if (parsedCurriculum != null && !string.IsNullOrWhiteSpace(curriculumName))
+                    if (parsedCurriculum != null && !string.IsNullOrWhiteSpace(menuName))
                     {
-                        parsedCurriculum.menu_name = curriculumName;
+                        parsedCurriculum.menu_name = menuName;
                     }
                 }
                 catch (JsonException ex)
@@ -158,13 +169,14 @@ namespace HOST.Pages.CurriculumPages
                 // If parsed successfully, also save to the menu/curriculum collection
                 if (parsedCurriculum != null)
                 {
-                    await _mongo.CreateAsync(parsedCurriculum);
+                    parsedCurriculum.Id = "SPECIALS_MENU";
+                    await _mongo.ReplaceMenuAsync(parsedCurriculum);
                 }
 
-                SavedMessage = $"Successfully saved menu \"{curriculumName}\" to MongoDB!";
+                SavedMessage = $"Successfully saved menu \"{menuName}\" to MongoDB!";
                 AiJsonResult = aiJsonResult;
                 ExtractedText = extractedText;
-                CurriculumName = curriculumName;
+                MenuName = menuName;
 
                 return Page();
             }

@@ -13,14 +13,23 @@
 <h3>Step 1: Upload PDF</h3>
 <form method="post" asp-page-handler="Upload" enctype="multipart/form-data">
     <div class="mb-3">
-        <label for="CurriculumName" class="form-label"><strong>Menu Name</strong></label>
-        <input type="text" class="form-control" asp-for="CurriculumName" placeholder="e.g. Mario Specials Menu" />
+        <label for="MenuName" class="form-label"><strong>Menu Name</strong></label>
+        <input type="text"
+               class="form-control"
+               asp-for="MenuName"
+               autocomplete="off"
+               placeholder="e.g. Mario Specials Menu" />
     </div>
+
     <div class="mb-3">
         <label for="PdfFile" class="form-label">Select a PDF file</label>
-        <input type="file" class="form-control" asp-for="PdfFile" accept=".pdf" />
+        <input type="file"
+               class="form-control"
+               asp-for="PdfFile"
+               accept=".pdf" />
     </div>
-    <button type="submit" class="btn btn-primary" disabled="@(Model.IsProcessing ? "disabled" : null)">
+
+    <button type="submit" class="btn btn-primary">
         Upload &amp; Digest
     </button>
 </form>
@@ -42,7 +51,8 @@
 {
     <hr />
     <h3>Step 2: Review AI‑Digested Menu JSON</h3>
-    <p>Menu Name: <strong>@Model.CurriculumName</strong></p>
+    <p>Menu Name: <strong>@Model.MenuName</strong></p>
+
     <div class="card mb-3">
         <div class="card-body" style="max-height:400px; overflow-y:auto;">
             <pre style="white-space:pre-wrap;">@Model.AiJsonResult</pre>

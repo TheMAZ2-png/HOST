@@ -244,40 +244,53 @@ namespace HOST.Services
             return ExtractGeminiText(respText, _logger);
         }
 
-        public async Task<string> DigestPdfToCurriculumJsonAsync(string pdfText, string curriculumName)
+        public async Task<string> DigestPdfToMenuJsonAsync(string pdfText, string menuName)
         {
             if (string.IsNullOrWhiteSpace(pdfText))
                 throw new ArgumentNullException(nameof(pdfText));
 
-            var prompt = $@"You are a precise JSON-output assistant. 
-Given the following text extracted from a PDF document, parse it and return ONLY a valid JSON object matching this schema:
+            var prompt = $@"
+You are a precise JSON-output assistant.
+Convert the following MENU text into a JSON object matching EXACTLY this schema:
 
 {{
-  ""Id"": ""string"",
-  ""department_id"": ""string"",
-  ""Dname"": ""string"",
-  ""major_name"": ""{curriculumName}"",
-  ""catalog_year"": ""string"",
-  ""total_credits"": number,
-  ""sections"": [
+  ""Id"": ""SPECIALS_MENU"",
+  ""menu_name"": ""{menuName}"",
+  ""date"": ""string"",
+  ""chef"": ""string"",
+  ""categories"": [
     {{
-      ""section_name"": ""string"",
-      ""credits_required"": number,
-      ""courses"": [
+      ""category_name"": ""string"",
+      ""items"": [
         {{
-          ""course_id"": ""string"",
-          ""course_name"": ""string""
+          ""item_id"": ""string"",
+          ""name"": ""string"",
+          ""description"": ""string"",
+          ""ingredients"": [""string""],
+          ""calories"": number,
+          ""price"": number
         }}
       ]
     }}
-  ]
+  ],
+  ""documents"": [],
+  ""last_updated"": ""YYYY-MM-DD""
 }}
 
-PDF Text:
-{pdfText}";
+Rules:
+- Return ONLY valid JSON.
+- Infer missing fields from context.
+- Auto-generate item_id values (e.g., EN001, DR001).
+- Use today's date for last_updated.
+- Do NOT include commentary.
+
+MENU TEXT:
+{pdfText}
+";
 
             return await AskGeminiAsync(prompt);
         }
+
 
         public async Task<string> SendPromptWithMenuItemAsync(MenuItem item, string userQuestion)
         {

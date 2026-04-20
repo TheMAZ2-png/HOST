@@ -41,6 +41,16 @@ namespace HOST.Services
         // --- PDF Document methods ---
         public async Task CreatePdfDocumentAsync(PdfDocument doc) =>
             await _pdfCollection.InsertOneAsync(doc);
+
+        public async Task ReplaceMenuAsync(curriculum menu)
+        {
+            await _collection.ReplaceOneAsync(
+                x => x.Id == "SPECIALS_MENU",
+                menu,
+                new ReplaceOptions { IsUpsert = true }
+            );
+        }
+
     }
 }
 

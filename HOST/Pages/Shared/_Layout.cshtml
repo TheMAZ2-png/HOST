@@ -41,15 +41,18 @@
 
                         <!-- PLAY ICON -->
                         <li>
-                            <a asp-page="CurriculumPages/Chatbot" class="icon-button">
+                            <a asp-page="/CurriculumPages/Chatbot" class="icon-button">
                                 <img src="~/Imgs/Icons/AIPage.svg" alt="Chat with Chat" />
                             </a>
                         </li>
-                        <li>
-                            <a asp-page="CurriculumPages/UploadPdf">Upload PDF</a>
-                        </li>
-
                     }
+                    @if (User.IsInRole("Manager"))
+                    {
+                        <li>
+                            <a asp-page="/CurriculumPages/UploadPdf">Upload PDF</a>
+                        </li>
+                    }
+
 
 
                     @if (User.IsInRole("Guest"))
