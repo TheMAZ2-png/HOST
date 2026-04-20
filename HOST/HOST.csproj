@@ -4,6 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>a6891874-2b8f-4f68-8078-1b3898742761</UserSecretsId>
 	</PropertyGroup>
 
 	<!-- Remove only the specific files you intentionally excluded -->
