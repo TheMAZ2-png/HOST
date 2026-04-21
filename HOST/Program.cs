@@ -13,12 +13,9 @@ builder.Logging.AddDebug();
 // Razor Pages + page-level overrides
 builder.Services.AddRazorPages(options =>
 {
-    // Existing rule
     options.Conventions.AllowAnonymousToPage("/Parties/Index");
-
-    // ⭐ CRITICAL FIX: Allow Seat page to bypass fallback authorization
-
 });
+
 // Enable session storage
 builder.Services.AddSession(options =>
 {
@@ -26,7 +23,6 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("HOST")));
@@ -70,11 +66,13 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
+// MongoDB service
 builder.Services.AddSingleton<MongoDBService>();
-// Register AI service with HttpClient
+
+// ⭐ CORRECT: AIService uses HttpClient (REST API)
 builder.Services.AddHttpClient<AIService>();
 
-// Register Twilio Voice Call Service with HttpClient and settings
+// Twilio Voice Call Service
 builder.Services.Configure<TwilioVoiceSettings>(
     builder.Configuration.GetSection(TwilioVoiceSettings.SectionName));
 builder.Services.AddHttpClient<TwilioVoiceCallService>();
@@ -97,9 +95,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets().AllowAnonymous();
-
-// Use the standard Razor Pages endpoint mapping so the framework
-// initializes PageContext/ViewData correctly for generated pages.
 app.MapRazorPages();
 
 // Database migration + seeding

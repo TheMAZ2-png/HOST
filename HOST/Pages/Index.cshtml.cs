@@ -1,5 +1,6 @@
 using HOST.Data;
 using HOST.Models;
+using HOST.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,18 +16,20 @@ namespace HOST.Pages
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly AIService _aiService;   // ⭐ Inject AIService
 
         public IndexModel(
             ApplicationDbContext context,
             UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser> signInManager,
+            AIService aiService)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _aiService = aiService;   // ⭐ Store service
         }
 
-        // ⭐ NEW: Waiting Parties for homepage
         public IList<Party> WaitingParties { get; set; } = new List<Party>();
 
         [BindProperty]
@@ -34,19 +37,20 @@ namespace HOST.Pages
 
         public async Task OnGetAsync()
         {
-            // Load current waiting parties
             WaitingParties = await _context.Parties
                 .Where(p => !p.IsDeleted && p.Status == "Waiting")
                 .OrderBy(p => p.CreatedAt)
                 .ToListAsync();
 
-            // Live wait time
             foreach (var party in WaitingParties)
             {
                 party.ActualWaitMinutes =
                     (int)Math.Floor((DateTime.UtcNow - party.CreatedAt).TotalMinutes);
             }
         }
+
+   
+
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -55,7 +59,6 @@ namespace HOST.Pages
 
             var today = DateTime.UtcNow.Date;
 
-            // Prevent duplicate phone number same day
             var existingTodayParty = await _context.Parties
                 .Where(p =>
                     p.PhoneNumber == PartyRegistration.PhoneNumber &&
@@ -70,7 +73,6 @@ namespace HOST.Pages
                 return Page();
             }
 
-            // Identity user check
             var existingUser = await _userManager.FindByNameAsync(PartyRegistration.PhoneNumber);
             IdentityUser user;
 
@@ -99,7 +101,6 @@ namespace HOST.Pages
                 user = existingUser;
             }
 
-            // Create Party
             var party = new Party
             {
                 PartyName = PartyRegistration.PartyName,
@@ -117,7 +118,6 @@ namespace HOST.Pages
             _context.Parties.Add(party);
             await _context.SaveChangesAsync();
 
-            // Create QueueEntry
             var queueEntry = new QueueEntry
             {
                 PartyId = party.PartyId,

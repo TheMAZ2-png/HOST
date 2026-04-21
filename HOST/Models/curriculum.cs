@@ -15,9 +15,8 @@ namespace HOST.Models
         public string date { get; set; }
         public string chef { get; set; }
 
-        public List<MenuCategory> categories { get; set; }
-
-        public List<MenuDocument> documents { get; set; }
+        public List<MenuCategory> categories { get; set; } = new();
+        public List<MenuDocument> documents { get; set; } = new();
 
         public string last_updated { get; set; }
     }
@@ -25,7 +24,7 @@ namespace HOST.Models
     public class MenuCategory
     {
         public string category_name { get; set; }
-        public List<MenuItem> items { get; set; }
+        public List<MenuItem> items { get; set; } = new();
     }
 
     public class MenuItem
@@ -33,9 +32,12 @@ namespace HOST.Models
         public string item_id { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public List<string> ingredients { get; set; }
+        public List<string> ingredients { get; set; } = new();
         public int calories { get; set; }
         public double price { get; set; }
+
+        // ⭐ REQUIRED for grouping AI output
+        public string category { get; set; }
     }
 
     public class MenuDocument

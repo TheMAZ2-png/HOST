@@ -1,34 +1,56 @@
 ﻿@page
 @model HOST.Pages.CurriculumPages.IndexModel
 
+@if (Model.Menu == null)
+{
+    <p>No menu found.</p>
+    return;
+}
+
 <h2>@Model.Menu.menu_name</h2>
 <p><strong>Date:</strong> @Model.Menu.date</p>
 <p><strong>Chef:</strong> @Model.Menu.chef</p>
 
-@foreach (var category in Model.Menu.categories)
+@if (Model.Menu.categories == null || !Model.Menu.categories.Any())
 {
-    <h3>@category.category_name</h3>
+    <p>No categories available.</p>
+}
+else
+{
+    foreach (var category in Model.Menu.categories)
+    {
+        <h3>@category.category_name</h3>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Item</th>
-                <th>Description</th>
-                <th>Calories</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach (var item in category.items)
-            {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.name</td>
-                    <td>@item.description</td>
-                    <td>@item.calories</td>
-                    <td>$@item.price</td>
+                    <th>Item</th>
+                    <th>Description</th>
+                    <th>Calories</th>
+                    <th>Price</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+
+            <tbody>
+                @if (category.items == null || !category.items.Any())
+                {
+                    <tr>
+                        <td colspan="4"><em>No items in this category.</em></td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in category.items)
+                    {
+                        <tr>
+                            <td>@item.name</td>
+                            <td>@item.description</td>
+                            <td>@item.calories</td>
+                            <td>$@item.price</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
 }

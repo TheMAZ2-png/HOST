@@ -44,6 +44,18 @@
         </div>
     }
 
+    <!-- ⭐ VISUAL TABLE MAP -->
+    <div class="card card-pink shadow fade-in-4 mb-4">
+        <div class="card-body p-4">
+
+            <h3 class="text-pink-dark mb-3">Table Map</h3>
+
+            <div id="table-map" class="table-map-grid"></div>
+
+        </div>
+    </div>
+
+    <!-- EXISTING TABLE LIST -->
     <div class="card card-pink shadow fade-in-4">
         <div class="card-body p-4">
 
@@ -86,22 +98,22 @@
                                 <div class="action-buttons">
 
                                     <a class="btn-secondary btn-sm"
-                                           asp-page="Details"
-                                           asp-route-id="@item.TableId">
+                                       asp-page="Details"
+                                       asp-route-id="@item.TableId">
                                         Details
                                     </a>
 
                                     @if (isManager || isHost)
                                     {
                                         <a class="btn-primary btn-sm"
-                                               asp-page="Edit"
-                                               asp-route-id="@item.TableId">
+                                           asp-page="Edit"
+                                           asp-route-id="@item.TableId">
                                             Edit
                                         </a>
 
                                         <a class="btn-danger-pink btn-sm"
-                                               asp-page="Delete"
-                                               asp-route-id="@item.TableId">
+                                           asp-page="Delete"
+                                           asp-route-id="@item.TableId">
                                             Delete
                                         </a>
                                     }
@@ -109,8 +121,8 @@
                                     @if (item.CurrentPartyId != null)
                                     {
                                         <a class="btn-danger-pink btn-sm"
-                                               asp-page="Clear"
-                                               asp-route-id="@item.TableId">
+                                           asp-page="Clear"
+                                           asp-route-id="@item.TableId">
                                             Clear
                                         </a>
                                     }
@@ -126,3 +138,87 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tables = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.RestaurantTables));
+
+            const map = document.getElementById("table-map");
+
+            tables.forEach(t => {
+
+                // Determine color class
+                let statusClass = "table-inactive";
+
+                if (t.IsActive === true) {
+                    if (t.Status === "Available") statusClass = "table-available";
+                    else if (t.Status === "Occupied") statusClass = "table-occupied";
+                    else if (t.Status === "Reserved") statusClass = "table-reserved";
+                }
+
+                // Build clickable card
+                const div = document.createElement("div");
+                div.className = `table-card ${statusClass}`;
+                div.style.cursor = "pointer";
+
+                // Clean URL format
+                div.onclick = () => {
+                    window.location.href = `/RestaurantTables/Details/${t.TableId}`;
+                };
+
+                div.innerHTML = `
+                    <div style="font-size: 1.4rem;">Table ${t.TableNumber}</div>
+                    <div style="font-size: 0.9rem;">Seats: ${t.SeatCapacity}</div>
+                    <div style="font-size: 0.9rem;">${t.Status}</div>
+                    ${t.CurrentParty ? `<div style="font-size: 0.8rem;">${t.CurrentParty.PartyName} (${t.CurrentParty.PartySize})</div>` : ""}
+                `;
+
+                map.appendChild(div);
+            });
+        });
+    </script>
+}
+
+<style>
+    .table-map-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .table-card {
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .table-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    /* Status Colors */
+    .table-available {
+        background-color: #4CAF50;
+        animation: glow 1.5s infinite ease-in-out;
+    }
+
+    .table-occupied { background-color: #E91E63; }
+    .table-reserved { background-color: #FFC107; }
+    .table-inactive { background-color: #9E9E9E; }
+
+    /* Glow animation for available tables */
+    @@keyframes glow {
+        0% { box-shadow: 0 0 8px rgba(76, 175, 80, 0.4); }
+        50% { box-shadow: 0 0 16px rgba(76, 175, 80, 0.8); }
+        100% { box-shadow: 0 0 8px rgba(76, 175, 80, 0.4); }
+    }
+</style>

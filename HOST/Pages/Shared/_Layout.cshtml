@@ -48,9 +48,7 @@
                     }
                     @if (User.IsInRole("Manager"))
                     {
-                        <li>
-                            <a asp-page="/CurriculumPages/UploadPdf">Upload PDF</a>
-                        </li>
+                      
                     }
 
 
@@ -72,7 +70,8 @@
                     {
                         <!-- SEATING DROPDOWN -->
                         <li class="has-dropdown">
-                            <a href="#">Seating</a>
+
+                                <a asp-page="/QueueEntries/Index">Queue</a>
                             <ul class="dropdown">
                                 <li><a asp-page="/QueueEntries/Index">Queue</a></li>
                                 <li><a asp-page="/RestaurantTables/Index">Tables</a></li>
@@ -82,7 +81,7 @@
 
                         <!-- EMPLOYEES DROPDOWN -->
                         <li class="has-dropdown">
-                            <a href="#">Employees</a>
+                            <a asp-page="/Employees/Index">Employees</a>
                             <ul class="dropdown">
                                 <li><a asp-page="/Employees/Index">Employees</a></li>
                                 <li><a asp-page="/ManagerAccounts/Index">Managers</a></li>
@@ -91,10 +90,13 @@
 
                         <!-- MANAGEMENT DROPDOWN -->
                         <li class="has-dropdown">
-                            <a href="#">Management</a>
+                            <a asp-page="/AdminInsight/Insight">Management</a>
                             <ul class="dropdown">
                                 <li><a asp-page="/errorLog">Logs</a></li>
                                 <li><a asp-page="/AdminInsight/Insight">Insight</a></li>
+                                <li>
+                                    <a asp-page="/CurriculumPages/UploadPdf">Upload PDF</a>
+                                </li>
                             </ul>
                         </li>
                     }
@@ -105,7 +107,7 @@
                     @if (User.IsInRole("Host") || User.IsInRole("Server"))
                     {
                         <li class="has-dropdown">
-                            <a href="#">Seating</a>
+                            <a asp-page="/Parties/Index">Parties</a>
                             <ul class="dropdown">
                                 <li><a asp-page="/QueueEntries/Index">Queue</a></li>
                                 <li><a asp-page="/RestaurantTables/Index">Tables</a></li>

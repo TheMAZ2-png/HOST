@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text;
 using System.Text.Json;
-using UglyToad.PdfPig;
 using Microsoft.AspNetCore.Authorization;
-
-
 
 namespace HOST.Pages.CurriculumPages
 {
@@ -28,7 +25,6 @@ namespace HOST.Pages.CurriculumPages
         [BindProperty]
         public IFormFile? PdfFile { get; set; }
 
-        // This is now the correct property name for the menu
         [BindProperty]
         public string MenuName { get; set; } = string.Empty;
 
@@ -37,13 +33,9 @@ namespace HOST.Pages.CurriculumPages
         public string? SavedMessage { get; set; }
         public bool IsProcessing { get; set; }
 
-        public void OnGet()
-        {
-        }
+        public void OnGet() { }
 
-        /// <summary>
-        /// Step 1: Upload PDF, extract text, send to AI with the user-provided menu name.
-        /// </summary>
+        // STEP 1 — Upload + Extract + AI Digest
         public async Task<IActionResult> OnPostUploadAsync()
         {
             IsProcessing = true;
@@ -68,10 +60,10 @@ namespace HOST.Pages.CurriculumPages
                     return Page();
                 }
 
-                // Extract text from PDF
+                // Extract text
                 var sb = new StringBuilder();
                 using (var stream = PdfFile.OpenReadStream())
-                using (var pdfDocument = UglyToad.PdfPig.PdfDocument.Open(stream))
+                using (var pdfDocument = UglyToad.PdfPig.PdfDocument.Open(stream)) // ⭐ FIXED
                 {
                     foreach (var page in pdfDocument.GetPages())
                     {
@@ -83,14 +75,14 @@ namespace HOST.Pages.CurriculumPages
 
                 if (string.IsNullOrWhiteSpace(ExtractedText))
                 {
-                    ModelState.AddModelError(string.Empty, "Could not extract text from the PDF. It may be image-based.");
+                    ModelState.AddModelError(string.Empty, "Could not extract text from the PDF.");
                     return Page();
                 }
 
-                // Send to Gemini AI with the user-provided menu name
+                // Send to AI
                 AiJsonResult = await _ai.DigestPdfToMenuJsonAsync(ExtractedText, MenuName);
 
-                // Store in TempData for the Save step
+                // Store for Save step
                 TempData["ExtractedText"] = ExtractedText;
                 TempData["AiJsonResult"] = AiJsonResult;
                 TempData["FileName"] = PdfFile.FileName;
@@ -110,53 +102,68 @@ namespace HOST.Pages.CurriculumPages
             }
         }
 
-        /// <summary>
-        /// Step 2: Save the AI-digested JSON to MongoDB.
-        /// </summary>
+        // STEP 2 — Save to MongoDB
         public async Task<IActionResult> OnPostSaveAsync()
         {
             try
             {
-                var extractedText = TempData["ExtractedText"]?.ToString() ?? string.Empty;
-                var aiJsonResult = TempData["AiJsonResult"]?.ToString() ?? string.Empty;
+                var extractedText = TempData["ExtractedText"]?.ToString() ?? "";
+                var aiJsonResult = TempData["AiJsonResult"]?.ToString() ?? "";
                 var fileName = TempData["FileName"]?.ToString() ?? "unknown.pdf";
-                var menuName = TempData["MenuName"]?.ToString() ?? string.Empty;
+                var menuName = TempData["MenuName"]?.ToString() ?? "";
 
                 if (string.IsNullOrWhiteSpace(aiJsonResult))
                 {
-                    ModelState.AddModelError(string.Empty, "No AI result to save. Please upload a PDF first.");
+                    ModelState.AddModelError(string.Empty, "No AI result to save.");
                     return Page();
                 }
 
-                // Try to parse the AI JSON into a curriculum (menu) object
                 curriculum? parsedCurriculum = null;
+
                 try
                 {
-                    // Clean AI JSON (remove backticks and code fences)
                     var cleanedJson = aiJsonResult
                         .Replace("```json", "")
                         .Replace("```", "")
                         .Trim();
 
-                    parsedCurriculum = JsonSerializer.Deserialize<curriculum>(cleanedJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+                    // Try full curriculum first
+                    parsedCurriculum = JsonSerializer.Deserialize<curriculum>(cleanedJson,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-
-                    // Ensure the user-provided menu name is used
-                    if (parsedCurriculum != null && !string.IsNullOrWhiteSpace(menuName))
+                    // If null, try flat list → convert to curriculum
+                    if (parsedCurriculum == null)
                     {
-                        parsedCurriculum.menu_name = menuName;
+                        var flatItems = JsonSerializer.Deserialize<List<MenuItem>>(cleanedJson,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                        if (flatItems != null)
+                        {
+                            parsedCurriculum = new curriculum
+                            {
+                                Id = "SPECIALS_MENU",
+                                menu_name = menuName,
+                                date = "",
+                                chef = "",
+                                categories = flatItems
+                                    .GroupBy(i => i.category)
+                                    .Select(g => new MenuCategory
+                                    {
+                                        category_name = g.Key,
+                                        items = g.ToList()
+                                    })
+                                    .ToList()
+                            };
+                        }
                     }
                 }
-                catch (JsonException ex)
+                catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "AI result could not be parsed as a menu object. Saving raw JSON only.");
+                    _logger.LogWarning(ex, "AI result could not be parsed.");
                 }
 
-                // Save the PDF document record
-                var pdfDoc = new Models.PdfDocument
+                // Save PDF record
+                var pdfDoc = new HOST.Models.PdfDocument
                 {
                     FileName = fileName,
                     UploadedAt = DateTime.UtcNow,
@@ -166,7 +173,7 @@ namespace HOST.Pages.CurriculumPages
                 };
                 await _mongo.CreatePdfDocumentAsync(pdfDoc);
 
-                // If parsed successfully, also save to the menu/curriculum collection
+                // Save curriculum if parsed
                 if (parsedCurriculum != null)
                 {
                     parsedCurriculum.Id = "SPECIALS_MENU";
