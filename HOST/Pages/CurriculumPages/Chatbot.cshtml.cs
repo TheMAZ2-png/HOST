@@ -30,11 +30,13 @@ namespace HOST.Pages.CurriculumPages
 
         public async Task OnGetAsync()
         {
+            HandleUserSwitch();
             LoadChatHistory();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            HandleUserSwitch();
             LoadChatHistory();
 
             if (!string.IsNullOrWhiteSpace(UserQuestion))
@@ -48,7 +50,6 @@ namespace HOST.Pages.CurriculumPages
 
                 var lower = UserQuestion.ToLower();
 
-                //  Decide if this is a menu-related question
                 bool isMenuQuestion =
                     lower.Contains("menu") ||
                     lower.Contains("specials") ||
@@ -76,10 +77,8 @@ namespace HOST.Pages.CurriculumPages
 
                 if (isMenuQuestion)
                 {
-                    //  Load menu from MongoDB
                     var menus = await _mongo.GetAllAsync();
 
-                    // Flatten categories → items
                     var menuItems = menus
                         .Where(m => m.categories != null)
                         .SelectMany(m => m.categories)
@@ -87,16 +86,13 @@ namespace HOST.Pages.CurriculumPages
                         .SelectMany(c => c.items)
                         .ToList();
 
-                    // Let the AI reason over the full menu + question
                     response = await _ai.SendPromptWithMenuListAsync(menuItems, UserQuestion);
                 }
                 else
                 {
-                    // Non-menu question → general chat
                     response = await _ai.SendGeneralPromptAsync(UserQuestion);
                 }
 
-                // Add AI response
                 ChatHistory.Add(new ChatMessage
                 {
                     Role = "ai",
@@ -107,6 +103,18 @@ namespace HOST.Pages.CurriculumPages
             }
 
             return Page();
+        }
+
+        private void HandleUserSwitch()
+        {
+            var currentUser = User.Identity?.Name ?? "Guest";
+            var lastUser = HttpContext.Session.GetString("LastChatUser");
+
+            if (lastUser != currentUser)
+            {
+                HttpContext.Session.Remove("ChatHistory");
+                HttpContext.Session.SetString("LastChatUser", currentUser);
+            }
         }
 
         private void LoadChatHistory()
