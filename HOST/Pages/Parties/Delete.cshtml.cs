@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HOST.Pages.Parties
 {
-    [Authorize(Roles = "Manager")]
+    [Authorize] // ⭐ Allow all authenticated users; we enforce permissions manually
     public class DeleteModel : PageModel
     {
         private readonly ApplicationDbContext _context;
@@ -32,6 +33,17 @@ namespace HOST.Pages.Parties
             if (Party == null)
                 return NotFound();
 
+            // ⭐ Permission check for GET
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isManager = User.IsInRole("Manager");
+            bool isHost = User.IsInRole("Host");
+            bool isServer = User.IsInRole("Server");
+            bool isStaff = isManager || isHost || isServer;
+            bool isOwner = Party.OwnerId == userId;
+
+            if (!isStaff && !isOwner)
+                return Forbid();
+
             return Page();
         }
 
@@ -42,6 +54,17 @@ namespace HOST.Pages.Parties
 
             if (party == null)
                 return NotFound();
+
+            // ⭐ Permission check for POST
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            bool isManager = User.IsInRole("Manager");
+            bool isHost = User.IsInRole("Host");
+            bool isServer = User.IsInRole("Server");
+            bool isStaff = isManager || isHost || isServer;
+            bool isOwner = party.OwnerId == userId;
+
+            if (!isStaff && !isOwner)
+                return Forbid();
 
             // Already deleted?
             if (party.IsDeleted)
@@ -54,7 +77,7 @@ namespace HOST.Pages.Parties
                 return RedirectToPage("./Index");
             }
 
-            // ⭐ Soft delete instead of hard delete
+            // ⭐ Soft delete
             party.IsDeleted = true;
             party.DeletedAt = DateTime.UtcNow;
 

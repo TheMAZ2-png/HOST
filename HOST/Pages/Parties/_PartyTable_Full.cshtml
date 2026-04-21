@@ -29,6 +29,8 @@
     <tbody>
         @foreach (var item in Model)
         {
+            bool isOwner = item.OwnerId == userId;
+
             <tr>
                 <td>@counter</td>
                 @{
@@ -73,19 +75,28 @@
                 <td class="text-end">
                     <div class="action-buttons">
 
-                        <a class="btn-secondary btn-sm"
-                               asp-page="Details"
-                               asp-route-id="@item.PartyId">
-                            Details
-                        </a>
+                        <!-- DETAILS: Staff OR Owner -->
+                        @if (isStaff || isOwner)
+                        {
+                            <a class="btn-secondary btn-sm"
+                                   asp-page="Details"
+                                   asp-route-id="@item.PartyId">
+                                Details
+                            </a>
+                        }
 
-                        <a class="btn-primary btn-sm"
-                               asp-page="Edit"
-                               asp-route-id="@item.PartyId">
-                            Edit
-                        </a>
+                        <!-- EDIT: Staff OR Owner -->
+                        @if (isStaff || isOwner)
+                        {
+                            <a class="btn-primary btn-sm"
+                                   asp-page="Edit"
+                                   asp-route-id="@item.PartyId">
+                                Edit
+                            </a>
+                        }
 
-                        @if (isManager)
+                        <!-- DELETE: Manager OR Owner -->
+                        @if (isManager || isOwner)
                         {
                             <a class="btn-danger-pink btn-sm"
                                    asp-page="Delete"

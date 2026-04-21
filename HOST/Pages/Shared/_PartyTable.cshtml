@@ -25,7 +25,7 @@
 
 
             <th>Wait Time</th>
-            <th>Est. Wait</th>
+           
         </tr>
     </thead>
 
@@ -63,24 +63,7 @@
                     }
                 </td>
 
-                <!-- ESTIMATED WAIT -->
-                <td>
-                    @if (item.Status == "Waiting")
-                    {
-                        @(item.EstimatedWaitMinutes <= 5
-                            ? "Seating soon"
-                            : $"{item.EstimatedWaitMinutes} min")
-                    }
-                    else if ((item.Status == "Seated" || item.Status == "Completed")
-                             && item.EstimatedWaitAtJoin.HasValue)
-                    {
-                        @($"{item.EstimatedWaitAtJoin} min")
-                    }
-                    else
-                    {
-                        <text>—</text>
-                    }
-                </td>
+                
             </tr>
         }
     </tbody>
